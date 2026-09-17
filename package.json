@@ -1,1 +1,17 @@
-{"name":"phoenix-tours","version":"1.0.0","private":true,"scripts":{"build":"node -e \"console.log('Phoenix Tours static site ready')\""},"engines":{"node":">=20"}}
+{
+  "name": "phoenix-tours",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js",
+    "build": "node -e \"console.log('Phoenix Tours static site ready')\""
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}

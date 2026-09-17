@@ -1,0 +1,6 @@
+{
+  "name": "Phoenix Tours",
+  "description": "Book Dubai desert safari, quad bike, dune buggy, Dubai city tour and Abu Dhabi tour experiences with Phoenix Tours. Clear AED rates and WhatsApp confirmation.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
