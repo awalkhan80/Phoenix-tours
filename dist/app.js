@@ -370,6 +370,15 @@ function populatePackages(){
   updateBookingUI();
 }
 
+function isRideExperience(tourId){
+  const t=TOURS[tourId];
+  if(!t) return false;
+  const cat=(t.category||'').toLowerCase();
+  const id=(t.id||'').toLowerCase();
+  const name=(t.name||'').toLowerCase();
+  return cat==='quad'||cat==='buggy'||id.includes('quad')||id.includes('buggy')||id.includes('canam')||name.includes('quad')||name.includes('buggy');
+}
+
 function updateBookingUI(){
   if(!tourSelect||!qtyLabel||!price||!pricingNote) return;
   const t=TOURS[tourSelect.value],p=currentPackage();
@@ -381,9 +390,18 @@ function updateBookingUI(){
   if(unit==='vehicle'&&qty) qty.value=1;
   const total=Number(p.price||0)*Math.max(1,Number(qty?.value)||1);
   price.textContent=`AED ${total.toLocaleString()}`;
-  pricingNote.textContent=`${p.name} · ${unitText(p.unit)}`;
+  pricingNote.innerHTML=`${esc(p.name)} · AED ${Number(p.price||0).toLocaleString()} ${unitText(p.unit)}<br><span style="color:#0f766e;font-weight:700;">Collection Amount from Guest: AED ${total.toLocaleString()} (Pay on arrival)</span>`;
   if(pickupField) pickupField.style.display=t.meetingPoint?'none':'';
   if(meetingPointNote) meetingPointNote.textContent=t.meetingPoint?'This experience is direct to the meeting point. Phoenix Tours will confirm the exact GPS pin and arrival instructions on WhatsApp.':'Pickup details will be confirmed according to your selected package.';
+
+  // Show 6:00 AM to 17:00 time buttons for quad bike and buggy booking only
+  const isRide = isRideExperience(tourSelect.value);
+  const rideWrap = $('#rideTimeWrapper');
+  const genWrap = $('#generalTimeWrapper');
+  if(rideWrap && genWrap){
+    rideWrap.classList.toggle('hidden', !isRide);
+    genWrap.classList.toggle('hidden', isRide);
+  }
 }
 
 function setStep(n){
@@ -441,6 +459,15 @@ document.addEventListener('click',e=>{
   if(card) openBooking(card.dataset.bookTour, card.dataset.bookPackage);
   const close=e.target.closest('[data-close-booking]');
   if(close) closeBooking();
+
+  // Ride time slot selection (6:00 AM to 17:00)
+  const slotBtn = e.target.closest('.ride-time-btn[data-modal-slot]');
+  if(slotBtn){
+    $$('.ride-time-btn[data-modal-slot]').forEach(b => b.classList.remove('active'));
+    slotBtn.classList.add('active');
+    const slotInput = $('#modalSelectedRideSlot');
+    if(slotInput) slotInput.value = slotBtn.dataset.modalSlot;
+  }
 });
 
 const date=$('#bookingDate');
@@ -461,6 +488,9 @@ $('#prevStep')?.addEventListener('click',()=>setStep(step-1));
 
 function getBooking(){
   const t=TOURS[tourSelect.value],p=currentPackage(),q=Math.max(1,Number(qty.value)||1);
+  const isRide = isRideExperience(tourSelect.value);
+  const timeVal = isRide ? ($('#modalSelectedRideSlot')?.value || '09:00 AM') : ($('#bookingTime')?.value || 'Flexible');
+  const totalVal = Number(p.price||0)*q;
   return{
     id:`PX-${Date.now().toString().slice(-8)}`,
     createdAt:new Date().toISOString(),
@@ -469,9 +499,11 @@ function getBooking(){
     package:p.name,
     unit:p.unit,
     quantity:q,
-    total:Number(p.price||0)*q,
+    packagePrice:Number(p.price||0),
+    total:totalVal,
+    collectionAmount:totalVal,
     date:date?.value||'',
-    time:$('#bookingTime')?.value||'Flexible',
+    time:timeVal,
     pickup:t.meetingPoint?'Direct meeting point':pickup?.value.trim()||'To be confirmed',
     name:$('#bookingName')?.value.trim()||'',
     phone:$('#bookingPhone')?.value.trim()||'',
@@ -485,16 +517,28 @@ function renderReview(){
   const b=getBooking();
   const rev=$('#bookingReview');
   if(!rev) return;
-  rev.innerHTML=`<dl>
-    <div><dt>Experience</dt><dd>${esc(b.tour)}</dd></div>
-    <div><dt>Package</dt><dd>${esc(b.package)}</dd></div>
-    <div><dt>Date</dt><dd>${esc(b.date||'—')} · ${esc(b.time)}</dd></div>
-    <div><dt>${b.unit==='person'?'Guests':b.unit==='bike'?'Bikes':b.unit==='buggy'?'Buggies':'Vehicles'}</dt><dd>${b.quantity}</dd></div>
-    <div><dt>Meeting / Pickup</dt><dd>${esc(b.pickup)}</dd></div>
-    <div><dt>Estimated total</dt><dd>AED ${b.total.toLocaleString()}</dd></div>
-    <div><dt>Customer</dt><dd>${esc(b.name||'—')}</dd></div>
-    <div><dt>Phone / WhatsApp</dt><dd>${esc(b.phone||'—')}</dd></div>
-  </dl>`;
+  rev.innerHTML=`
+    <div class="sands-collection-card" style="margin-bottom:14px;">
+      <span class="sands-collection-badge">PAY ON ARRIVAL</span>
+      <div class="sands-collection-header" style="margin-top:6px;">
+        <span style="font-size:14px;color:#063c49;">Collection Amount from Guest:</span>
+        <strong style="font-size:22px;color:#0f766e;">AED ${b.total.toLocaleString()}</strong>
+      </div>
+      <p class="sands-collection-hint" style="margin-top:6px;">
+        <strong>Pay on arrival:</strong> Collect this amount from the guest upon arrival at the base camp or pickup. Cash and card accepted.
+      </p>
+    </div>
+    <dl>
+      <div><dt>Experience</dt><dd>${esc(b.tour)}</dd></div>
+      <div><dt>Package</dt><dd>${esc(b.package)}</dd></div>
+      <div><dt>Date & Time Slot</dt><dd>${esc(b.date||'—')} · ${esc(b.time)}</dd></div>
+      <div><dt>${b.unit==='person'?'Guests':b.unit==='bike'?'Bikes':b.unit==='buggy'?'Buggies':'Vehicles'}</dt><dd>${b.quantity}</dd></div>
+      <div><dt>Meeting / Pickup</dt><dd>${esc(b.pickup)}</dd></div>
+      <div><dt>Total Pricing</dt><dd>AED ${b.total.toLocaleString()}</dd></div>
+      <div style="font-weight:700;"><dt style="color:#0f766e;">Collection Amount from Guest</dt><dd style="color:#0f766e;font-weight:800;">AED ${b.total.toLocaleString()} (Pay on arrival)</dd></div>
+      <div><dt>Customer</dt><dd>${esc(b.name||'—')}</dd></div>
+      <div><dt>Phone / WhatsApp</dt><dd>${esc(b.phone||'—')}</dd></div>
+    </dl>`;
 }
 
 form?.addEventListener('submit',e=>{
@@ -503,7 +547,21 @@ form?.addEventListener('submit',e=>{
   const b=getBooking(),saved=JSON.parse(localStorage.getItem('phoenixBookings')||'[]');
   saved.unshift(b);
   localStorage.setItem('phoenixBookings',JSON.stringify(saved.slice(0,200)));
-  const msg=`Hello Phoenix Tours! I would like to request a booking.%0A%0ABooking ID: ${encodeURIComponent(b.id)}%0AExperience: ${encodeURIComponent(b.tour)}%0APackage: ${encodeURIComponent(b.package)}%0A${encodeURIComponent(b.unit==='person'?'Guests':b.unit==='bike'?'Bikes':b.unit==='buggy'?'Buggies':'Vehicles')}: ${b.quantity}%0ADate: ${encodeURIComponent(b.date)}%0ATime: ${encodeURIComponent(b.time)}%0ALocation: ${encodeURIComponent(b.pickup)}%0AEstimated Total: AED ${b.total}%0A%0AName: ${encodeURIComponent(b.name)}%0APhone: ${encodeURIComponent(b.phone)}%0AEmail: ${encodeURIComponent(b.email||'Not provided')}%0ANotes: ${encodeURIComponent(b.notes||'None')}%0A%0APlease confirm availability, final price, inclusions and direct meeting point details.`;
+  const msg=`Hello Phoenix Tours! I would like to request a booking.%0A%0A`+
+    `Booking ID: ${encodeURIComponent(b.id)}%0A`+
+    `Experience: ${encodeURIComponent(b.tour)}%0A`+
+    `Package: ${encodeURIComponent(b.package)}%0A`+
+    `${encodeURIComponent(b.unit==='person'?'Guests':b.unit==='bike'?'Bikes':b.unit==='buggy'?'Buggies':'Vehicles')}: ${b.quantity}%0A`+
+    `Date: ${encodeURIComponent(b.date)}%0A`+
+    `Time: ${encodeURIComponent(b.time)}%0A`+
+    `Location: ${encodeURIComponent(b.pickup)}%0A`+
+    `Total Pricing: AED ${b.total.toLocaleString()}%0A`+
+    `💰 Collection Amount from Guest: AED ${b.total.toLocaleString()} (Pay on arrival)%0A%0A`+
+    `Customer: ${encodeURIComponent(b.name)}%0A`+
+    `Phone: ${encodeURIComponent(b.phone)}%0A`+
+    `Email: ${encodeURIComponent(b.email||'Not provided')}%0A`+
+    `Notes: ${encodeURIComponent(b.notes||'None')}%0A%0A`+
+    `Please confirm availability, inclusions and direct coordinates.`;
   window.open(`https://wa.me/971561505270?text=${msg}`,'_blank','noopener');
   closeBooking();
   form.reset();

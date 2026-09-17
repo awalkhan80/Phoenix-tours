@@ -30,23 +30,29 @@ app.get('/book', (req, res) => {
 // API endpoint for booking submissions
 app.post('/api/book', (req, res) => {
   try {
-    const { rideId, date, slotId, duration, name, email, phone, riders, notes } = req.body || {};
+    const { rideId, rideName, date, slotId, duration, rate, name, email, phone, riders, notes, total, collectionAmount } = req.body || {};
     if (!name || !phone) {
       return res.status(400).json({ error: 'Name and phone number are required.' });
     }
     const confirmationCode = `PX-${Math.floor(10000000 + Math.random() * 90000000)}`;
+    const calcTotal = Number(total) || (Number(rate || 150) * Math.max(1, Number(riders) || 1));
     const newBooking = {
       id: confirmationCode,
       confirmationCode,
       createdAt: new Date().toISOString(),
       rideId: rideId || 'quad-bike',
+      rideName: rideName || (rideId === 'buggy' ? 'Dune Buggy' : 'Quad Bike'),
       date: date || '',
       slotId: slotId || '',
       duration: duration || '30 min',
+      rate: Number(rate) || 150,
       name,
       email: email || '',
       phone,
       riders: Number(riders) || 1,
+      total: calcTotal,
+      collectionAmount: Number(collectionAmount) || calcTotal,
+      paymentStatus: 'Pay on Arrival',
       notes: notes || '',
       status: 'Confirmed'
     };

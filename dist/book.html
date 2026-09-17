@@ -85,10 +85,11 @@
               <legend class="sands-form-legend">Available time slots</legend>
               <div id="slotsNotice" style="font-size:13px;color:var(--sands-ink-soft);margin-bottom:12px;">Select an available slot to continue.</div>
 
-              <!-- MORNING -->
+              <!-- MORNING (6:00 AM – 11:00 AM) -->
               <div class="sands-period-group">
-                <div class="sands-period-name">Morning</div>
+                <div class="sands-period-name">Morning (6:00 AM – 11:00 AM)</div>
                 <div class="sands-period-buttons">
+                  <button type="button" class="sands-slot-btn" data-slot="06:00 AM">06:00 AM</button>
                   <button type="button" class="sands-slot-btn" data-slot="07:00 AM">07:00 AM</button>
                   <button type="button" class="sands-slot-btn" data-slot="08:00 AM">08:00 AM</button>
                   <button type="button" class="sands-slot-btn" data-slot="09:00 AM">09:00 AM</button>
@@ -97,29 +98,20 @@
                 </div>
               </div>
 
-              <!-- AFTERNOON -->
+              <!-- AFTERNOON & SUNSET (12:00 PM – 17:00) -->
               <div class="sands-period-group">
-                <div class="sands-period-name">Afternoon</div>
+                <div class="sands-period-name">Afternoon & Sunset (12:00 PM – 17:00)</div>
                 <div class="sands-period-buttons">
                   <button type="button" class="sands-slot-btn" data-slot="12:00 PM">12:00 PM</button>
-                  <button type="button" class="sands-slot-btn" data-slot="01:00 PM">01:00 PM</button>
-                  <button type="button" class="sands-slot-btn" data-slot="02:00 PM">02:00 PM</button>
-                  <button type="button" class="sands-slot-btn" data-slot="03:00 PM">03:00 PM</button>
-                  <button type="button" class="sands-slot-btn" data-slot="04:00 PM">04:00 PM</button>
+                  <button type="button" class="sands-slot-btn" data-slot="01:00 PM (13:00)">01:00 PM (13:00)</button>
+                  <button type="button" class="sands-slot-btn" data-slot="02:00 PM (14:00)">02:00 PM (14:00)</button>
+                  <button type="button" class="sands-slot-btn" data-slot="03:00 PM (15:00)">03:00 PM (15:00)</button>
+                  <button type="button" class="sands-slot-btn" data-slot="04:00 PM (16:00)">04:00 PM (16:00)</button>
+                  <button type="button" class="sands-slot-btn" data-slot="05:00 PM (17:00)">05:00 PM (17:00)</button>
                 </div>
               </div>
 
-              <!-- EVENING -->
-              <div class="sands-period-group">
-                <div class="sands-period-name">Evening</div>
-                <div class="sands-period-buttons">
-                  <button type="button" class="sands-slot-btn" data-slot="05:00 PM">05:00 PM</button>
-                  <button type="button" class="sands-slot-btn" data-slot="06:00 PM">06:00 PM</button>
-                  <button type="button" class="sands-slot-btn" data-slot="07:00 PM">07:00 PM</button>
-                </div>
-              </div>
-
-              <div id="slotError" class="sands-slot-error hidden">Please select a time slot above.</div>
+              <div id="slotError" class="sands-slot-error hidden">Please select a time slot above (6:00 AM to 17:00).</div>
             </fieldset>
           </div>
 
@@ -151,14 +143,25 @@
               </div>
             </div>
 
-            <!-- ORDER SUMMARY -->
+            <!-- ORDER SUMMARY & PRICING -->
             <div class="sands-order-summary">
               <p class="sands-summary-line" id="summaryRideLine">Quad Bike · 30 min (AED 150 per vehicle)</p>
               <p class="sands-summary-line">
-                <span>Calculated Total: </span>
+                <span>Total Pricing: </span>
                 <strong id="summaryTotalLine">AED 150</strong>
-                <span style="font-size:12px;color:rgba(26,20,16,0.6);margin-left:6px;">(Pay on Arrival)</span>
               </p>
+
+              <!-- COLLECTION AMOUNT FROM GUEST HIGHLIGHT -->
+              <div class="sands-collection-card">
+                <span class="sands-collection-badge">COLLECTION FROM GUEST</span>
+                <div class="sands-collection-header">
+                  <span>Collection Amount from Guest:</span>
+                  <strong id="summaryCollectionAmount">AED 150</strong>
+                </div>
+                <p class="sands-collection-hint">
+                  <strong>Pay on arrival:</strong> Collect this amount from the guest at camp. Accepted: Cash (AED/USD/EUR) or Credit/Debit Card.
+                </p>
+              </div>
             </div>
 
             <!-- TERMS CHECKBOX -->
@@ -186,6 +189,16 @@
         <h2 id="confHeading">You’re on the dunes!</h2>
         <p class="sands-confirmed-lead" id="confLead">Your reservation has been recorded. Our team has received your slot details and coordinates are ready.</p>
 
+        <!-- COLLECTION AMOUNT FROM GUEST BANNER AT END OF BOOKING -->
+        <div class="sands-confirmed-collection-banner">
+          <span class="conf-coll-badge">PAYMENT ON ARRIVAL</span>
+          <div class="conf-coll-amount" id="confCollectionAmountBanner">AED 250</div>
+          <div class="conf-coll-text">
+            <strong>Collection Amount from Guest: <span id="confCollectionAmountText">AED 250</span></strong><br>
+            Please collect this exact amount from the guest upon arrival at the desert base camp reception. Cash and major cards accepted.
+          </div>
+        </div>
+
         <dl class="sands-details-grid">
           <div class="sands-detail-item">
             <dt>Confirmation Code</dt>
@@ -207,9 +220,9 @@
             <dt>Guest Name & Phone</dt>
             <dd id="confGuest">Alex · +971 50 123 4567</dd>
           </div>
-          <div class="sands-detail-item">
-            <dt>Total (Pay on Arrival)</dt>
-            <dd id="confTotal">AED 250</dd>
+          <div class="sands-detail-item" style="border:1.5px solid var(--sands-oasis);background:rgba(15,118,110,0.06);border-radius:4px;padding:12px;">
+            <dt style="color:var(--sands-oasis);font-weight:700;">Collection Amount from Guest</dt>
+            <dd id="confTotal" style="color:var(--sands-oasis);font-size:18px;font-weight:800;">AED 250</dd>
           </div>
         </dl>
 
@@ -282,6 +295,7 @@
       var vehiclesLabel = document.getElementById('vehiclesLabel');
       var summaryRideLine = document.getElementById('summaryRideLine');
       var summaryTotalLine = document.getElementById('summaryTotalLine');
+      var summaryCollectionAmount = document.getElementById('summaryCollectionAmount');
       var slotButtons = document.querySelectorAll('.sands-slot-btn[data-slot]');
       var slotsNotice = document.getElementById('slotsNotice');
       var slotError = document.getElementById('slotError');
@@ -325,6 +339,9 @@
 
         summaryRideLine.textContent = rName + ' · ' + (dur ? dur.text : '') + ' (AED ' + (dur ? dur.rate.toLocaleString() : '') + ' per vehicle)';
         summaryTotalLine.textContent = 'AED ' + total.toLocaleString();
+        if (summaryCollectionAmount) {
+          summaryCollectionAmount.textContent = 'AED ' + total.toLocaleString();
+        }
       }
 
       // Ride button switcher
@@ -457,10 +474,23 @@
           document.getElementById('confDateTime').textContent = date + ' · ' + selectedSlot;
           document.getElementById('confDuration').textContent = (dur ? dur.text : '30 min') + ' · ' + vehicles + ' ' + (vehicles === 1 ? 'vehicle' : 'vehicles');
           document.getElementById('confGuest').textContent = name + ' (' + phone + ')';
-          document.getElementById('confTotal').textContent = 'AED ' + total.toLocaleString() + ' (Pay on Arrival)';
+          
+          var formattedTotal = 'AED ' + total.toLocaleString();
+          var confBanner = document.getElementById('confCollectionAmountBanner');
+          var confText = document.getElementById('confCollectionAmountText');
+          if (confBanner) confBanner.textContent = formattedTotal;
+          if (confText) confText.textContent = formattedTotal;
+          document.getElementById('confTotal').textContent = formattedTotal;
 
-          // WhatsApp link with booking reference
-          var waMsg = 'Hello Phoenix Tours! I have just booked ' + rideName + ' for ' + date + ' at ' + selectedSlot + ' (Code: ' + code + '). Please send me the desert camp location pin.';
+          // WhatsApp link with booking reference & explicit collection amount from guest
+          var waMsg = 'Hello Phoenix Tours! I have reserved ' + rideName + '.\n\n' +
+            '• Booking Code: ' + code + '\n' +
+            '• Date & Time: ' + date + ' at ' + selectedSlot + '\n' +
+            '• Duration & Vehicles: ' + (dur ? dur.text : '30 min') + ' (' + vehicles + ' ' + (vehicles === 1 ? 'vehicle' : 'vehicles') + ')\n' +
+            '• Total Pricing: ' + formattedTotal + '\n' +
+            '• 💰 Collection Amount from Guest: ' + formattedTotal + ' (Pay on arrival at camp)\n' +
+            '• Guest: ' + name + ' (' + phone + ')\n\n' +
+            'Please send me the desert base camp GPS location pin.';
           var waUrl = 'https://wa.me/971561505270?text=' + encodeURIComponent(waMsg);
           document.getElementById('confWhatsAppBtn').href = waUrl;
 
