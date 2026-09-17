@@ -829,6 +829,9 @@ window.reloadAdminDashboard=function(){bookings=JSON.parse(localStorage.getItem(
     showCmsToast('Homepage CMS saved successfully! All updates are live on the homepage.');
   };
 
+  const bottomSave = $('#cmsSaveBtnBottom');
+  if(bottomSave) bottomSave.onclick = () => $('#cmsSaveBtn').click();
+
   // Reset to Defaults
   $('#cmsResetBtn').onclick = () => {
     if(confirm('Reset all homepage content, texts and image overrides back to the default Phoenix Tours template?')){
