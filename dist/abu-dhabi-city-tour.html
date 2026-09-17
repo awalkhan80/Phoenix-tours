@@ -25,7 +25,8 @@
   <meta name="twitter:description" content="Chauffeur-driven private day trip to Abu Dhabi with hotel pickup across Dubai.">
   <meta name="twitter:image" content="https://phoenix-tours-barayshah.vercel.app/abudhabi.jpg">
 
-  <link rel="stylesheet" href="style.css">
+  <link rel="preload" as="image" href="/abudhabi.jpg" fetchpriority="high">
+  <link rel="stylesheet" href="/style.css">
 
   <!-- Structured Data: TouristTrip & Product -->
   <script type="application/ld+json">
@@ -174,7 +175,7 @@
       <a href="abu-dhabi-city-tour.html" style="color:var(--aqua);font-weight:800">Abu Dhabi Tour</a>
     </nav>
     <a class="header-phone" href="tel:+971561505270">+971 56 150 5270</a>
-    <a class="btn btn-primary desktop-book" href="/book">Reserve a slot</a>
+    <button type="button" class="btn btn-primary desktop-book" data-open-booking data-book-tour="abu-dhabi">Reserve a slot</button>
   </header>
 
   <!-- BREADCRUMBS -->
@@ -188,15 +189,15 @@
 
   <!-- HERO SECTION -->
   <section class="hero" style="min-height:540px;">
-    <img src="abudhabi.jpg" class="hero-image" alt="Sheikh Zayed Grand Mosque Abu Dhabi city tour from Dubai" fetchpriority="high">
+    <img src="abudhabi.jpg" class="hero-image" alt="Sheikh Zayed Grand Mosque Abu Dhabi city tour from Dubai" width="1600" height="900" fetchpriority="high" decoding="async">
     <div class="hero-overlay"></div>
     <div class="hero-content">
       <span class="eyebrow">UAE CAPITAL SIGHTSEEING · PRIVATE DAY TRIP</span>
       <h1>Abu Dhabi City Tour from Dubai</h1>
       <p>Journey from Dubai to the cultural heart of the United Arab Emirates. Experience the awe-inspiring Sheikh Zayed Grand Mosque, Emirates Palace, the stunning Corniche & Louvre Abu Dhabi in private comfort.</p>
       <div class="hero-actions">
-        <a class="btn btn-gold" href="#tour-details">View tour details</a>
-        <a class="btn btn-ghost" href="https://wa.me/971561505270?text=Hi%20Phoenix%20Tours,%20I%20would%20like%20to%20inquire%20about%20the%20Abu%20Dhabi%20City%20Tour%20from%20Dubai." target="_blank" rel="noopener">Inquire on WhatsApp</a>
+        <button type="button" class="btn btn-gold" data-open-booking data-book-tour="abu-dhabi">Book Abu Dhabi Tour Online</button>
+        <a class="btn btn-ghost" href="#tour-details">View tour details</a>
       </div>
       <div class="trust-row">
         <span>✓ Doorstep Pickup in Dubai</span>
@@ -262,7 +263,9 @@
               </div>
             </div>
 
-            <a class="btn btn-gold" style="width:100%;text-align:center;display:block;margin-top:10px;" href="https://wa.me/971561505270?text=Hi%20Phoenix%20Tours,%20I%20would%20like%20to%20book%20the%20Private%20Abu%20Dhabi%20City%20Tour%20at%20AED%20950." target="_blank" rel="noopener">Book Abu Dhabi Day Tour</a>
+            <button type="button" class="btn-package-book gold" style="width:100%;margin-top:14px;" data-open-booking data-book-tour="abu-dhabi" data-book-package="abu-dhabi-full">
+              <span>Book Abu Dhabi Day Tour · AED 950</span><span class="btn-arrow">→</span>
+            </button>
           </div>
           </div>
         </div>
@@ -363,8 +366,14 @@
             </div>
           </div>
 
-          <a class="btn btn-gold" style="width:100%;text-align:center;display:block;min-height:48px;line-height:28px;font-size:14px;margin-bottom:10px;" href="https://wa.me/971561505270?text=Hi%20Phoenix%20Tours,%20I%20would%20like%20to%20book%20the%20Abu%20Dhabi%20City%20Tour%20from%20Dubai." target="_blank" rel="noopener">Book on WhatsApp</a>
+          <button type="button" class="btn-package-book gold" style="width:100%;margin-bottom:10px;" data-open-booking data-book-tour="abu-dhabi" data-book-package="abu-dhabi-full">
+            <span>Book Experience Online</span><span class="btn-arrow">→</span>
+          </button>
           
+          <a class="btn" style="width:100%;min-height:44px;font-size:13px;background:#f0f7f5;color:var(--navy);border:1px solid #d2e7e2;border-radius:10px;text-align:center;display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:10px;text-decoration:none;" href="https://wa.me/971561505270?text=Hi%20Phoenix%20Tours,%20I%20would%20like%20to%20book%20the%20Abu%20Dhabi%20City%20Tour%20from%20Dubai." target="_blank" rel="noopener">
+            <span>Book on WhatsApp</span>
+          </a>
+
           <a class="btn btn-ghost" style="width:100%;text-align:center;display:block;min-height:44px;line-height:26px;font-size:13px;" href="tel:+971561505270">Call +971 56 150 5270</a>
 
           <div style="margin-top:20px;padding-top:16px;border-top:1px solid #e5efed;font-size:12px;color:#69868e;">
@@ -398,19 +407,19 @@
 
     <div class="category-grid" style="max-width:1200px;margin:28px auto 0;">
       <a class="category-card" href="dubai-city-tour.html">
-        <img src="dubai.jpg" alt="Dubai city sightseeing tour landmarks" loading="lazy">
+        <img src="dubai.jpg" alt="Dubai city sightseeing tour landmarks" loading="lazy" decoding="async" width="600" height="400">
         <span>Dubai City Tours</span>
       </a>
       <a class="category-card" href="desert-safari-dubai.html">
-        <img src="hero.jpg" alt="Evening Dubai Desert Safari with BBQ Dinner" loading="lazy">
+        <img src="hero.jpg" alt="Evening Dubai Desert Safari with BBQ Dinner" loading="lazy" decoding="async" width="600" height="400">
         <span>Dubai Desert Safari</span>
       </a>
       <a class="category-card" href="burj-khalifa-lake-ride.html">
-        <img src="https://images.pexels.com/photos/162031/dubai-tower-arab-khalifa-162031.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Burj Khalifa Lake Ride and Dubai Fountain Abra" loading="lazy">
+        <img src="https://images.pexels.com/photos/162031/dubai-tower-arab-khalifa-162031.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Burj Khalifa Lake Ride and Dubai Fountain Abra" loading="lazy" decoding="async" width="600" height="400">
         <span>Burj Khalifa Lake Ride</span>
       </a>
       <a class="category-card" href="quad-bike-dubai.html">
-        <img src="https://images.pexels.com/photos/36713570/pexels-photo-36713570.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Quad bike rental Dubai desert dunes" loading="lazy">
+        <img src="https://images.pexels.com/photos/36713570/pexels-photo-36713570.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Quad bike rental Dubai desert dunes" loading="lazy" decoding="async" width="600" height="400">
         <span>Quad Bike Dubai</span>
       </a>
     </div>
@@ -436,17 +445,89 @@
     <p>© 2025 Phoenix Tours. All rights reserved.</p>
   </footer>
 
-  <script>
-    var menuBtn = document.getElementById('menuBtn');
-    var mainNav = document.getElementById('mainNav');
-    if (menuBtn && mainNav) {
-      menuBtn.addEventListener('click', function() {
-        var open = mainNav.classList.toggle('open');
-        menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
-      });
-    }
-  </script>
-  <script src="tour-data.js"></script>
-  <script src="landing-cms.js"></script>
+  <!-- BOOKING MODAL -->
+  <div class="booking-modal" id="bookingModal" aria-hidden="true">
+    <div class="modal-backdrop" data-close-booking></div>
+    <section class="booking-panel" role="dialog" aria-modal="true" aria-labelledby="bookingTitle">
+      <div class="booking-top">
+        <div>
+          <span class="eyebrow dark">MULTI-STEP BOOKING</span>
+          <h2 id="bookingTitle">Plan your experience</h2>
+        </div>
+        <button class="close-btn" data-close-booking aria-label="Close booking">×</button>
+      </div>
+      <div class="progress">
+        <span class="active"></span><span></span><span></span><span></span>
+      </div>
+      <form id="bookingForm">
+        <div class="form-step active" data-step="1">
+          <h3>1. Choose your tour</h3>
+          <div class="field-grid">
+            <label>Experience<select id="bookingTour" required></select></label>
+            <label>Package<select id="bookingPackage" required></select></label>
+            <label id="qtyLabel">Vehicles / Groups<input id="bookingQty" type="number" min="1" max="20" value="1" required></label>
+          </div>
+          <div class="price-preview">
+            <span>Estimated total</span>
+            <strong id="bookingPrice">AED 0</strong>
+            <small id="pricingNote">Final confirmation on WhatsApp</small>
+          </div>
+        </div>
+        <div class="form-step" data-step="2">
+          <h3>2. Date & time</h3>
+          <div class="field-grid two">
+            <label>Preferred date<input id="bookingDate" type="date" required></label>
+            <div id="generalTimeWrapper">
+              <label>Preferred time<select id="bookingTime"><option>Morning</option><option>Afternoon</option><option>Evening</option><option>Flexible</option></select></label>
+            </div>
+            <div id="rideTimeWrapper" class="hidden" style="grid-column:1/-1;">
+              <label style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:#063c49;display:block;margin-bottom:6px;">Select Time Slot (6:00 AM to 17:00 for Quad Bike & Buggy)</label>
+              <div class="ride-time-buttons-grid" id="modalRideSlots">
+                <button type="button" class="ride-time-btn" data-modal-slot="06:00 AM">06:00 AM</button>
+                <button type="button" class="ride-time-btn" data-modal-slot="07:00 AM">07:00 AM</button>
+                <button type="button" class="ride-time-btn" data-modal-slot="08:00 AM">08:00 AM</button>
+                <button type="button" class="ride-time-btn active" data-modal-slot="09:00 AM">09:00 AM</button>
+                <button type="button" class="ride-time-btn" data-modal-slot="10:00 AM">10:00 AM</button>
+                <button type="button" class="ride-time-btn" data-modal-slot="11:00 AM">11:00 AM</button>
+                <button type="button" class="ride-time-btn" data-modal-slot="12:00 PM">12:00 PM</button>
+                <button type="button" class="ride-time-btn" data-modal-slot="01:00 PM (13:00)">01:00 PM</button>
+                <button type="button" class="ride-time-btn" data-modal-slot="02:00 PM (14:00)">02:00 PM</button>
+                <button type="button" class="ride-time-btn" data-modal-slot="03:00 PM (15:00)">03:00 PM</button>
+                <button type="button" class="ride-time-btn" data-modal-slot="04:00 PM (16:00)">04:00 PM</button>
+                <button type="button" class="ride-time-btn" data-modal-slot="05:00 PM (17:00)">05:00 PM (17:00)</button>
+              </div>
+              <input type="hidden" id="modalSelectedRideSlot" value="09:00 AM">
+            </div>
+            <label class="full" id="pickupField">Hotel / pickup area<input id="bookingPickup" placeholder="Hotel name or pickup area"></label>
+          </div>
+          <p class="form-note" id="meetingPointNote"></p>
+        </div>
+        <div class="form-step" data-step="3">
+          <h3>3. Your details</h3>
+          <div class="field-grid two">
+            <label>Full name<input id="bookingName" required placeholder="Your name"></label>
+            <label>Phone / WhatsApp<input id="bookingPhone" required placeholder="+971..."></label>
+            <label>Email (optional)<input id="bookingEmail" type="email" placeholder="name@email.com"></label>
+            <label>Special request<input id="bookingNotes" placeholder="Anything we should know?"></label>
+          </div>
+        </div>
+        <div class="form-step" data-step="4">
+          <h3>4. Review booking</h3>
+          <div class="review-card" id="bookingReview"></div>
+          <label class="confirm-check"><input id="bookingConsent" type="checkbox" required> I understand this is a booking request and Phoenix Tours will confirm availability and final details on WhatsApp.</label>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-light" type="button" id="prevStep">Back</button>
+          <button class="btn btn-primary" type="button" id="nextStep">Continue</button>
+          <button class="btn btn-gold hidden" type="submit" id="submitBooking">Send booking on WhatsApp</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <a href="https://wa.me/971561505270?text=Hi%20Phoenix%20Tours,%20I%20would%20like%20to%20inquire%20about%20Abu%20Dhabi%20Tour." class="phoenix-mobile-wa-btn" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">💬</a>
+  <script src="/tour-data.js" defer></script>
+  <script src="/app.js" defer></script>
+  <script src="/landing-cms.js" defer></script>
 </body>
 </html>

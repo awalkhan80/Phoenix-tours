@@ -7,7 +7,7 @@
   <meta name="description" content="Reserve your Quad Bike or Can-Am Buggy slot in the Dubai desert. 07:00 AM to 07:00 PM slots available. Transparent AED rates and instant confirmation.">
   <link rel="canonical" href="https://phoenix-tours-barayshah.vercel.app/book">
   <meta name="robots" content="index,follow">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="/style.css">
 </head>
 <body class="sands-page sands-book-page">
   <!-- SITE HEADER -->
@@ -197,6 +197,15 @@
             <strong>Collection Amount from Guest: <span id="confCollectionAmountText">AED 250</span></strong><br>
             Please collect this exact amount from the guest upon arrival at the desert base camp reception. Cash and major cards accepted.
           </div>
+        </div>
+
+        <!-- EMAIL NOTIFICATION BANNER -->
+        <div id="confEmailNotice" class="sands-confirmed-email-box" style="background:#edf7f5;border:1px solid #c2e5dc;border-radius:10px;padding:12px 16px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+          <div style="font-size:13px;color:#0f766e;display:flex;align-items:center;gap:8px;">
+            <span style="font-size:18px;">✉</span>
+            <span>A copy of this booking summary has been sent to <strong id="confEmailAddress" style="color:#044e46;">your email</strong>.</span>
+          </div>
+          <button type="button" id="btnResendEmail" style="background:#ffffff;border:1px solid #14b8a6;color:#0f766e;font-size:11px;font-weight:800;padding:6px 12px;border-radius:6px;cursor:pointer;">Resend Email</button>
         </div>
 
         <dl class="sands-details-grid">
@@ -482,6 +491,40 @@
           if (confText) confText.textContent = formattedTotal;
           document.getElementById('confTotal').textContent = formattedTotal;
 
+          // Email notice update
+          var emailNotice = document.getElementById('confEmailNotice');
+          var emailAddrSpan = document.getElementById('confEmailAddress');
+          var resendBtn = document.getElementById('btnResendEmail');
+          if (email) {
+            emailNotice.style.display = 'flex';
+            if (emailAddrSpan) emailAddrSpan.textContent = email;
+            if (resendBtn) {
+              resendBtn.onclick = function() {
+                resendBtn.disabled = true;
+                resendBtn.textContent = 'Sending...';
+                fetch('/api/send-email', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ booking: payload, email: email })
+                })
+                .then(function(r) { return r.json(); })
+                .then(function() {
+                  resendBtn.textContent = '✓ Summary Sent!';
+                  setTimeout(function() {
+                    resendBtn.disabled = false;
+                    resendBtn.textContent = 'Resend Email';
+                  }, 4000);
+                })
+                .catch(function() {
+                  resendBtn.disabled = false;
+                  resendBtn.textContent = 'Retry Email';
+                });
+              };
+            }
+          } else {
+            emailNotice.style.display = 'none';
+          }
+
           // WhatsApp link with booking reference & explicit collection amount from guest
           var waMsg = 'Hello Phoenix Tours! I have reserved ' + rideName + '.\n\n' +
             '• Booking Code: ' + code + '\n' +
@@ -522,10 +565,19 @@
       if (menuBtn && mainNav) {
         menuBtn.addEventListener('click', function () {
           var open = mainNav.classList.toggle('open');
+          document.body.classList.toggle('menu-open', open);
           menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
+        mainNav.querySelectorAll('a').forEach(function(a) {
+          a.addEventListener('click', function() {
+            mainNav.classList.remove('open');
+            document.body.classList.remove('menu-open');
+            menuBtn.setAttribute('aria-expanded', 'false');
+          });
         });
       }
     })();
   </script>
+  <a href="https://wa.me/971561505270?text=Hi%20Phoenix%20Tours,%20I%20would%20like%20to%20reserve%20a%20ride%20slot." class="phoenix-mobile-wa-btn" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">💬</a>
 </body>
 </html>

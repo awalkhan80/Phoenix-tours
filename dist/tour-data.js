@@ -37,6 +37,32 @@ window.PHOENIX_DEFAULT_TOURS=[
       {id:'buggy4-30',name:'Can-Am Buggy 4 Seater · 30 min',price:1500,unit:'buggy',duration:'30 min'},
       {id:'buggy4-60',name:'Can-Am Buggy 4 Seater · 1 hour',price:2800,unit:'buggy',duration:'1 hour'}
     ]
+  },
+  {
+    id:'burj-lake',name:'Burj Khalifa Lake Ride & Fountain Abra',type:'Sightseeing',category:'city',badge:'TOP ATTRACTION',duration:'30 min',description:'Sail along the Burj Lake in a traditional Abra with front-row views of the world famous Dubai Fountain show.',active:true,meetingPoint:true,
+    image:'https://images.pexels.com/photos/162031/dubai-tower-arab-khalifa-162031.jpeg?auto=compress&cs=tinysrgb&w=1200',source:'https://www.pexels.com/photo/dubai-tower-arab-khalifa-162031/',
+    packages:[
+      {id:'abra-sharing',name:'Traditional Abra Ride · Sharing',price:120,unit:'person',duration:'30 min'},
+      {id:'abra-fountain',name:'Dubai Fountain Water Experience',price:85,unit:'person',duration:'30 min'},
+      {id:'abra-private',name:'VIP Private Abra Charter',price:350,unit:'vehicle',duration:'30 min'}
+    ]
+  },
+  {
+    id:'dubai-city',name:'Dubai City Sightseeing Tour',type:'City Tour',category:'city',badge:'POPULAR',duration:'Half-Day / Full-Day',description:'Discover historic Old Dubai, Dubai Creek Abra, Dubai Frame, Burj Al Arab photo stop & modern skyline.',active:true,meetingPoint:false,
+    image:'dubai.jpg',source:'Phoenix Tours',
+    packages:[
+      {id:'city-half-sharing',name:'Half-Day Dubai City Tour (Sharing)',price:150,unit:'person',duration:'4–5 hours'},
+      {id:'city-half-private',name:'Private Half-Day Dubai Tour (Up to 6)',price:600,unit:'vehicle',duration:'4–5 hours'},
+      {id:'city-full-private',name:'Full-Day Modern Dubai Tour (Private)',price:850,unit:'vehicle',duration:'8 hours'}
+    ]
+  },
+  {
+    id:'abu-dhabi',name:'Abu Dhabi City Tour from Dubai',type:'City Tour',category:'city',badge:'FULL DAY',duration:'8–9 hours',description:'Explore the UAE capital with Sheikh Zayed Grand Mosque, Emirates Palace photo stop, Heritage Village & Corniche.',active:true,meetingPoint:false,
+    image:'abudhabi.jpg',source:'Phoenix Tours',
+    packages:[
+      {id:'ad-sharing',name:'Abu Dhabi Day Tour (Sharing)',price:220,unit:'person',duration:'8–9 hours'},
+      {id:'ad-private',name:'Abu Dhabi Private SUV Tour (Up to 6)',price:950,unit:'vehicle',duration:'8–9 hours'}
+    ]
   }
 ];
 
@@ -463,7 +489,7 @@ window.PHOENIX_DEFAULT_LANDING_PAGES = {
     hero: {
       eyebrow: "DUBAI FOUNTAIN WATER EXPERIENCE",
       title: "Burj Khalifa Lake Ride",
-      subtitle: "Front-row seats to the world's most spectacular choreographed fountain show aboard a traditional wooden Abra on Burj Lake. AED 68 per ticket with instant WhatsApp booking.",
+      subtitle: "Front-row seats to the world's most spectacular choreographed fountain show aboard a traditional wooden Abra on Burj Lake. AED 120 per ticket with instant WhatsApp booking.",
       image: "https://images.pexels.com/photos/162031/dubai-tower-arab-khalifa-162031.jpeg?auto=compress&cs=tinysrgb&w=1600",
       trust: [
         "✓ Best Front-Row View",
@@ -483,7 +509,7 @@ window.PHOENIX_DEFAULT_LANDING_PAGES = {
         id: "lake-ride-ticket",
         name: "Traditional Abra Lake Ride Ticket",
         badge: "OFFICIAL LAKE RIDE",
-        price: 68,
+        price: 120,
         unit: "person",
         desc: "Front-row water experience on Burj Lake facing the Dubai Fountain & Burj Khalifa.",
         inclusions: [
@@ -492,7 +518,7 @@ window.PHOENIX_DEFAULT_LANDING_PAGES = {
           "Prime photo and video angles of Burj Khalifa & Downtown skyline",
           "Departs every 30 minutes from Dubai Mall Waterfront Promenade"
         ],
-        waMsg: "Hi Phoenix Tours, I would like to book Burj Khalifa Lake Ride tickets at AED 68."
+        waMsg: "Hi Phoenix Tours, I would like to book Burj Khalifa Lake Ride tickets at AED 120."
       }
     ],
     highlights: [
@@ -509,7 +535,7 @@ window.PHOENIX_DEFAULT_LANDING_PAGES = {
       },
       {
         q: "How much does the Burj Khalifa Lake Ride cost?",
-        a: "The traditional Abra lake ride is AED 68 per guest, including 30 minutes on Burj Lake during the active fountain show with safety life jacket and front-row fountain views."
+        a: "The traditional Abra lake ride is AED 120 per guest, including 30 minutes on Burj Lake during the active fountain show with safety life jacket and front-row fountain views."
       },
       {
         q: "What are the timings for the Dubai Fountain Lake Ride?",

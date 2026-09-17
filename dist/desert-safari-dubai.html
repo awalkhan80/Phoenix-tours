@@ -25,7 +25,8 @@
   <meta name="twitter:description" content="Compare evening, morning, VIP private & premium desert safari packages in Dubai with Phoenix Tours.">
   <meta name="twitter:image" content="https://phoenix-tours-barayshah.vercel.app/hero.jpg">
 
-  <link rel="stylesheet" href="style.css">
+  <link rel="preload" as="image" href="/hero.jpg" fetchpriority="high">
+  <link rel="stylesheet" href="/style.css">
 
   <!-- Structured Data: TouristTrip & Product -->
   <script type="application/ld+json">
@@ -198,7 +199,7 @@
       <a href="/book">Book Now</a>
     </nav>
     <a class="header-phone" href="tel:+971561505270">+971 56 150 5270</a>
-    <a class="btn btn-primary desktop-book" href="/book">Reserve a slot</a>
+    <button type="button" class="btn btn-primary desktop-book" data-open-booking data-book-tour="evening">Reserve a slot</button>
   </header>
 
   <!-- BREADCRUMBS -->
@@ -212,14 +213,15 @@
 
   <!-- HERO SECTION -->
   <section class="hero" style="min-height:560px;">
-    <img src="hero.jpg" class="hero-image" alt="Dubai desert safari on golden Lahbab red dunes at sunset" fetchpriority="high">
+    <img src="hero.jpg" class="hero-image" alt="Dubai desert safari on golden Lahbab red dunes at sunset" width="1600" height="900" fetchpriority="high" decoding="async">
     <div class="hero-overlay"></div>
     <div class="hero-content">
       <span class="eyebrow">DUBAI DESERT EXPERIENCES · BEST DEALS</span>
       <h1>Dubai Desert Safari Tours</h1>
       <p>Embark on Dubai's premier desert adventure with high red dune bashing in 4x4 Land Cruisers, sunset photography, camel riding, live cultural shows & 5-star BBQ dinner. Transparent AED prices & pay on arrival.</p>
       <div class="hero-actions">
-        <a class="btn btn-gold" href="#safari-packages">View safari packages</a>
+        <button type="button" class="btn btn-gold" data-open-booking data-book-tour="evening">Book Desert Safari</button>
+        <a class="btn btn-ghost" href="#safari-packages">View safari packages</a>
         <a class="btn btn-ghost" href="https://wa.me/971561505270?text=Hi%20Phoenix%20Tours,%20I%20would%20like%20to%20inquire%20about%20Dubai%20Desert%20Safari%20packages." target="_blank" rel="noopener">Inquire on WhatsApp</a>
       </div>
       <div class="trust-row">
@@ -254,67 +256,75 @@
 
           <div id="landingPackagesContainer" style="display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:28px;">
             <!-- Evening Safari (Sharing) -->
-            <div style="background:#fff;border:1px solid #cbe0db;border-radius:14px;padding:22px;box-shadow:0 8px 20px rgba(6,60,73,0.06);">
-              <span style="background:#e6f6f3;color:#0e7774;font-size:11px;font-weight:800;padding:4px 10px;border-radius:999px;">MOST POPULAR</span>
+            <div style="background:#fff;border:1px solid #cbe0db;border-radius:14px;padding:22px;box-shadow:0 8px 20px rgba(6,60,73,0.06);display:flex;flex-direction:column;">
+              <span style="background:#e6f6f3;color:#0e7774;font-size:11px;font-weight:800;padding:4px 10px;border-radius:999px;align-self:flex-start;">MOST POPULAR</span>
               <h4 style="font-size:19px;color:var(--navy);margin:12px 0 6px;">Evening Desert Safari (Sharing)</h4>
               <p style="font-size:13px;color:#607c83;margin:0 0 14px;">The quintessential Dubai desert experience with dinner and live shows.</p>
               <div style="font-size:28px;font-weight:900;color:var(--navy);margin-bottom:12px;">AED 120 <small style="font-size:12px;font-weight:600;color:#69838b;">/ person</small></div>
-              <ul style="font-size:13px;color:#45636c;padding-left:18px;margin:0 0 18px;line-height:1.6;">
+              <ul style="font-size:13px;color:#45636c;padding-left:18px;margin:0 0 18px;line-height:1.6;flex:1;">
                 <li>Pickup from hotel / residence (14:30 – 15:30)</li>
                 <li>35-min red dune bashing & sandboarding</li>
                 <li>Camel ride, henna painting & sunset photo stop</li>
                 <li>Live Tanoura, Fire Dance & Belly Dance shows</li>
                 <li>Deluxe BBQ buffet dinner (veg & non-veg)</li>
               </ul>
-              <a class="btn btn-primary" style="width:100%;text-align:center;display:block;" href="https://wa.me/971561505270?text=Hi%20Phoenix%20Tours,%20I%20would%20like%20to%20book%20the%20Evening%20Desert%20Safari%20(Sharing)%20at%20AED%20120." target="_blank" rel="noopener">Book Sharing Safari</a>
+              <button type="button" class="btn-package-book primary" data-open-booking data-book-tour="evening" data-book-package="sharing">
+                <span>Book Sharing Safari</span><span class="btn-arrow">→</span>
+              </button>
             </div>
 
             <!-- Private Evening Safari -->
-            <div style="background:#fff;border:2px solid var(--aqua);border-radius:14px;padding:22px;box-shadow:0 12px 28px rgba(24,170,166,0.12);">
-              <span style="background:var(--gold);color:#063c49;font-size:11px;font-weight:800;padding:4px 10px;border-radius:999px;">PRIVATE 4X4 JEEP</span>
+            <div style="background:#fff;border:2px solid var(--aqua);border-radius:14px;padding:22px;box-shadow:0 12px 28px rgba(24,170,166,0.12);display:flex;flex-direction:column;">
+              <span style="background:var(--gold);color:#063c49;font-size:11px;font-weight:800;padding:4px 10px;border-radius:999px;align-self:flex-start;">PRIVATE 4X4 JEEP</span>
               <h4 style="font-size:19px;color:var(--navy);margin:12px 0 6px;">Private Evening Desert Safari</h4>
               <p style="font-size:13px;color:#607c83;margin:0 0 14px;">Entire vehicle exclusively for your family or friends (up to 6 guests).</p>
               <div style="font-size:28px;font-weight:900;color:var(--navy);margin-bottom:12px;">AED 650 <small style="font-size:12px;font-weight:600;color:#69838b;">/ whole vehicle</small></div>
-              <ul style="font-size:13px;color:#45636c;padding-left:18px;margin:0 0 18px;line-height:1.6;">
+              <ul style="font-size:13px;color:#45636c;padding-left:18px;margin:0 0 18px;line-height:1.6;flex:1;">
                 <li>Private doorstep pickup and drop-off in Land Cruiser</li>
                 <li>Tailored dune bashing intensity (gentle or extreme)</li>
                 <li>Flexible photo stops across virgin sand ridges</li>
                 <li>Includes all camp activities, shows & BBQ dinner</li>
                 <li>Best choice for families with toddlers or seniors</li>
               </ul>
-              <a class="btn btn-gold" style="width:100%;text-align:center;display:block;" href="https://wa.me/971561505270?text=Hi%20Phoenix%20Tours,%20I%20would%20like%20to%20book%20the%20Private%20Evening%20Desert%20Safari%20at%20AED%20650." target="_blank" rel="noopener">Book Private Safari</a>
+              <button type="button" class="btn-package-book gold" data-open-booking data-book-tour="evening" data-book-package="private">
+                <span>Book Private Safari</span><span class="btn-arrow">→</span>
+              </button>
             </div>
 
             <!-- Morning Safari -->
-            <div style="background:#fff;border:1px solid #cbe0db;border-radius:14px;padding:22px;box-shadow:0 8px 20px rgba(6,60,73,0.06);">
-              <span style="background:#edf2f4;color:#2b2d42;font-size:11px;font-weight:800;padding:4px 10px;border-radius:999px;">COOL MORNING HOURS</span>
+            <div style="background:#fff;border:1px solid #cbe0db;border-radius:14px;padding:22px;box-shadow:0 8px 20px rgba(6,60,73,0.06);display:flex;flex-direction:column;">
+              <span style="background:#edf2f4;color:#2b2d42;font-size:11px;font-weight:800;padding:4px 10px;border-radius:999px;align-self:flex-start;">COOL MORNING HOURS</span>
               <h4 style="font-size:19px;color:var(--navy);margin:12px 0 6px;">Morning Desert Safari (Private)</h4>
               <p style="font-size:13px;color:#607c83;margin:0 0 14px;">Short & sweet morning excursion, ideal for tight schedules.</p>
               <div style="font-size:28px;font-weight:900;color:var(--navy);margin-bottom:12px;">AED 550 <small style="font-size:12px;font-weight:600;color:#69838b;">/ vehicle (up to 6)</small></div>
-              <ul style="font-size:13px;color:#45636c;padding-left:18px;margin:0 0 18px;line-height:1.6;">
+              <ul style="font-size:13px;color:#45636c;padding-left:18px;margin:0 0 18px;line-height:1.6;flex:1;">
                 <li>Pickup at 08:00 AM, return by 12:00 PM</li>
                 <li>45-min high red dune bashing & sandboarding</li>
                 <li>Scenic morning desert photos & camel ride</li>
                 <li>Cold refreshments, water and soft drinks</li>
                 <li>Leaves your afternoon free for sightseeing</li>
               </ul>
-              <a class="btn btn-primary" style="width:100%;text-align:center;display:block;" href="https://wa.me/971561505270?text=Hi%20Phoenix%20Tours,%20I%20would%20like%20to%20book%20the%20Morning%20Desert%20Safari%20at%20AED%20550." target="_blank" rel="noopener">Book Morning Safari</a>
+              <button type="button" class="btn-package-book primary" data-open-booking data-book-tour="morning" data-book-package="private">
+                <span>Book Morning Safari</span><span class="btn-arrow">→</span>
+              </button>
             </div>
 
             <!-- VIP Premium Safari -->
-            <div style="background:#fff;border:1px solid #cbe0db;border-radius:14px;padding:22px;box-shadow:0 8px 20px rgba(6,60,73,0.06);">
-              <span style="background:#fff3cd;color:#856404;font-size:11px;font-weight:800;padding:4px 10px;border-radius:999px;">VIP COMFORT</span>
+            <div style="background:#fff;border:1px solid #cbe0db;border-radius:14px;padding:22px;box-shadow:0 8px 20px rgba(6,60,73,0.06);display:flex;flex-direction:column;">
+              <span style="background:#fff3cd;color:#856404;font-size:11px;font-weight:800;padding:4px 10px;border-radius:999px;align-self:flex-start;">VIP COMFORT</span>
               <h4 style="font-size:19px;color:var(--navy);margin:12px 0 6px;">Premium VIP Desert Safari</h4>
               <p style="font-size:13px;color:#607c83;margin:0 0 14px;">Enhanced dining table service with VIP sofa seating.</p>
               <div style="font-size:28px;font-weight:900;color:var(--navy);margin-bottom:12px;">AED 220 <small style="font-size:12px;font-weight:600;color:#69838b;">/ person</small></div>
-              <ul style="font-size:13px;color:#45636c;padding-left:18px;margin:0 0 18px;line-height:1.6;">
+              <ul style="font-size:13px;color:#45636c;padding-left:18px;margin:0 0 18px;line-height:1.6;flex:1;">
                 <li>VIP reserved table with comfortable sofa seating</li>
                 <li>Table-side food service (no standing in buffet lines)</li>
                 <li>Premium dune bashing and priority camel rides</li>
                 <li>Full cultural performances & gourmet barbecue</li>
                 <li>Private vehicle upgrade available at AED 850</li>
               </ul>
-              <a class="btn btn-gold" style="width:100%;text-align:center;display:block;" href="https://wa.me/971561505270?text=Hi%20Phoenix%20Tours,%20I%20would%20like%20to%20book%20the%20Premium%20VIP%20Desert%20Safari." target="_blank" rel="noopener">Book VIP Safari</a>
+              <button type="button" class="btn-package-book gold" data-open-booking data-book-tour="premium" data-book-package="sharing">
+                <span>Book VIP Safari</span><span class="btn-arrow">→</span>
+              </button>
             </div>
           </div>
         </div>
@@ -441,9 +451,13 @@
             </div>
           </div>
 
-          <a class="btn btn-gold" style="width:100%;text-align:center;display:block;min-height:48px;line-height:28px;font-size:14px;margin-bottom:10px;" href="https://wa.me/971561505270?text=Hi%20Phoenix%20Tours,%20I%20would%20like%20to%20book%20a%20Dubai%20Desert%20Safari." target="_blank" rel="noopener">Book on WhatsApp</a>
+          <button type="button" class="btn-package-book gold" style="width:100%;margin-bottom:10px;" data-open-booking data-book-tour="evening">
+            <span>Book Experience Online</span><span class="btn-arrow">→</span>
+          </button>
           
-          <a class="btn btn-primary" style="width:100%;text-align:center;display:block;min-height:44px;line-height:26px;font-size:13px;margin-bottom:10px;" href="/book">Reserve via Form</a>
+          <a class="btn" style="width:100%;min-height:44px;font-size:13px;background:#f0f7f5;color:var(--navy);border:1px solid #d2e7e2;border-radius:10px;text-align:center;display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:10px;text-decoration:none;" href="https://wa.me/971561505270?text=Hi%20Phoenix%20Tours,%20I%20would%20like%20to%20book%20a%20Dubai%20Desert%20Safari." target="_blank" rel="noopener">
+            <span>Book on WhatsApp</span>
+          </a>
 
           <a class="btn btn-ghost" style="width:100%;text-align:center;display:block;min-height:44px;line-height:26px;font-size:13px;" href="tel:+971561505270">Call +971 56 150 5270</a>
 
@@ -479,19 +493,19 @@
 
     <div class="category-grid" style="max-width:1200px;margin:28px auto 0;">
       <a class="category-card" href="quad-bike-dubai.html">
-        <img src="https://images.pexels.com/photos/36713570/pexels-photo-36713570.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Quad bike rental Dubai desert dunes" loading="lazy">
+        <img src="https://images.pexels.com/photos/36713570/pexels-photo-36713570.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Quad bike rental Dubai desert dunes" loading="lazy" decoding="async" width="600" height="400">
         <span>Quad Bike Dubai</span>
       </a>
       <a class="category-card" href="dune-buggy-dubai.html">
-        <img src="https://images.pexels.com/photos/20734775/pexels-photo-20734775.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Can-Am dune buggy adventure Dubai" loading="lazy">
+        <img src="https://images.pexels.com/photos/20734775/pexels-photo-20734775.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Can-Am dune buggy adventure Dubai" loading="lazy" decoding="async" width="600" height="400">
         <span>Dune Buggy Dubai</span>
       </a>
       <a class="category-card" href="burj-khalifa-lake-ride.html">
-        <img src="https://images.pexels.com/photos/162031/dubai-tower-arab-khalifa-162031.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Burj Khalifa Lake Ride and Dubai Fountain Abra" loading="lazy">
+        <img src="https://images.pexels.com/photos/162031/dubai-tower-arab-khalifa-162031.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Burj Khalifa Lake Ride and Dubai Fountain Abra" loading="lazy" decoding="async" width="600" height="400">
         <span>Burj Khalifa Lake Ride</span>
       </a>
       <a class="category-card" href="dubai-city-tour.html">
-        <img src="dubai.jpg" alt="Dubai city sightseeing tour landmarks" loading="lazy">
+        <img src="dubai.jpg" alt="Dubai city sightseeing tour landmarks" loading="lazy" decoding="async" width="600" height="400">
         <span>Dubai City Tours</span>
       </a>
     </div>
@@ -517,17 +531,89 @@
     <p>© 2025 Phoenix Tours. All rights reserved.</p>
   </footer>
 
-  <script>
-    var menuBtn = document.getElementById('menuBtn');
-    var mainNav = document.getElementById('mainNav');
-    if (menuBtn && mainNav) {
-      menuBtn.addEventListener('click', function() {
-        var open = mainNav.classList.toggle('open');
-        menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
-      });
-    }
-  </script>
-  <script src="tour-data.js"></script>
-  <script src="landing-cms.js"></script>
+  <!-- BOOKING MODAL -->
+  <div class="booking-modal" id="bookingModal" aria-hidden="true">
+    <div class="modal-backdrop" data-close-booking></div>
+    <section class="booking-panel" role="dialog" aria-modal="true" aria-labelledby="bookingTitle">
+      <div class="booking-top">
+        <div>
+          <span class="eyebrow dark">MULTI-STEP BOOKING</span>
+          <h2 id="bookingTitle">Plan your experience</h2>
+        </div>
+        <button class="close-btn" data-close-booking aria-label="Close booking">×</button>
+      </div>
+      <div class="progress">
+        <span class="active"></span><span></span><span></span><span></span>
+      </div>
+      <form id="bookingForm">
+        <div class="form-step active" data-step="1">
+          <h3>1. Choose your tour</h3>
+          <div class="field-grid">
+            <label>Experience<select id="bookingTour" required></select></label>
+            <label>Package<select id="bookingPackage" required></select></label>
+            <label id="qtyLabel">Guests<input id="bookingQty" type="number" min="1" max="20" value="2" required></label>
+          </div>
+          <div class="price-preview">
+            <span>Estimated total</span>
+            <strong id="bookingPrice">AED 0</strong>
+            <small id="pricingNote">Final confirmation on WhatsApp</small>
+          </div>
+        </div>
+        <div class="form-step" data-step="2">
+          <h3>2. Date & time</h3>
+          <div class="field-grid two">
+            <label>Preferred date<input id="bookingDate" type="date" required></label>
+            <div id="generalTimeWrapper">
+              <label>Preferred time<select id="bookingTime"><option>Morning</option><option>Afternoon</option><option>Evening</option><option>Flexible</option></select></label>
+            </div>
+            <div id="rideTimeWrapper" class="hidden" style="grid-column:1/-1;">
+              <label style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:#063c49;display:block;margin-bottom:6px;">Select Time Slot (6:00 AM to 17:00 for Quad Bike & Buggy)</label>
+              <div class="ride-time-buttons-grid" id="modalRideSlots">
+                <button type="button" class="ride-time-btn" data-modal-slot="06:00 AM">06:00 AM</button>
+                <button type="button" class="ride-time-btn" data-modal-slot="07:00 AM">07:00 AM</button>
+                <button type="button" class="ride-time-btn" data-modal-slot="08:00 AM">08:00 AM</button>
+                <button type="button" class="ride-time-btn active" data-modal-slot="09:00 AM">09:00 AM</button>
+                <button type="button" class="ride-time-btn" data-modal-slot="10:00 AM">10:00 AM</button>
+                <button type="button" class="ride-time-btn" data-modal-slot="11:00 AM">11:00 AM</button>
+                <button type="button" class="ride-time-btn" data-modal-slot="12:00 PM">12:00 PM</button>
+                <button type="button" class="ride-time-btn" data-modal-slot="01:00 PM (13:00)">01:00 PM</button>
+                <button type="button" class="ride-time-btn" data-modal-slot="02:00 PM (14:00)">02:00 PM</button>
+                <button type="button" class="ride-time-btn" data-modal-slot="03:00 PM (15:00)">03:00 PM</button>
+                <button type="button" class="ride-time-btn" data-modal-slot="04:00 PM (16:00)">04:00 PM</button>
+                <button type="button" class="ride-time-btn" data-modal-slot="05:00 PM (17:00)">05:00 PM (17:00)</button>
+              </div>
+              <input type="hidden" id="modalSelectedRideSlot" value="09:00 AM">
+            </div>
+            <label class="full" id="pickupField">Hotel / pickup area<input id="bookingPickup" placeholder="Hotel name or pickup area"></label>
+          </div>
+          <p class="form-note" id="meetingPointNote"></p>
+        </div>
+        <div class="form-step" data-step="3">
+          <h3>3. Your details</h3>
+          <div class="field-grid two">
+            <label>Full name<input id="bookingName" required placeholder="Your name"></label>
+            <label>Phone / WhatsApp<input id="bookingPhone" required placeholder="+971..."></label>
+            <label>Email (optional)<input id="bookingEmail" type="email" placeholder="name@email.com"></label>
+            <label>Special request<input id="bookingNotes" placeholder="Anything we should know?"></label>
+          </div>
+        </div>
+        <div class="form-step" data-step="4">
+          <h3>4. Review booking</h3>
+          <div class="review-card" id="bookingReview"></div>
+          <label class="confirm-check"><input id="bookingConsent" type="checkbox" required> I understand this is a booking request and Phoenix Tours will confirm availability and final details on WhatsApp.</label>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-light" type="button" id="prevStep">Back</button>
+          <button class="btn btn-primary" type="button" id="nextStep">Continue</button>
+          <button class="btn btn-gold hidden" type="submit" id="submitBooking">Send booking on WhatsApp</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <a href="https://wa.me/971561505270?text=Hi%20Phoenix%20Tours,%20I%20would%20like%20to%20inquire%20about%20Dubai%20Desert%20Safari." class="phoenix-mobile-wa-btn" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">💬</a>
+  <script src="/tour-data.js" defer></script>
+  <script src="/app.js" defer></script>
+  <script src="/landing-cms.js" defer></script>
 </body>
 </html>

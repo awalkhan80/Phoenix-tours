@@ -25,7 +25,8 @@
   <meta name="twitter:description" content="Experience the Dubai Fountain show up close from the water on Burj Lake. Instant booking with Phoenix Tours.">
   <meta name="twitter:image" content="https://images.pexels.com/photos/162031/dubai-tower-arab-khalifa-162031.jpeg?auto=compress&cs=tinysrgb&w=1200">
 
-  <link rel="stylesheet" href="style.css">
+  <link rel="preload" as="image" href="https://images.pexels.com/photos/162031/dubai-tower-arab-khalifa-162031.jpeg?auto=compress&cs=tinysrgb&w=1600" fetchpriority="high">
+  <link rel="stylesheet" href="/style.css">
 
   <!-- Structured Data: TouristTrip & Product -->
   <script type="application/ld+json">
@@ -39,7 +40,7 @@
       {
         "@type": "Offer",
         "name": "Traditional Abra Lake Ride",
-        "price": "68",
+        "price": "120",
         "priceCurrency": "AED",
         "availability": "https://schema.org/InStock",
         "validFrom": "2025-01-01"
@@ -100,7 +101,7 @@
         "name": "How much does the Burj Khalifa Lake Ride cost?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "The traditional Abra lake ride is AED 68 per guest, including 30 minutes on Burj Lake during the active fountain show with safety life jacket and front-row fountain views."
+          "text": "The traditional Abra lake ride is AED 120 per guest, including 30 minutes on Burj Lake during the active fountain show with safety life jacket and front-row fountain views."
         }
       },
       {
@@ -174,7 +175,7 @@
       <a href="/book">Book Now</a>
     </nav>
     <a class="header-phone" href="tel:+971561505270">+971 56 150 5270</a>
-    <a class="btn btn-primary desktop-book" href="/book">Reserve a slot</a>
+    <button type="button" class="btn btn-primary desktop-book" data-open-booking data-book-tour="burj-lake">Reserve a slot</button>
   </header>
 
   <!-- BREADCRUMBS -->
@@ -188,14 +189,14 @@
 
   <!-- HERO SECTION -->
   <section class="hero" style="min-height:540px;">
-    <img src="https://images.pexels.com/photos/162031/dubai-tower-arab-khalifa-162031.jpeg?auto=compress&cs=tinysrgb&w=1600" class="hero-image" alt="Burj Khalifa and Dubai Fountain Lake Ride at sunset" fetchpriority="high">
+    <img src="https://images.pexels.com/photos/162031/dubai-tower-arab-khalifa-162031.jpeg?auto=compress&cs=tinysrgb&w=1600" class="hero-image" alt="Burj Khalifa and Dubai Fountain Lake Ride at sunset" width="1600" height="900" fetchpriority="high" decoding="async">
     <div class="hero-overlay"></div>
     <div class="hero-content">
       <span class="eyebrow">DOWNTOWN DUBAI ATTRACTION</span>
       <h1>Burj Khalifa Lake Ride & Dubai Fountain Abra Tour</h1>
       <p>Sail onto the tranquil waters of Burj Lake on a traditional motorized Abra and enjoy an unobstructed, front-row seat to the world-famous Dubai Dancing Fountains.</p>
       <div class="hero-actions">
-        <a class="btn btn-gold" href="https://wa.me/971561505270?text=Hi%20Phoenix%20Tours,%20I%20would%20like%20to%20book%20the%20Burj%20Khalifa%20Lake%20Ride%20tickets." target="_blank" rel="noopener">Book on WhatsApp</a>
+        <button type="button" class="btn btn-gold" data-open-booking data-book-tour="burj-lake">Book Lake Ride Online</button>
         <a class="btn btn-ghost" href="#packages">View ticket prices</a>
       </div>
       <div class="trust-row">
@@ -251,14 +252,16 @@
               <span style="background:#e6f6f3;color:#0e7774;font-size:11px;font-weight:800;padding:4px 10px;border-radius:999px;">OFFICIAL LAKE RIDE</span>
               <h4 style="font-size:20px;color:var(--navy);margin:12px 0 6px;">Traditional Abra Lake Ride Ticket</h4>
               <p style="font-size:13px;color:#607c83;margin:0 0 14px;">Front-row water experience on Burj Lake facing the Dubai Fountain & Burj Khalifa.</p>
-              <div style="font-size:32px;font-weight:900;color:var(--navy);margin-bottom:14px;">AED 68 <small style="font-size:13px;font-weight:600;color:#69838b;">/ person</small></div>
+              <div style="font-size:32px;font-weight:900;color:var(--navy);margin-bottom:14px;">AED 120 <small style="font-size:13px;font-weight:600;color:#69838b;">/ person</small></div>
               <ul style="font-size:13px;color:#45636c;padding-left:18px;margin:0 0 18px;line-height:1.7;">
                 <li>30-minute cruise during active evening fountain show</li>
                 <li>Life jackets and safety briefing provided for all passengers</li>
                 <li>Prime photo and video angles of Burj Khalifa & Downtown skyline</li>
                 <li>Departs every 30 minutes from Dubai Mall Waterfront Promenade</li>
               </ul>
-              <a class="btn btn-gold" style="width:100%;text-align:center;display:block;min-height:46px;line-height:26px;font-size:15px;" href="https://wa.me/971561505270?text=Hi%20Phoenix%20Tours,%20I%20would%20like%20to%20book%20Burj%20Khalifa%20Lake%20Ride%20tickets." target="_blank" rel="noopener">Book Abra Tickets on WhatsApp</a>
+              <button type="button" class="btn-package-book gold" style="width:100%;margin-top:14px;" data-open-booking data-book-tour="burj-lake" data-book-package="lake-abra">
+                <span>Book Abra Tickets · AED 120</span><span class="btn-arrow">→</span>
+              </button>
             </div>
           </div>
         </div>
@@ -353,12 +356,18 @@
           <div style="background:#f4f9f8;padding:14px;border-radius:10px;margin-bottom:18px;">
             <div style="display:flex;justify-content:space-between;align-items:center;font-size:14px;">
               <span style="color:#57737c;">Abra Lake Ride:</span>
-              <strong style="color:var(--navy);font-size:16px;">AED 68 / person</strong>
+              <strong style="color:var(--navy);font-size:16px;">AED 120 / person</strong>
             </div>
           </div>
 
-          <a class="btn btn-gold" style="width:100%;text-align:center;display:block;min-height:48px;line-height:28px;font-size:14px;margin-bottom:10px;" href="https://wa.me/971561505270?text=Hi%20Phoenix%20Tours,%20I%20would%20like%20to%20book%20the%20Burj%20Khalifa%20Lake%20Ride." target="_blank" rel="noopener">Book on WhatsApp</a>
+          <button type="button" class="btn-package-book gold" style="width:100%;margin-bottom:10px;" data-open-booking data-book-tour="burj-lake" data-book-package="lake-abra">
+            <span>Book Experience Online</span><span class="btn-arrow">→</span>
+          </button>
           
+          <a class="btn" style="width:100%;min-height:44px;font-size:13px;background:#f0f7f5;color:var(--navy);border:1px solid #d2e7e2;border-radius:10px;text-align:center;display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:10px;text-decoration:none;" href="https://wa.me/971561505270?text=Hi%20Phoenix%20Tours,%20I%20would%20like%20to%20book%20the%20Burj%20Khalifa%20Lake%20Ride." target="_blank" rel="noopener">
+            <span>Book on WhatsApp</span>
+          </a>
+
           <a class="btn btn-ghost" style="width:100%;text-align:center;display:block;min-height:44px;line-height:26px;font-size:13px;" href="tel:+971561505270">Call +971 56 150 5270</a>
 
           <div style="margin-top:20px;padding-top:16px;border-top:1px solid #e5efed;font-size:12px;color:#69868e;">
@@ -393,19 +402,19 @@
 
     <div class="category-grid" style="max-width:1200px;margin:28px auto 0;">
       <a class="category-card" href="desert-safari-dubai.html">
-        <img src="hero.jpg" alt="Evening Dubai Desert Safari with BBQ Dinner" loading="lazy">
+        <img src="hero.jpg" alt="Evening Dubai Desert Safari with BBQ Dinner" loading="lazy" decoding="async" width="600" height="400">
         <span>Dubai Desert Safari</span>
       </a>
       <a class="category-card" href="quad-bike-dubai.html">
-        <img src="https://images.pexels.com/photos/36713570/pexels-photo-36713570.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Self-Drive Quad Bike in Dubai Sand Dunes" loading="lazy">
+        <img src="https://images.pexels.com/photos/36713570/pexels-photo-36713570.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Self-Drive Quad Bike in Dubai Sand Dunes" loading="lazy" decoding="async" width="600" height="400">
         <span>Quad Bike Dubai</span>
       </a>
       <a class="category-card" href="dune-buggy-dubai.html">
-        <img src="https://images.pexels.com/photos/20734775/pexels-photo-20734775.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Can-Am Dune Buggy Adventure Dubai" loading="lazy">
+        <img src="https://images.pexels.com/photos/20734775/pexels-photo-20734775.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Can-Am Dune Buggy Adventure Dubai" loading="lazy" decoding="async" width="600" height="400">
         <span>Dune Buggy Dubai</span>
       </a>
       <a class="category-card" href="dubai-city-tour.html">
-        <img src="dubai.jpg" alt="Private Dubai City Tour Sightseeing" loading="lazy">
+        <img src="dubai.jpg" alt="Private Dubai City Tour Sightseeing" loading="lazy" decoding="async" width="600" height="400">
         <span>Dubai City Tours</span>
       </a>
     </div>
@@ -431,17 +440,89 @@
     <p>© 2025 Phoenix Tours. All rights reserved.</p>
   </footer>
 
-  <script>
-    var menuBtn = document.getElementById('menuBtn');
-    var mainNav = document.getElementById('mainNav');
-    if (menuBtn && mainNav) {
-      menuBtn.addEventListener('click', function() {
-        var open = mainNav.classList.toggle('open');
-        menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
-      });
-    }
-  </script>
-  <script src="tour-data.js"></script>
-  <script src="landing-cms.js"></script>
+  <!-- BOOKING MODAL -->
+  <div class="booking-modal" id="bookingModal" aria-hidden="true">
+    <div class="modal-backdrop" data-close-booking></div>
+    <section class="booking-panel" role="dialog" aria-modal="true" aria-labelledby="bookingTitle">
+      <div class="booking-top">
+        <div>
+          <span class="eyebrow dark">MULTI-STEP BOOKING</span>
+          <h2 id="bookingTitle">Plan your experience</h2>
+        </div>
+        <button class="close-btn" data-close-booking aria-label="Close booking">×</button>
+      </div>
+      <div class="progress">
+        <span class="active"></span><span></span><span></span><span></span>
+      </div>
+      <form id="bookingForm">
+        <div class="form-step active" data-step="1">
+          <h3>1. Choose your tour</h3>
+          <div class="field-grid">
+            <label>Experience<select id="bookingTour" required></select></label>
+            <label>Package<select id="bookingPackage" required></select></label>
+            <label id="qtyLabel">Guests<input id="bookingQty" type="number" min="1" max="20" value="2" required></label>
+          </div>
+          <div class="price-preview">
+            <span>Estimated total</span>
+            <strong id="bookingPrice">AED 0</strong>
+            <small id="pricingNote">Final confirmation on WhatsApp</small>
+          </div>
+        </div>
+        <div class="form-step" data-step="2">
+          <h3>2. Date & time</h3>
+          <div class="field-grid two">
+            <label>Preferred date<input id="bookingDate" type="date" required></label>
+            <div id="generalTimeWrapper">
+              <label>Preferred time<select id="bookingTime"><option>Morning</option><option>Afternoon</option><option>Evening</option><option>Flexible</option></select></label>
+            </div>
+            <div id="rideTimeWrapper" class="hidden" style="grid-column:1/-1;">
+              <label style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.12em;color:#063c49;display:block;margin-bottom:6px;">Select Time Slot (6:00 AM to 17:00 for Quad Bike & Buggy)</label>
+              <div class="ride-time-buttons-grid" id="modalRideSlots">
+                <button type="button" class="ride-time-btn" data-modal-slot="06:00 AM">06:00 AM</button>
+                <button type="button" class="ride-time-btn" data-modal-slot="07:00 AM">07:00 AM</button>
+                <button type="button" class="ride-time-btn" data-modal-slot="08:00 AM">08:00 AM</button>
+                <button type="button" class="ride-time-btn active" data-modal-slot="09:00 AM">09:00 AM</button>
+                <button type="button" class="ride-time-btn" data-modal-slot="10:00 AM">10:00 AM</button>
+                <button type="button" class="ride-time-btn" data-modal-slot="11:00 AM">11:00 AM</button>
+                <button type="button" class="ride-time-btn" data-modal-slot="12:00 PM">12:00 PM</button>
+                <button type="button" class="ride-time-btn" data-modal-slot="01:00 PM (13:00)">01:00 PM</button>
+                <button type="button" class="ride-time-btn" data-modal-slot="02:00 PM (14:00)">02:00 PM</button>
+                <button type="button" class="ride-time-btn" data-modal-slot="03:00 PM (15:00)">03:00 PM</button>
+                <button type="button" class="ride-time-btn" data-modal-slot="04:00 PM (16:00)">04:00 PM</button>
+                <button type="button" class="ride-time-btn" data-modal-slot="05:00 PM (17:00)">05:00 PM (17:00)</button>
+              </div>
+              <input type="hidden" id="modalSelectedRideSlot" value="09:00 AM">
+            </div>
+            <label class="full" id="pickupField">Hotel / pickup area<input id="bookingPickup" placeholder="Hotel name or pickup area"></label>
+          </div>
+          <p class="form-note" id="meetingPointNote"></p>
+        </div>
+        <div class="form-step" data-step="3">
+          <h3>3. Your details</h3>
+          <div class="field-grid two">
+            <label>Full name<input id="bookingName" required placeholder="Your name"></label>
+            <label>Phone / WhatsApp<input id="bookingPhone" required placeholder="+971..."></label>
+            <label>Email (optional)<input id="bookingEmail" type="email" placeholder="name@email.com"></label>
+            <label>Special request<input id="bookingNotes" placeholder="Anything we should know?"></label>
+          </div>
+        </div>
+        <div class="form-step" data-step="4">
+          <h3>4. Review booking</h3>
+          <div class="review-card" id="bookingReview"></div>
+          <label class="confirm-check"><input id="bookingConsent" type="checkbox" required> I understand this is a booking request and Phoenix Tours will confirm availability and final details on WhatsApp.</label>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-light" type="button" id="prevStep">Back</button>
+          <button class="btn btn-primary" type="button" id="nextStep">Continue</button>
+          <button class="btn btn-gold hidden" type="submit" id="submitBooking">Send booking on WhatsApp</button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <a href="https://wa.me/971561505270?text=Hi%20Phoenix%20Tours,%20I%20would%20like%20to%20inquire%20about%20Burj%20Khalifa%20Lake%20Ride." class="phoenix-mobile-wa-btn" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">💬</a>
+  <script src="/tour-data.js" defer></script>
+  <script src="/app.js" defer></script>
+  <script src="/landing-cms.js" defer></script>
 </body>
 </html>

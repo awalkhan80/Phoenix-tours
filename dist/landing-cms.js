@@ -122,9 +122,13 @@
               (pkg.unit ? '<span style="font-size:12px;color:#7c9197;margin-left:6px;">/ ' + esc(pkg.unit) + '</span>' : '') +
             '</div>' +
             inclHtml +
-            '<div style="margin-top:auto;padding-top:18px;display:flex;gap:10px;flex-wrap:wrap;">' +
-              '<a href="' + waUrl + '" target="_blank" rel="noopener" class="btn btn-primary" style="flex:1;text-align:center;padding:12px 18px;border-radius:10px;font-weight:800;font-size:13px;background:linear-gradient(135deg,#063c49,#18aaa6);color:#fff;text-decoration:none;display:inline-block;">Book on WhatsApp</a>' +
-              '<a href="/book?tour=' + encodeURIComponent(pkg.name) + '" class="btn btn-ghost" style="padding:12px 16px;border-radius:10px;font-weight:800;font-size:13px;border:1px solid #18aaa6;color:#063c49;text-decoration:none;display:inline-block;">Online Form</a>' +
+            '<div style="margin-top:auto;padding-top:18px;display:flex;flex-direction:column;gap:8px;">' +
+              '<button type="button" data-open-booking data-book-tour="' + esc(pageKey || pkg.id || '') + '" data-book-package="' + esc(pkg.id || '') + '" class="btn-package-book primary">' +
+                '<span>Book This Experience</span><span class="btn-arrow">→</span>' +
+              '</button>' +
+              '<a href="' + waUrl + '" target="_blank" rel="noopener" class="btn" style="width:100%;min-height:42px;font-size:12px;background:#f0f7f5;color:var(--navy);border:1px solid #d2e7e2;border-radius:10px;text-align:center;display:flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;">' +
+                '<span>Quick Reserve via WhatsApp</span>' +
+              '</a>' +
             '</div>' +
           '</article>';
         }).join('');
