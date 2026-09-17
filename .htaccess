@@ -1,0 +1,9 @@
+RewriteEngine On
+
+# Serve website from dist folder on shared hosting
+RewriteCond %{REQUEST_URI} !^/dist/
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ /dist/$1 [L]
+
+DirectoryIndex dist/index.html
