@@ -56,6 +56,10 @@ window.reloadAdminDashboard=function(){bookings=JSON.parse(localStorage.getItem(
       $$('.cms-tab-content').forEach(c => c.classList.remove('active'));
       const activeContent = $(`#cmsTab_${tabKey}`);
       if(activeContent) activeContent.classList.add('active');
+      if(tabKey === 'images'){
+        renderImageSlots();
+        renderPresets();
+      }
     };
   });
 
@@ -650,17 +654,17 @@ window.reloadAdminDashboard=function(){bookings=JSON.parse(localStorage.getItem(
       </div>
     `).join('');
 
-    grid.querySelectorAll('.preset-card').forEach(card => {
+    grid.querySelectorAll('.preset-card').forEach((card, idx) => {
       const select = card.querySelector('.preset-target-select');
       const applyBtn = card.querySelector('.apply-preset-btn');
-      const img = card.querySelector('img');
+      const p = PRESETS[idx];
 
       applyBtn.onclick = () => {
         const targetKey = select.value;
         const currentSlots = getImageSlotsDef();
         const targetSlot = currentSlots.find(s => s.key === targetKey);
-        if(targetSlot){
-          targetSlot.setUrl(img.src);
+        if(targetSlot && p){
+          targetSlot.setUrl(p.url);
           renderImageSlots();
           showCmsToast(`Applied preset photo to ${targetSlot.label}. Click "Save Homepage CMS" to publish.`);
         }
