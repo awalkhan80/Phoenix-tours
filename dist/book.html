@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="en-AE">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Book Your Ride | Quad Bike & Dune Buggy Dubai | Phoenix Tours</title>
+  <meta name="description" content="Reserve your Quad Bike or Can-Am Buggy slot in the Dubai desert. 07:00 AM to 07:00 PM slots available. Transparent AED rates and instant confirmation.">
+  <link rel="canonical" href="https://phoenix-tours-barayshah.vercel.app/book">
+  <meta name="robots" content="index,follow">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="sands-page sands-book-page">
+  <!-- SITE HEADER -->
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="Phoenix Tours home">
+      <span class="brand-mark">P</span>
+      <span class="brand-copy"><strong>PHOENIX</strong><small>TOURS & ADVENTURES</small></span>
+    </a>
+    <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="mainNav" aria-label="Open navigation">☰</button>
+    <nav id="mainNav" aria-label="Main navigation">
+      <a href="/">Home</a>
+      <a href="/rides/quad-bike" id="navQuad">Quad Bike</a>
+      <a href="/rides/buggy" id="navBuggy">Dune Buggy</a>
+      <a href="/desert-safari-dubai.html">Desert Safari</a>
+      <a href="/dubai-city-tour.html">City Tour</a>
+      <a href="/#contact">Contact</a>
+    </nav>
+    <a class="header-phone" href="tel:+971561505270">+971 56 150 5270</a>
+    <a class="btn btn-primary desktop-book" href="/book">Book a Ride</a>
+  </header>
+
+  <!-- MAIN BOOKING CONTAINER -->
+  <main class="sands-book-wrapper">
+    <!-- HEADING -->
+    <div class="sands-book-heading">
+      <span class="sands-book-eyebrow">RESERVE A TIME SLOT</span>
+      <h1>Book your ride</h1>
+      <p class="sands-book-lead">Choose your ride, select a date, and lock an available slot from 07:00 AM to 07:00 PM. No licence required.</p>
+      <div class="sands-trust-pills">
+        <span>✓ Instant slot lock</span>
+        <span>✓ Pay on arrival</span>
+        <span>✓ Free cancellation up to 12h</span>
+        <span>✓ Safety briefing & gear included</span>
+      </div>
+    </div>
+
+    <!-- BOOKING FORM CARD -->
+    <div class="sands-form-box" id="bookingBox">
+      <!-- ACTIVE FORM -->
+      <form id="sandsBookingForm" novalidate>
+        <div class="sands-form-columns">
+          <!-- LEFT COLUMN: RIDE & SCHEDULE -->
+          <div class="sands-col-left">
+            <!-- CHOOSE RIDE -->
+            <fieldset class="sands-form-fieldset">
+              <legend class="sands-form-legend">Choose your ride</legend>
+              <div class="sands-ride-selector" role="radiogroup" aria-label="Choose your ride">
+                <button type="button" class="sands-ride-option active" id="rideOptQuad" data-ride="quad-bike" role="radio" aria-checked="true">
+                  <strong class="sands-ride-option-name">Quad Bike</strong>
+                  <span class="sands-ride-option-meta">From 150 AED · 1–2 riders per quad</span>
+                </button>
+                <button type="button" class="sands-ride-option" id="rideOptBuggy" data-ride="buggy" role="radio" aria-checked="false">
+                  <strong class="sands-ride-option-name">Dune Buggy</strong>
+                  <span class="sands-ride-option-meta">From 1,000 AED · 2 seater & 4 seater</span>
+                </button>
+              </div>
+            </fieldset>
+
+            <!-- DATE & DURATION ROW -->
+            <div class="sands-two-fields">
+              <div class="sands-input-group">
+                <label class="sands-input-label" for="bookDate">Date</label>
+                <input type="date" id="bookDate" class="sands-input" required>
+              </div>
+              <div class="sands-input-group">
+                <label class="sands-input-label" for="bookDuration">Duration / Type</label>
+                <select id="bookDuration" class="sands-input" required>
+                  <!-- Populated by JS based on chosen ride -->
+                </select>
+              </div>
+            </div>
+
+            <!-- AVAILABLE TIME SLOTS -->
+            <fieldset class="sands-form-fieldset sands-slots-wrap">
+              <legend class="sands-form-legend">Available time slots</legend>
+              <div id="slotsNotice" style="font-size:13px;color:var(--sands-ink-soft);margin-bottom:12px;">Select an available slot to continue.</div>
+
+              <!-- MORNING -->
+              <div class="sands-period-group">
+                <div class="sands-period-name">Morning</div>
+                <div class="sands-period-buttons">
+                  <button type="button" class="sands-slot-btn" data-slot="07:00 AM">07:00 AM</button>
+                  <button type="button" class="sands-slot-btn" data-slot="08:00 AM">08:00 AM</button>
+                  <button type="button" class="sands-slot-btn" data-slot="09:00 AM">09:00 AM</button>
+                  <button type="button" class="sands-slot-btn" data-slot="10:00 AM">10:00 AM</button>
+                  <button type="button" class="sands-slot-btn" data-slot="11:00 AM">11:00 AM</button>
+                </div>
+              </div>
+
+              <!-- AFTERNOON -->
+              <div class="sands-period-group">
+                <div class="sands-period-name">Afternoon</div>
+                <div class="sands-period-buttons">
+                  <button type="button" class="sands-slot-btn" data-slot="12:00 PM">12:00 PM</button>
+                  <button type="button" class="sands-slot-btn" data-slot="01:00 PM">01:00 PM</button>
+                  <button type="button" class="sands-slot-btn" data-slot="02:00 PM">02:00 PM</button>
+                  <button type="button" class="sands-slot-btn" data-slot="03:00 PM">03:00 PM</button>
+                  <button type="button" class="sands-slot-btn" data-slot="04:00 PM">04:00 PM</button>
+                </div>
+              </div>
+
+              <!-- EVENING -->
+              <div class="sands-period-group">
+                <div class="sands-period-name">Evening</div>
+                <div class="sands-period-buttons">
+                  <button type="button" class="sands-slot-btn" data-slot="05:00 PM">05:00 PM</button>
+                  <button type="button" class="sands-slot-btn" data-slot="06:00 PM">06:00 PM</button>
+                  <button type="button" class="sands-slot-btn" data-slot="07:00 PM">07:00 PM</button>
+                </div>
+              </div>
+
+              <div id="slotError" class="sands-slot-error hidden">Please select a time slot above.</div>
+            </fieldset>
+          </div>
+
+          <!-- RIGHT COLUMN: GUEST DETAILS & CONFIRMATION -->
+          <div class="sands-col-right sands-guest-fields">
+            <div class="sands-input-group">
+              <label class="sands-input-label" for="guestName">Full name *</label>
+              <input type="text" id="guestName" class="sands-input" placeholder="e.g. Alex Rivera" required>
+            </div>
+
+            <div class="sands-input-group">
+              <label class="sands-input-label" for="guestEmail">Email address *</label>
+              <input type="email" id="guestEmail" class="sands-input" placeholder="you@email.com" required>
+            </div>
+
+            <div class="sands-input-group">
+              <label class="sands-input-label" for="guestPhone">WhatsApp / Mobile number *</label>
+              <input type="tel" id="guestPhone" class="sands-input" placeholder="+971 50 123 4567" required>
+            </div>
+
+            <div class="sands-two-fields" style="margin-top:0;">
+              <div class="sands-input-group">
+                <label class="sands-input-label" for="guestVehicles" id="vehiclesLabel">Number of quads</label>
+                <input type="number" id="guestVehicles" class="sands-input" min="1" max="10" value="1" required>
+              </div>
+              <div class="sands-input-group">
+                <label class="sands-input-label" for="guestNotes">Special requests</label>
+                <input type="text" id="guestNotes" class="sands-input" placeholder="e.g. Hotel pickup, pair riding">
+              </div>
+            </div>
+
+            <!-- ORDER SUMMARY -->
+            <div class="sands-order-summary">
+              <p class="sands-summary-line" id="summaryRideLine">Quad Bike · 30 min (AED 150 per vehicle)</p>
+              <p class="sands-summary-line">
+                <span>Calculated Total: </span>
+                <strong id="summaryTotalLine">AED 150</strong>
+                <span style="font-size:12px;color:rgba(26,20,16,0.6);margin-left:6px;">(Pay on Arrival)</span>
+              </p>
+            </div>
+
+            <!-- TERMS CHECKBOX -->
+            <label class="sands-terms-checkbox" for="termsAgree">
+              <input type="checkbox" id="termsAgree" required checked>
+              <span>I agree to the Terms & Conditions for this reservation, including safety briefing, arriving 20 min prior to slot, and desert liability guidelines.</span>
+            </label>
+
+            <!-- SUBMIT BUTTON -->
+            <button type="submit" class="sands-btn-confirm" id="btnConfirmReservation">Confirm reservation</button>
+            <p class="sands-trust-hint">You’ll receive a booking code on screen instantly, and our desert base camp team receives your reservation alert.</p>
+
+            <!-- WHATSAPP FAST ALT -->
+            <a href="https://wa.me/971561505270?text=Hi%20Phoenix%20Tours,%20I%20would%20like%20to%20reserve%20a%20ride%20slot." class="sands-whatsapp-alt" target="_blank" rel="noopener">
+              <span>Or Book instantly via WhatsApp</span>
+              <span>→</span>
+            </a>
+          </div>
+        </div>
+      </form>
+
+      <!-- SUCCESS CONFIRMATION VIEW (initially hidden) -->
+      <div id="sandsConfirmedView" class="sands-confirmed-box hidden">
+        <span class="sands-confirmed-badge">RESERVATION CONFIRMED</span>
+        <h2 id="confHeading">You’re on the dunes!</h2>
+        <p class="sands-confirmed-lead" id="confLead">Your reservation has been recorded. Our team has received your slot details and coordinates are ready.</p>
+
+        <dl class="sands-details-grid">
+          <div class="sands-detail-item">
+            <dt>Confirmation Code</dt>
+            <dd id="confCode" style="color:var(--sands-oasis);font-size:18px;">PX-10492817</dd>
+          </div>
+          <div class="sands-detail-item">
+            <dt>Experience</dt>
+            <dd id="confRide">Quad Bike</dd>
+          </div>
+          <div class="sands-detail-item">
+            <dt>Date & Time Slot</dt>
+            <dd id="confDateTime">Tomorrow · 09:00 AM</dd>
+          </div>
+          <div class="sands-detail-item">
+            <dt>Duration & Vehicles</dt>
+            <dd id="confDuration">1 hour · 1 Vehicle</dd>
+          </div>
+          <div class="sands-detail-item">
+            <dt>Guest Name & Phone</dt>
+            <dd id="confGuest">Alex · +971 50 123 4567</dd>
+          </div>
+          <div class="sands-detail-item">
+            <dt>Total (Pay on Arrival)</dt>
+            <dd id="confTotal">AED 250</dd>
+          </div>
+        </dl>
+
+        <div class="sands-confirmed-actions">
+          <a id="confWhatsAppBtn" href="#" target="_blank" rel="noopener" class="sands-btn-oasis">
+            <span>Open WhatsApp for Camp Location & Pin</span>
+            <span>→</span>
+          </a>
+          <button type="button" class="sands-slot-btn" id="btnBookAnother" style="background:#e8dcc8;padding:12px 20px;font-size:14px;">
+            Book another slot
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-brand">
+      <strong>Phoenix Tours & Adventures</strong> · Dubai Desert Conservation Camp
+    </div>
+    <div>Licensed UAE Tour Operator · WhatsApp: +971 56 150 5270</div>
+    <div><a href="/admin" class="admin-link">CMS Admin</a></div>
+  </footer>
+
+  <!-- BOOKING SCRIPT -->
+  <script>
+    (function () {
+      // Rates structure
+      var RIDE_DATA = {
+        'quad-bike': {
+          name: 'Quad Bike',
+          labelVehicles: 'Number of quads',
+          durations: [
+            { id: '30min', label: '30 min — AED 150 / bike', rate: 150, text: '30 min' },
+            { id: '1hour', label: '1 hour — AED 250 / bike', rate: 250, text: '1 hour' }
+          ]
+        },
+        'buggy': {
+          name: 'Can-Am Buggy',
+          labelVehicles: 'Number of buggies',
+          durations: [
+            { id: '2seat-30m', label: '2 Seater · 30 min — AED 1,000 / buggy', rate: 1000, text: '2 Seater · 30 min' },
+            { id: '2seat-1h', label: '2 Seater · 1 hour — AED 1,800 / buggy', rate: 1800, text: '2 Seater · 1 hour' },
+            { id: '4seat-30m', label: '4 Seater · 30 min — AED 1,500 / buggy', rate: 1500, text: '4 Seater · 30 min' },
+            { id: '4seat-1h', label: '4 Seater · 1 hour — AED 2,800 / buggy', rate: 2800, text: '4 Seater · 1 hour' }
+          ]
+        }
+      };
+
+      // Read ride param from URL (?ride=quad-bike or ?ride=buggy)
+      var urlParams = new URLSearchParams(window.location.search);
+      var initialRide = urlParams.get('ride') || 'quad-bike';
+      if (initialRide === 'dune-buggy' || initialRide === 'canam' || initialRide === 'canam2') {
+        initialRide = 'buggy';
+      }
+      if (!RIDE_DATA[initialRide]) {
+        initialRide = 'quad-bike';
+      }
+
+      var currentRide = initialRide;
+      var selectedSlot = urlParams.get('slot') || '09:00 AM';
+
+      // Elements
+      var btnQuad = document.getElementById('rideOptQuad');
+      var btnBuggy = document.getElementById('rideOptBuggy');
+      var dateInput = document.getElementById('bookDate');
+      var durationSelect = document.getElementById('bookDuration');
+      var vehiclesInput = document.getElementById('guestVehicles');
+      var vehiclesLabel = document.getElementById('vehiclesLabel');
+      var summaryRideLine = document.getElementById('summaryRideLine');
+      var summaryTotalLine = document.getElementById('summaryTotalLine');
+      var slotButtons = document.querySelectorAll('.sands-slot-btn[data-slot]');
+      var slotsNotice = document.getElementById('slotsNotice');
+      var slotError = document.getElementById('slotError');
+      var form = document.getElementById('sandsBookingForm');
+      var bookingBox = document.getElementById('bookingBox');
+      var confirmedView = document.getElementById('sandsConfirmedView');
+
+      // Set default tomorrow date
+      var tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      var defaultDateStr = tomorrow.toISOString().split('T')[0];
+      dateInput.min = new Date().toISOString().split('T')[0];
+      dateInput.value = urlParams.get('date') || defaultDateStr;
+
+      // Populate durations based on currentRide
+      function renderDurations() {
+        var data = RIDE_DATA[currentRide];
+        durationSelect.innerHTML = '';
+        data.durations.forEach(function (d, idx) {
+          var opt = document.createElement('option');
+          opt.value = d.id;
+          opt.textContent = d.label;
+          durationSelect.appendChild(opt);
+        });
+        vehiclesLabel.textContent = data.labelVehicles;
+        updateSummary();
+      }
+
+      // Calculate total
+      function getSelectedDuration() {
+        var data = RIDE_DATA[currentRide];
+        var dId = durationSelect.value;
+        return data.durations.find(function (d) { return d.id === dId; }) || data.durations[0];
+      }
+
+      function updateSummary() {
+        var dur = getSelectedDuration();
+        var count = Math.max(1, parseInt(vehiclesInput.value, 10) || 1);
+        var total = (dur ? dur.rate : 150) * count;
+        var rName = RIDE_DATA[currentRide].name;
+
+        summaryRideLine.textContent = rName + ' · ' + (dur ? dur.text : '') + ' (AED ' + (dur ? dur.rate.toLocaleString() : '') + ' per vehicle)';
+        summaryTotalLine.textContent = 'AED ' + total.toLocaleString();
+      }
+
+      // Ride button switcher
+      function setRide(rideId) {
+        currentRide = rideId;
+        if (rideId === 'quad-bike') {
+          btnQuad.classList.add('active');
+          btnQuad.setAttribute('aria-checked', 'true');
+          btnBuggy.classList.remove('active');
+          btnBuggy.setAttribute('aria-checked', 'false');
+        } else {
+          btnBuggy.classList.add('active');
+          btnBuggy.setAttribute('aria-checked', 'true');
+          btnQuad.classList.remove('active');
+          btnQuad.setAttribute('aria-checked', 'false');
+        }
+        renderDurations();
+        // Update URL query string without reloading
+        if (history.replaceState) {
+          var newUrl = window.location.pathname + '?ride=' + encodeURIComponent(rideId);
+          history.replaceState(null, '', newUrl);
+        }
+      }
+
+      btnQuad.addEventListener('click', function () { setRide('quad-bike'); });
+      btnBuggy.addEventListener('click', function () { setRide('buggy'); });
+
+      // Time slot selection
+      function highlightSlot(slotText) {
+        selectedSlot = slotText;
+        slotButtons.forEach(function (btn) {
+          if (btn.getAttribute('data-slot') === slotText) {
+            btn.classList.add('active');
+          } else {
+            btn.classList.remove('active');
+          }
+        });
+        if (slotText) {
+          slotsNotice.innerHTML = 'Selected slot: <strong style="color:var(--sands-oasis);font-weight:700;">' + slotText + '</strong>';
+          slotError.classList.add('hidden');
+        }
+      }
+
+      slotButtons.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          highlightSlot(btn.getAttribute('data-slot'));
+        });
+      });
+
+      // Events
+      durationSelect.addEventListener('change', updateSummary);
+      vehiclesInput.addEventListener('input', updateSummary);
+
+      // Initialize
+      setRide(currentRide);
+      highlightSlot(selectedSlot);
+
+      // Handle Submission
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        if (!selectedSlot) {
+          slotError.classList.remove('hidden');
+          slotsNotice.scrollIntoView({ behavior: 'smooth' });
+          return;
+        }
+
+        var name = document.getElementById('guestName').value.trim();
+        var email = document.getElementById('guestEmail').value.trim();
+        var phone = document.getElementById('guestPhone').value.trim();
+        var date = dateInput.value;
+        var vehicles = Math.max(1, parseInt(vehiclesInput.value, 10) || 1);
+        var notes = document.getElementById('guestNotes').value.trim();
+        var dur = getSelectedDuration();
+        var total = (dur ? dur.rate : 150) * vehicles;
+        var rideName = RIDE_DATA[currentRide].name;
+
+        if (!name || !phone) {
+          alert('Please enter your name and phone number.');
+          return;
+        }
+
+        var btnSubmit = document.getElementById('btnConfirmReservation');
+        btnSubmit.disabled = true;
+        btnSubmit.textContent = 'Locking your slot…';
+
+        var payload = {
+          rideId: currentRide,
+          rideName: rideName,
+          duration: dur ? dur.text : '30 min',
+          rate: dur ? dur.rate : 150,
+          date: date,
+          slotId: selectedSlot,
+          name: name,
+          email: email,
+          phone: phone,
+          riders: vehicles,
+          notes: notes,
+          total: total,
+          source: 'Sands Booking Form'
+        };
+
+        // Post to backend server API
+        fetch('/api/book', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        })
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+          var code = data.confirmationCode || ('PX-' + Math.floor(10000000 + Math.random() * 90000000));
+          payload.confirmationCode = code;
+
+          // Also save in localStorage for local admin dashboard integration
+          try {
+            var existing = JSON.parse(localStorage.getItem('phoenixBookings') || '[]');
+            existing.unshift(payload);
+            localStorage.setItem('phoenixBookings', JSON.stringify(existing));
+          } catch (err) {}
+
+          // Display confirmation view
+          form.classList.add('hidden');
+          confirmedView.classList.remove('hidden');
+
+          var firstName = name.split(' ')[0] || 'Explorer';
+          document.getElementById('confHeading').textContent = 'You’re on the dunes, ' + firstName + '.';
+          document.getElementById('confLead').textContent = 'A confirmation was generated with booking code and your slot has been reserved. Our operations team was notified.';
+          document.getElementById('confCode').textContent = code;
+          document.getElementById('confRide').textContent = rideName;
+          document.getElementById('confDateTime').textContent = date + ' · ' + selectedSlot;
+          document.getElementById('confDuration').textContent = (dur ? dur.text : '30 min') + ' · ' + vehicles + ' ' + (vehicles === 1 ? 'vehicle' : 'vehicles');
+          document.getElementById('confGuest').textContent = name + ' (' + phone + ')';
+          document.getElementById('confTotal').textContent = 'AED ' + total.toLocaleString() + ' (Pay on Arrival)';
+
+          // WhatsApp link with booking reference
+          var waMsg = 'Hello Phoenix Tours! I have just booked ' + rideName + ' for ' + date + ' at ' + selectedSlot + ' (Code: ' + code + '). Please send me the desert camp location pin.';
+          var waUrl = 'https://wa.me/971561505270?text=' + encodeURIComponent(waMsg);
+          document.getElementById('confWhatsAppBtn').href = waUrl;
+
+          bookingBox.scrollIntoView({ behavior: 'smooth' });
+        })
+        .catch(function (err) {
+          btnSubmit.disabled = false;
+          btnSubmit.textContent = 'Confirm reservation';
+          alert('Could not complete reservation. Please try again or WhatsApp us at +971 56 150 5270.');
+        });
+      });
+
+      // "Book another slot" button
+      document.getElementById('btnBookAnother').addEventListener('click', function () {
+        form.reset();
+        dateInput.value = defaultDateStr;
+        highlightSlot('09:00 AM');
+        updateSummary();
+        var btnSubmit = document.getElementById('btnConfirmReservation');
+        btnSubmit.disabled = false;
+        btnSubmit.textContent = 'Confirm reservation';
+        confirmedView.classList.add('hidden');
+        form.classList.remove('hidden');
+      });
+
+      // Mobile nav
+      var menuBtn = document.getElementById('menuBtn');
+      var mainNav = document.getElementById('mainNav');
+      if (menuBtn && mainNav) {
+        menuBtn.addEventListener('click', function () {
+          var open = mainNav.classList.toggle('open');
+          menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

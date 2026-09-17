@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "node server.js",
     "start": "node server.js",
+    "lint": "node --check server.js dist/app.js dist/tour-data.js dist/admin.js dist/backup.js",
     "build": "node -e \"console.log('Phoenix Tours static site ready')\""
   },
   "engines": {
