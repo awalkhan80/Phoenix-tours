@@ -23,6 +23,22 @@ app.get(['/rides/buggy', '/rides/dune-buggy'], (req, res) => {
   res.sendFile(path.join(DIST_DIR, 'dune-buggy-dubai.html'));
 });
 
+app.get('/burj-khalifa-lake-ride', (req, res) => {
+  res.sendFile(path.join(DIST_DIR, 'burj-khalifa-lake-ride.html'));
+});
+
+app.get('/desert-safari-dubai', (req, res) => {
+  res.sendFile(path.join(DIST_DIR, 'desert-safari-dubai.html'));
+});
+
+app.get('/dubai-city-tour', (req, res) => {
+  res.sendFile(path.join(DIST_DIR, 'dubai-city-tour.html'));
+});
+
+app.get('/abu-dhabi-city-tour', (req, res) => {
+  res.sendFile(path.join(DIST_DIR, 'abu-dhabi-city-tour.html'));
+});
+
 app.get('/book', (req, res) => {
   res.sendFile(path.join(DIST_DIR, 'book.html'));
 });

@@ -76,6 +76,16 @@ let TOURS=toursById();
 function esc(v=''){return String(v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}
 function unitText(unit){return unit==='person'?'per person':unit==='vehicle'?'per vehicle':unit==='bike'?'per bike':unit==='buggy'?'per buggy':`per ${unit||'booking'}`}
 
+function getTourLandingUrl(t){
+  const id=String(t.id||'').toLowerCase();
+  if(id.includes('quad')) return '/rides/quad-bike';
+  if(id.includes('canam')||id.includes('buggy')) return '/rides/buggy';
+  if(id.includes('burj')) return '/burj-khalifa-lake-ride.html';
+  if(id.includes('abudhabi')||id.includes('abu-dhabi')) return '/abu-dhabi-city-tour.html';
+  if(id.includes('city')) return '/dubai-city-tour.html';
+  return '/desert-safari-dubai.html';
+}
+
 function renderTourCards(){
   const grid=$('#tourGrid');
   if(!grid)return;
@@ -98,6 +108,12 @@ function renderTourCards(){
           </div>
         `).join('')}
         <button class="book-card" data-book-tour="${esc(t.id)}">Book this experience <span>→</span></button>
+        <div style="margin-top:8px;text-align:center;">
+          <a href="${getTourLandingUrl(t)}" style="font-size:12px;font-weight:700;color:var(--aqua);text-decoration:none;display:inline-flex;align-items:center;gap:4px;">
+            <span>Explore full guide, itinerary & FAQs</span>
+            <span>→</span>
+          </a>
+        </div>
       </div>
     </article>
   `).join('')||'<p>No tours are currently available.</p>';

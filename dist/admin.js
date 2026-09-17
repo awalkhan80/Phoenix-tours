@@ -1,8 +1,8 @@
-const DEFAULT_TOURS=(window.PHOENIX_DEFAULT_TOURS||[]);const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];function clone(v){return JSON.parse(JSON.stringify(v))}function esc(v=''){return String(v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}function slug(v=''){return String(v).toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,48)||`tour-${Date.now().toString().slice(-6)}`}function normalizeTour(t){const base=DEFAULT_TOURS.find(x=>x.id===t.id)||{};const oldPrices=Array.isArray(t.prices)?t.prices.map((p,i)=>({id:`package-${i+1}`,name:p[0],price:Number(p[1])||0,unit:/sharing/i.test(p[0])?'person':/private/i.test(p[0])?'vehicle':'booking'})):[];let packages=Array.isArray(t.packages)&&t.packages.length?t.packages:oldPrices.length?oldPrices:clone(base.packages||[{id:'standard',name:'Standard',price:0,unit:'person'}]);if(base.packages&&['quad','canam2','canam4'].includes(t.id)){if(packages.length<2||packages[0].name.includes('1 Bike')||packages[0].name.includes('2 Seater · 30 Minutes')||packages[0].name.includes('4 Seater · 30 Minutes')){packages=clone(base.packages);}}return{...base,...t,id:t.id||slug(t.name),name:t.name||base.name||'New Tour',type:t.type||base.type||'Tour',category:t.category||base.category||'other',badge:t.badge||base.badge||'TOUR',duration:t.duration||base.duration||'Dubai',description:t.description||base.description||'Book this experience with Phoenix Tours.',active:t.active!==false,meetingPoint:Boolean(t.meetingPoint??base.meetingPoint),image:t.image||base.image||'hero.jpg',source:t.source||base.source||'',packages:packages.map((p,i)=>({id:p.id||`package-${i+1}`,name:p.name||`Package ${i+1}`,price:Number(p.price)||0,unit:p.unit||'person'}))}}function loadTours(){try{const raw=JSON.parse(localStorage.getItem('phoenixAdminTours')||'null');if(Array.isArray(raw)&&raw.length)return raw.map(normalizeTour)}catch{}return clone(DEFAULT_TOURS).map(normalizeTour)}let bookings=JSON.parse(localStorage.getItem('phoenixBookings')||'[]');let tours=loadTours();function save(){localStorage.setItem('phoenixBookings',JSON.stringify(bookings));localStorage.setItem('phoenixAdminTours',JSON.stringify(tours))}save();function money(n){return `AED ${Number(n||0).toLocaleString()}`}function statusBadge(s){return `<span class="status ${esc(s)}">${esc(s)}</span>`}function todayDubai(){return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Dubai',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date())}function renderStats(){const today=todayDubai();$('#statToday').textContent=bookings.filter(b=>b.date===today).length;$('#statTotal').textContent=bookings.length;$('#statRevenue').textContent=money(bookings.filter(b=>b.status!=='Cancelled').reduce((a,b)=>a+Number(b.total||0),0));$('#statPending').textContent=bookings.filter(b=>b.status==='New').length}function row(b,actions=false){const coll=b.collectionAmount||b.total||0;return `<tr><td><strong>${esc(b.id)}</strong></td><td>${esc(b.name||'—')}<br><small>${esc(b.phone||'')}</small></td><td>${esc(b.tour||b.rideName||'—')}<br><small>${esc(b.package||b.duration||'')}</small></td><td>${esc(b.date||'—')}<br><small>${esc(b.slotId||b.time||'')}</small></td>${actions?`<td>${Number(b.quantity||b.riders||1)}</td>`:''}<td><strong>${money(b.total)}</strong><br><small style="color:#0f766e;font-weight:700;">Collect: ${money(coll)}</small></td><td>${statusBadge(b.status||'New')}</td>${actions?`<td><select data-status="${esc(b.id)}"><option${b.status==='New'?' selected':''}>New</option><option${b.status==='Confirmed'?' selected':''}>Confirmed</option><option${b.status==='Completed'?' selected':''}>Completed</option><option${b.status==='Cancelled'?' selected':''}>Cancelled</option></select></td>`:''}</tr>`}function renderRecent(){$('#recentRows').innerHTML=bookings.slice(0,6).map(b=>row(b)).join('')||'<tr><td colspan="6">No bookings yet.</td></tr>';const counts={};bookings.forEach(b=>counts[b.tour]=(counts[b.tour]||0)+1);const popular=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,5);$('#popularTours').innerHTML=popular.length?popular.map(([n,c])=>`<div class="popular-item"><strong>${esc(n)}</strong><span>${c} booking${c>1?'s':''}</span></div>`).join(''):'<div class="popular-item"><strong>No data yet</strong><span>Bookings will appear here</span></div>'}function renderBookings(){const q=$('#bookingSearch').value.trim().toLowerCase(),sf=$('#statusFilter').value;const list=bookings.filter(b=>(sf==='all'||b.status===sf)&&(!q||`${b.id} ${b.name} ${b.phone} ${b.tour}`.toLowerCase().includes(q)));$('#bookingRows').innerHTML=list.map(b=>row(b,true)).join('')||'<tr><td colspan="8">No matching bookings.</td></tr>';$$('[data-status]').forEach(s=>s.onchange=()=>{const b=bookings.find(x=>x.id===s.dataset.status);if(b){b.status=s.value;save();renderAll()}})}function unitLabel(u){return u==='person'?'per person':u==='vehicle'?'per vehicle':u==='bike'?'per bike':u==='buggy'?'per buggy':`per ${u||'booking'}`}function renderTourSummary(){$('#tourCount').textContent=tours.length;$('#activeTourCount').textContent=tours.filter(t=>t.active!==false).length;$('#packageCount').textContent=tours.reduce((a,t)=>a+(t.packages?.length||0),0)}function renderTours(){const q=$('#tourSearchAdmin').value.trim().toLowerCase(),f=$('#tourTypeFilter').value;const list=tours.filter(t=>(f==='all'||(t.category||'other')===f)&&(!q||`${t.name} ${t.type} ${t.description}`.toLowerCase().includes(q)));$('#tourAdminGrid').innerHTML=list.map(t=>`<article class="tour-admin-card${t.active===false?' inactive':''}" data-tour-card="${esc(t.id)}"><div class="tour-card-image"><img src="${esc(t.image||'hero.jpg')}" alt="${esc(t.name)}"><span class="tour-card-status${t.active===false?' off':''}">${t.active===false?'INACTIVE':'ACTIVE'}</span>${t.source?`<a class="tour-card-source" href="${esc(t.source)}" target="_blank" rel="noopener">Pexels ↗</a>`:''}</div><div class="tour-card-body"><div class="tour-meta"><span>${esc(t.type)}</span><span>${esc(t.duration||'')}</span></div><h3>${esc(t.name)}</h3><p>${esc(t.description)}</p><div class="price-list">${(t.packages||[]).map(p=>`<div class="price-line"><span>${esc(p.name)} · ${unitLabel(p.unit)}</span><strong>${money(p.price)}</strong></div>`).join('')}</div><div class="tour-card-actions"><button class="ghost" data-edit-tour="${esc(t.id)}">Edit</button><button class="ghost" data-duplicate-tour="${esc(t.id)}">Duplicate</button><button class="danger" data-delete-tour="${esc(t.id)}">Delete</button></div></div></article>`).join('')||'<div class="panel">No tours match your search.</div>';renderTourSummary();bindTourActions();renderMedia();refreshManualTourOptions()}function renderMedia(){$('#mediaGrid').innerHTML=tours.map(t=>`<article class="media-card"><img src="${esc(t.image||'hero.jpg')}" alt="${esc(t.name)}"><div><h3>${esc(t.name)}</h3><p>${esc(t.type)} · ${esc(t.duration||'')}</p>${t.source?`<a href="${esc(t.source)}" target="_blank" rel="noopener">Open Pexels source →</a>`:'<span>No source URL</span>'}</div></article>`).join('')}function bindTourActions(){$$('[data-edit-tour]').forEach(b=>b.onclick=()=>openTourDialog(b.dataset.editTour));$$('[data-duplicate-tour]').forEach(b=>b.onclick=()=>duplicateTour(b.dataset.duplicateTour));$$('[data-delete-tour]').forEach(b=>b.onclick=()=>deleteTour(b.dataset.deleteTour))}function duplicateTour(id){const original=tours.find(t=>t.id===id);if(!original)return;const copy=clone(original);copy.id=`${slug(original.name)}-${Date.now().toString().slice(-5)}`;copy.name=`${original.name} Copy`;copy.badge='NEW';tours.unshift(copy);save();renderAll();openTourDialog(copy.id)}function deleteTour(id){const t=tours.find(x=>x.id===id);if(!t)return;if(!confirm(`Delete "${t.name}"? This removes it from this dashboard and the public tour list in this browser.`))return;tours=tours.filter(x=>x.id!==id);save();renderAll()}function refreshManualTourOptions(){const select=$('#manualTour');if(select)select.innerHTML=tours.filter(t=>t.active!==false).map(t=>`<option value="${esc(t.name)}">${esc(t.name)}</option>`).join('')}function renderAll(){renderStats();renderRecent();renderBookings();renderTours()}const titles={overview:['Dashboard Overview','Bookings, tours and website content in one place.'],bookings:['Bookings','Search, confirm and manage customer requests.'],tours:['Tour Manager','Create and edit the experiences shown on your website.'],cms:['Homepage CMS','Manage hero, categories, tours intro, why us, banner, latest experiences and images.'],media:['Media Library','Review the Pexels media attached to your tours.'],settings:['Settings','Update the operational details used by your team.']};$$('.sidebar nav button').forEach(b=>b.onclick=()=>{$$('.sidebar nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');$$('.view').forEach(v=>v.classList.remove('active'));$('#'+b.dataset.view).classList.add('active');$('#viewTitle').textContent=titles[b.dataset.view][0];$('#viewSubtitle').textContent=titles[b.dataset.view][1]});$$('[data-go]').forEach(b=>b.onclick=()=>document.querySelector(`.sidebar nav button[data-view="${b.dataset.go}"]`).click());$('#bookingSearch').oninput=renderBookings;$('#statusFilter').onchange=renderBookings;$('#tourSearchAdmin').oninput=renderTours;$('#tourTypeFilter').onchange=renderTours;$('#resetToursBtn').onclick=()=>{if(confirm('Reset all tour edits to the default Phoenix Tours catalog?')){tours=clone(DEFAULT_TOURS).map(normalizeTour);save();renderAll()}};$('#exportBtn').onclick=()=>{if(!bookings.length)return alert('No bookings to export.');const heads=['ID','Created','Customer','Phone','Tour','Package','Quantity','Date','Time','Pickup','Total','Status'];const lines=[heads.join(','),...bookings.map(b=>[b.id,b.createdAt,b.name,b.phone,b.tour,b.package,b.quantity,b.date,b.time,b.pickup,b.total,b.status].map(v=>`"${String(v??'').replaceAll('"','""')}"`).join(','))];const blob=new Blob([lines.join('\n')],{type:'text/csv'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='phoenix-bookings.csv';a.click();URL.revokeObjectURL(a.href)};
+const DEFAULT_TOURS=(window.PHOENIX_DEFAULT_TOURS||[]);const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];function clone(v){return JSON.parse(JSON.stringify(v))}function esc(v=''){return String(v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}function slug(v=''){return String(v).toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,48)||`tour-${Date.now().toString().slice(-6)}`}function normalizeTour(t){const base=DEFAULT_TOURS.find(x=>x.id===t.id)||{};const oldPrices=Array.isArray(t.prices)?t.prices.map((p,i)=>({id:`package-${i+1}`,name:p[0],price:Number(p[1])||0,unit:/sharing/i.test(p[0])?'person':/private/i.test(p[0])?'vehicle':'booking'})):[];let packages=Array.isArray(t.packages)&&t.packages.length?t.packages:oldPrices.length?oldPrices:clone(base.packages||[{id:'standard',name:'Standard',price:0,unit:'person'}]);if(base.packages&&['quad','canam2','canam4'].includes(t.id)){if(packages.length<2||packages[0].name.includes('1 Bike')||packages[0].name.includes('2 Seater · 30 Minutes')||packages[0].name.includes('4 Seater · 30 Minutes')){packages=clone(base.packages);}}return{...base,...t,id:t.id||slug(t.name),name:t.name||base.name||'New Tour',type:t.type||base.type||'Tour',category:t.category||base.category||'other',badge:t.badge||base.badge||'TOUR',duration:t.duration||base.duration||'Dubai',description:t.description||base.description||'Book this experience with Phoenix Tours.',active:t.active!==false,meetingPoint:Boolean(t.meetingPoint??base.meetingPoint),image:t.image||base.image||'hero.jpg',source:t.source||base.source||'',packages:packages.map((p,i)=>({id:p.id||`package-${i+1}`,name:p.name||`Package ${i+1}`,price:Number(p.price)||0,unit:p.unit||'person'}))}}function loadTours(){try{const raw=JSON.parse(localStorage.getItem('phoenixAdminTours')||'null');if(Array.isArray(raw)&&raw.length)return raw.map(normalizeTour)}catch{}return clone(DEFAULT_TOURS).map(normalizeTour)}let bookings=JSON.parse(localStorage.getItem('phoenixBookings')||'[]');let tours=loadTours();function save(){localStorage.setItem('phoenixBookings',JSON.stringify(bookings));localStorage.setItem('phoenixAdminTours',JSON.stringify(tours))}save();function money(n){return `AED ${Number(n||0).toLocaleString()}`}function statusBadge(s){return `<span class="status ${esc(s)}">${esc(s)}</span>`}function todayDubai(){return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Dubai',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date())}function renderStats(){const today=todayDubai();$('#statToday').textContent=bookings.filter(b=>b.date===today).length;$('#statTotal').textContent=bookings.length;$('#statRevenue').textContent=money(bookings.filter(b=>b.status!=='Cancelled').reduce((a,b)=>a+Number(b.total||0),0));$('#statPending').textContent=bookings.filter(b=>b.status==='New').length}function row(b,actions=false){const coll=b.collectionAmount||b.total||0;return `<tr><td><strong>${esc(b.id)}</strong></td><td>${esc(b.name||'—')}<br><small>${esc(b.phone||'')}</small></td><td>${esc(b.tour||b.rideName||'—')}<br><small>${esc(b.package||b.duration||'')}</small></td><td>${esc(b.date||'—')}<br><small>${esc(b.slotId||b.time||'')}</small></td>${actions?`<td>${Number(b.quantity||b.riders||1)}</td>`:''}<td><strong>${money(b.total)}</strong><br><small style="color:#0f766e;font-weight:700;">Collect: ${money(coll)}</small></td><td>${statusBadge(b.status||'New')}</td>${actions?`<td><select data-status="${esc(b.id)}"><option${b.status==='New'?' selected':''}>New</option><option${b.status==='Confirmed'?' selected':''}>Confirmed</option><option${b.status==='Completed'?' selected':''}>Completed</option><option${b.status==='Cancelled'?' selected':''}>Cancelled</option></select></td>`:''}</tr>`}function renderRecent(){$('#recentRows').innerHTML=bookings.slice(0,6).map(b=>row(b)).join('')||'<tr><td colspan="6">No bookings yet.</td></tr>';const counts={};bookings.forEach(b=>counts[b.tour]=(counts[b.tour]||0)+1);const popular=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,5);$('#popularTours').innerHTML=popular.length?popular.map(([n,c])=>`<div class="popular-item"><strong>${esc(n)}</strong><span>${c} booking${c>1?'s':''}</span></div>`).join(''):'<div class="popular-item"><strong>No data yet</strong><span>Bookings will appear here</span></div>'}function renderBookings(){const q=$('#bookingSearch').value.trim().toLowerCase(),sf=$('#statusFilter').value;const list=bookings.filter(b=>(sf==='all'||b.status===sf)&&(!q||`${b.id} ${b.name} ${b.phone} ${b.tour}`.toLowerCase().includes(q)));$('#bookingRows').innerHTML=list.map(b=>row(b,true)).join('')||'<tr><td colspan="8">No matching bookings.</td></tr>';$$('[data-status]').forEach(s=>s.onchange=()=>{const b=bookings.find(x=>x.id===s.dataset.status);if(b){b.status=s.value;save();renderAll()}})}function unitLabel(u){return u==='person'?'per person':u==='vehicle'?'per vehicle':u==='bike'?'per bike':u==='buggy'?'per buggy':`per ${u||'booking'}`}function renderTourSummary(){$('#tourCount').textContent=tours.length;$('#activeTourCount').textContent=tours.filter(t=>t.active!==false).length;$('#packageCount').textContent=tours.reduce((a,t)=>a+(t.packages?.length||0),0)}function renderTours(){const q=$('#tourSearchAdmin').value.trim().toLowerCase(),f=$('#tourTypeFilter').value;const list=tours.filter(t=>(f==='all'||(t.category||'other')===f)&&(!q||`${t.name} ${t.type} ${t.description}`.toLowerCase().includes(q)));$('#tourAdminGrid').innerHTML=list.map(t=>`<article class="tour-admin-card${t.active===false?' inactive':''}" data-tour-card="${esc(t.id)}"><div class="tour-card-image"><img src="${esc(t.image||'hero.jpg')}" alt="${esc(t.name)}"><span class="tour-card-status${t.active===false?' off':''}">${t.active===false?'INACTIVE':'ACTIVE'}</span>${t.source?`<a class="tour-card-source" href="${esc(t.source)}" target="_blank" rel="noopener">Pexels ↗</a>`:''}</div><div class="tour-card-body"><div class="tour-meta"><span>${esc(t.type)}</span><span>${esc(t.duration||'')}</span></div><h3>${esc(t.name)}</h3><p>${esc(t.description)}</p><div class="price-list">${(t.packages||[]).map(p=>`<div class="price-line"><span>${esc(p.name)} · ${unitLabel(p.unit)}</span><strong>${money(p.price)}</strong></div>`).join('')}</div><div class="tour-card-actions"><button class="ghost" data-edit-tour="${esc(t.id)}">Edit</button><button class="ghost" data-landing-tour="${esc(t.id)}" title="Edit Landing Page Content">Landing CMS</button><button class="ghost" data-duplicate-tour="${esc(t.id)}">Duplicate</button><button class="danger" data-delete-tour="${esc(t.id)}">Delete</button></div></div></article>`).join('')||'<div class="panel">No tours match your search.</div>';renderTourSummary();bindTourActions();renderMedia();refreshManualTourOptions()}function renderMedia(){$('#mediaGrid').innerHTML=tours.map(t=>`<article class="media-card"><img src="${esc(t.image||'hero.jpg')}" alt="${esc(t.name)}"><div><h3>${esc(t.name)}</h3><p>${esc(t.type)} · ${esc(t.duration||'')}</p>${t.source?`<a href="${esc(t.source)}" target="_blank" rel="noopener">Open Pexels source →</a>`:'<span>No source URL</span>'}</div></article>`).join('')}function bindTourActions(){$$('[data-edit-tour]').forEach(b=>b.onclick=()=>openTourDialog(b.dataset.editTour));$$('[data-duplicate-tour]').forEach(b=>b.onclick=()=>duplicateTour(b.dataset.duplicateTour));$$('[data-delete-tour]').forEach(b=>b.onclick=()=>deleteTour(b.dataset.deleteTour));$$('[data-landing-tour]').forEach(b=>b.onclick=()=>{const id=b.dataset.landingTour;const map={'evening':'safari','morning':'safari','premium':'safari','safari':'safari','quad':'quad','canam2':'buggy','canam4':'buggy','buggy':'buggy','burj-lake':'lake-ride','lake-ride':'lake-ride','dubai-city':'dubai-city','abudhabi':'abu-dhabi','abu-dhabi':'abu-dhabi'};const targetKey=map[id]||'safari';const sel=$('#landingPageSelector');if(sel){sel.value=targetKey;sel.dispatchEvent(new Event('change'))}const navBtn=document.querySelector('.sidebar nav button[data-view="landing"]');if(navBtn)navBtn.click()})}function duplicateTour(id){const original=tours.find(t=>t.id===id);if(!original)return;const copy=clone(original);copy.id=`${slug(original.name)}-${Date.now().toString().slice(-5)}`;copy.name=`${original.name} Copy`;copy.badge='NEW';tours.unshift(copy);save();renderAll();openTourDialog(copy.id)}function deleteTour(id){const t=tours.find(x=>x.id===id);if(!t)return;if(!confirm(`Delete "${t.name}"? This removes it from this dashboard and the public tour list in this browser.`))return;tours=tours.filter(x=>x.id!==id);save();renderAll()}function refreshManualTourOptions(){const select=$('#manualTour');if(select)select.innerHTML=tours.filter(t=>t.active!==false).map(t=>`<option value="${esc(t.name)}">${esc(t.name)}</option>`).join('')}function renderAll(){renderStats();renderRecent();renderBookings();renderTours()}const titles={overview:['Dashboard Overview','Bookings, tours and website content in one place.'],bookings:['Bookings','Search, confirm and manage customer requests.'],tours:['Tour Manager','Create and edit the experiences shown on your website.'],cms:['Homepage CMS','Manage hero, categories, tours intro, why us, banner, latest experiences and images.'],landing:['Tour Landing Pages CMS','Live edit hero, descriptions, rates & packages, highlights and FAQs for all 6 tour landing pages.'],media:['Media Library','Review the Pexels media attached to your tours.'],settings:['Settings','Update the operational details used by your team.']};$$('.sidebar nav button').forEach(b=>b.onclick=()=>{$$('.sidebar nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');$$('.view').forEach(v=>v.classList.remove('active'));$('#'+b.dataset.view).classList.add('active');$('#viewTitle').textContent=titles[b.dataset.view][0];$('#viewSubtitle').textContent=titles[b.dataset.view][1]});$$('[data-go]').forEach(b=>b.onclick=()=>document.querySelector(`.sidebar nav button[data-view="${b.dataset.go}"]`).click());$('#bookingSearch').oninput=renderBookings;$('#statusFilter').onchange=renderBookings;$('#tourSearchAdmin').oninput=renderTours;$('#tourTypeFilter').onchange=renderTours;$('#resetToursBtn').onclick=()=>{if(confirm('Reset all tour edits to the default Phoenix Tours catalog?')){tours=clone(DEFAULT_TOURS).map(normalizeTour);save();renderAll()}};$('#exportBtn').onclick=()=>{if(!bookings.length)return alert('No bookings to export.');const heads=['ID','Created','Customer','Phone','Tour','Package','Quantity','Date','Time','Pickup','Total','Status'];const lines=[heads.join(','),...bookings.map(b=>[b.id,b.createdAt,b.name,b.phone,b.tour,b.package,b.quantity,b.date,b.time,b.pickup,b.total,b.status].map(v=>`"${String(v??'').replaceAll('"','""')}"`).join(','))];const blob=new Blob([lines.join('\n')],{type:'text/csv'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='phoenix-bookings.csv';a.click();URL.revokeObjectURL(a.href)};
 const bookingDialog=$('#bookingDialog');function openBookingDialog(){refreshManualTourOptions();bookingDialog.showModal()}$('#addBookingBtn').onclick=openBookingDialog;$('#addBookingInline').onclick=openBookingDialog;$('#manualBookingForm').onsubmit=e=>{e.preventDefault();const b={id:`PX-${Date.now().toString().slice(-8)}`,createdAt:new Date().toISOString(),name:$('#manualName').value.trim(),phone:$('#manualPhone').value.trim(),tour:$('#manualTour').value,package:'Manual booking',quantity:Number($('#manualQty').value)||1,date:$('#manualDate').value,time:'To confirm',pickup:'To confirm',total:Number($('#manualTotal').value)||0,status:'New'};bookings.unshift(b);save();renderAll();bookingDialog.close();e.target.reset()};
 const tourDialog=$('#tourDialog'),tourForm=$('#tourForm'),packageEditor=$('#packageEditor');function packageRow(p={}){const row=document.createElement('div');row.className='package-row';row.innerHTML=`<input class="pkg-name" placeholder="Package name" value="${esc(p.name||'')}" required><input class="pkg-price" type="number" min="0" placeholder="Price" value="${Number(p.price||0)}" required><select class="pkg-unit"><option value="person"${p.unit==='person'?' selected':''}>Per person</option><option value="vehicle"${p.unit==='vehicle'?' selected':''}>Per vehicle</option><option value="bike"${p.unit==='bike'?' selected':''}>Per bike</option><option value="buggy"${p.unit==='buggy'?' selected':''}>Per buggy</option><option value="booking"${p.unit==='booking'?' selected':''}>Per booking</option></select><button class="remove-package" type="button">×</button>`;row.querySelector('.remove-package').onclick=()=>{if(packageEditor.children.length>1)row.remove()};return row}function addPackage(p){packageEditor.appendChild(packageRow(p))}$('#addPackageBtn').onclick=()=>addPackage({name:'New Package',price:0,unit:'person'});function updatePreview(){const img=$('#tourImage').value.trim();$('#tourPreviewImage').src=img||'hero.jpg';$('#tourPreviewName').textContent=$('#tourName').value.trim()||'Tour name';$('#tourPreviewBadge').textContent=$('#tourBadge').value.trim()||'NEW TOUR';$('#tourPreviewDescription').textContent=$('#tourDescription').value.trim()||'Your description appears here.'}['tourImage','tourName','tourBadge','tourDescription'].forEach(id=>$('#'+id).addEventListener('input',updatePreview));function openTourDialog(id=null){tourForm.reset();packageEditor.innerHTML='';const t=id?tours.find(x=>x.id===id):null;$('#tourEditId').value=t?.id||'';$('#tourDialogTitle').textContent=t?'Edit tour':'Add new tour';$('#tourName').value=t?.name||'';$('#tourCategory').value=t?.category||'safari';$('#tourType').value=t?.type||'Safari';$('#tourBadge').value=t?.badge||'';$('#tourDuration').value=t?.duration||'';$('#tourDescription').value=t?.description||'';$('#tourImage').value=t?.image||'';$('#tourSource').value=t?.source||'';$('#tourMeetingPoint').checked=Boolean(t?.meetingPoint);$('#tourActive').checked=t?.active!==false;(t?.packages?.length?t.packages:[{name:'Standard',price:0,unit:'person'}]).forEach(addPackage);updatePreview();tourDialog.showModal()}$('#addTourBtn').onclick=()=>openTourDialog();tourForm.onsubmit=e=>{e.preventDefault();const editingId=$('#tourEditId').value;const packages=[...packageEditor.querySelectorAll('.package-row')].map((row,i)=>({id:`package-${i+1}`,name:row.querySelector('.pkg-name').value.trim(),price:Number(row.querySelector('.pkg-price').value)||0,unit:row.querySelector('.pkg-unit').value})).filter(p=>p.name);if(!packages.length)return alert('Add at least one pricing package.');let id=editingId||slug($('#tourName').value);if(!editingId&&tours.some(t=>t.id===id))id=`${id}-${Date.now().toString().slice(-4)}`;const tour={id,name:$('#tourName').value.trim(),category:$('#tourCategory').value,type:$('#tourType').value.trim()||'Tour',badge:$('#tourBadge').value.trim()||'TOUR',duration:$('#tourDuration').value.trim()||'Dubai',description:$('#tourDescription').value.trim(),image:$('#tourImage').value.trim()||'hero.jpg',source:$('#tourSource').value.trim(),meetingPoint:$('#tourMeetingPoint').checked,active:$('#tourActive').checked,packages};if(editingId){const i=tours.findIndex(t=>t.id===editingId);if(i>=0)tours[i]=tour}else tours.unshift(tour);save();renderAll();tourDialog.close()};
 const settings=JSON.parse(localStorage.getItem('phoenixSettings')||'{}');if(settings.company)$('#settingCompany').value=settings.company;if(settings.phone)$('#settingPhone').value=settings.phone;if(settings.location)$('#settingLocation').value=settings.location;if(settings.payment)$('#settingPayment').value=settings.payment;$('#saveSettings').onclick=()=>{localStorage.setItem('phoenixSettings',JSON.stringify({company:$('#settingCompany').value,phone:$('#settingPhone').value,location:$('#settingLocation').value,payment:$('#settingPayment').value}));alert('Settings saved.')};renderAll();
-window.reloadAdminDashboard=function(){bookings=JSON.parse(localStorage.getItem('phoenixBookings')||'[]');tours=loadTours();const s=JSON.parse(localStorage.getItem('phoenixSettings')||'{}');if(s.company)$('#settingCompany').value=s.company;if(s.phone)$('#settingPhone').value=s.phone;if(s.location)$('#settingLocation').value=s.location;if(s.payment)$('#settingPayment').value=s.payment;renderAll();if(typeof window.refreshCategoryEditor==='function')window.refreshCategoryEditor();if(typeof window.updateBackupMeta==='function')window.updateBackupMeta();if(typeof window.refreshHomepageCMS==='function')window.refreshHomepageCMS();};window.addEventListener('phoenix:data-restored',()=>window.reloadAdminDashboard());
+window.reloadAdminDashboard=function(){bookings=JSON.parse(localStorage.getItem('phoenixBookings')||'[]');tours=loadTours();const s=JSON.parse(localStorage.getItem('phoenixSettings')||'{}');if(s.company)$('#settingCompany').value=s.company;if(s.phone)$('#settingPhone').value=s.phone;if(s.location)$('#settingLocation').value=s.location;if(s.payment)$('#settingPayment').value=s.payment;renderAll();if(typeof window.refreshCategoryEditor==='function')window.refreshCategoryEditor();if(typeof window.updateBackupMeta==='function')window.updateBackupMeta();if(typeof window.refreshHomepageCMS==='function')window.refreshHomepageCMS();if(typeof window.refreshLandingCMS==='function')window.refreshLandingCMS();};window.addEventListener('phoenix:data-restored',()=>window.reloadAdminDashboard());
 
 /* ============================================================
    HOMEPAGE CMS MANAGEMENT ENGINE
@@ -877,4 +877,356 @@ window.reloadAdminDashboard=function(){bookings=JSON.parse(localStorage.getItem(
     });
   }
 })();
+
+/* ============================================================
+   LANDING PAGES CMS MANAGEMENT ENGINE
+============================================================ */
+(function(){
+  const DEFAULTS = window.PHOENIX_DEFAULT_LANDING_PAGES || {};
+
+  const pageFiles = {
+    'safari': 'desert-safari-dubai.html',
+    'quad': 'quad-bike-dubai.html',
+    'buggy': 'dune-buggy-dubai.html',
+    'lake-ride': 'burj-khalifa-lake-ride.html',
+    'dubai-city': 'dubai-city-tour.html',
+    'abu-dhabi': 'abu-dhabi-city-tour.html'
+  };
+
+  function getStoredLandingCMS(){
+    try {
+      const raw = localStorage.getItem('phoenixLandingCMS');
+      if (raw) return JSON.parse(raw);
+    } catch(e) {
+      console.warn('Error reading phoenixLandingCMS', e);
+    }
+    return {};
+  }
+
+  function saveStoredLandingCMS(data){
+    localStorage.setItem('phoenixLandingCMS', JSON.stringify(data));
+  }
+
+  function showLandingToast(msg, isErr=false){
+    const el = $('#landingCmsStatus');
+    if(!el) return;
+    el.textContent = msg;
+    el.className = `cms-status show ${isErr?'err':'ok'}`;
+    setTimeout(()=>{ if(el) el.className='cms-status'; }, 5000);
+  }
+
+  // Setup sub-tabs
+  $$('#landingTabs button').forEach(btn => {
+    btn.onclick = () => {
+      $$('#landingTabs button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const tabKey = btn.dataset.landingTab;
+      $$('.landing-tab-content').forEach(c => c.classList.remove('active'));
+      const activeContent = $(`#landingTab_${tabKey}`);
+      if(activeContent) activeContent.classList.add('active');
+    };
+  });
+
+  // Highlight item row builder
+  function createHighlightRow(text = ''){
+    const row = document.createElement('div');
+    row.className = 'landing-highlight-row';
+    row.innerHTML = `<span style="color:#18aaa6;font-weight:900;">•</span>
+      <input type="text" class="hl-text" placeholder="Highlight item..." value="${esc(text)}">
+      <button type="button" title="Remove">×</button>`;
+    row.querySelector('button').onclick = () => row.remove();
+    return row;
+  }
+
+  // FAQ card builder
+  function createFaqCard(faq = {}){
+    const card = document.createElement('div');
+    card.className = 'landing-faq-card';
+    card.innerHTML = `<div class="landing-faq-header">
+        <strong>FAQ Item</strong>
+        <button type="button">Remove</button>
+      </div>
+      <label style="font-size:8px;font-weight:800;color:#60767c;">Question
+        <input type="text" class="faq-q" placeholder="Enter question..." value="${esc(faq.q||'')}">
+      </label>
+      <label style="font-size:8px;font-weight:800;color:#60767c;">Answer
+        <textarea class="faq-a" rows="3" placeholder="Enter answer...">${esc(faq.a||'')}</textarea>
+      </label>`;
+    card.querySelector('button').onclick = () => card.remove();
+    return card;
+  }
+
+  // Package card builder
+  function createPackageCard(pkg = {}){
+    const card = document.createElement('div');
+    card.className = 'cms-card-item';
+    const inclStr = Array.isArray(pkg.inclusions) ? pkg.inclusions.join('\n') : (pkg.inclusions || '');
+    card.innerHTML = `<div class="cms-card-item-header">
+        <strong class="pkg-header-title">${esc(pkg.name || 'New Package')}</strong>
+        <button type="button" class="remove-landing-pkg" style="padding:3px 8px;font-size:8px;border-radius:6px;color:#a44444;background:#fff2f2;border:1px solid #f0d5d5;cursor:pointer;">Delete</button>
+      </div>
+      <div class="cms-form-grid">
+        <label>Package title
+          <input type="text" class="lpkg-name" value="${esc(pkg.name || '')}" placeholder="Standard / VIP...">
+        </label>
+        <label>Badge / Tag
+          <input type="text" class="lpkg-badge" value="${esc(pkg.badge || '')}" placeholder="BEST SELLER / POPULAR...">
+        </label>
+        <label>Price (AED)
+          <input type="number" class="lpkg-price" min="0" value="${Number(pkg.price || 0)}" placeholder="Price in AED">
+        </label>
+        <label>Price unit
+          <select class="lpkg-unit">
+            <option value="person"${pkg.unit==='person'?' selected':''}>Per person</option>
+            <option value="vehicle"${pkg.unit==='vehicle'?' selected':''}>Per vehicle</option>
+            <option value="bike"${pkg.unit==='bike'?' selected':''}>Per bike</option>
+            <option value="buggy"${pkg.unit==='buggy'?' selected':''}>Per buggy</option>
+            <option value="booking"${pkg.unit==='booking'?' selected':''}>Per booking</option>
+          </select>
+        </label>
+        <label class="full">Short summary description
+          <input type="text" class="lpkg-desc" value="${esc(pkg.desc || '')}" placeholder="Quick summary of this tier">
+        </label>
+        <label class="full">Inclusions (one per line)
+          <textarea class="lpkg-inclusions" rows="4" placeholder="Dune bashing in 4x4\nCamel ride & Sandboarding\nBBQ Buffet Dinner...">${esc(inclStr)}</textarea>
+        </label>
+        <label class="full">WhatsApp pre-filled message
+          <input type="text" class="lpkg-wamsg" value="${esc(pkg.waMsg || '')}" placeholder="Hi Phoenix Tours, I would like to book...">
+        </label>
+      </div>`;
+
+    card.querySelector('.lpkg-name').oninput = (e) => {
+      card.querySelector('.pkg-header-title').textContent = e.target.value || 'New Package';
+    };
+    card.querySelector('.remove-landing-pkg').onclick = () => {
+      if ($('#landingPackagesList').children.length > 1) {
+        card.remove();
+      } else {
+        alert('You must keep at least one package.');
+      }
+    };
+    return card;
+  }
+
+  let currentKey = 'safari';
+
+  function populateLandingPage(pageKey){
+    currentKey = pageKey || 'safari';
+    const def = DEFAULTS[currentKey] || {};
+    const storedAll = getStoredLandingCMS();
+    const cur = Object.assign({}, def, storedAll[currentKey] || {});
+
+    // Update view page button
+    const pageUrl = pageFiles[currentKey] || 'index.html';
+    const viewBtn = $('#landingViewPageBtn');
+    if (viewBtn) viewBtn.href = pageUrl;
+
+    // 1. Hero
+    const hero = cur.hero || {};
+    $('#landingHeroEyebrow').value = hero.eyebrow || '';
+    $('#landingHeroTitle').value = hero.title || '';
+    $('#landingHeroSubtitle').value = hero.subtitle || '';
+    $('#landingHeroImage').value = hero.image || '';
+    $('#landingHeroImgThumb').src = hero.image || 'hero.jpg';
+
+    const trust = Array.isArray(hero.trust) ? hero.trust : [];
+    $('#landingHeroTrust1').value = trust[0] || '';
+    $('#landingHeroTrust2').value = trust[1] || '';
+    $('#landingHeroTrust3').value = trust[2] || '';
+    $('#landingHeroTrust4').value = trust[3] || '';
+
+    // 2. Narrative
+    const narrative = cur.narrative || {};
+    $('#landingNarrativeEyebrow').value = narrative.eyebrow || '';
+    $('#landingNarrativeTitle').value = narrative.title || '';
+    $('#landingNarrativeLead').value = narrative.lead || '';
+    $('#landingNarrativeBody').value = narrative.body || '';
+
+    // 3. Packages
+    const pkgsContainer = $('#landingPackagesList');
+    pkgsContainer.innerHTML = '';
+    const packages = (cur.packages && cur.packages.length) ? cur.packages : (def.packages || []);
+    packages.forEach(p => pkgsContainer.appendChild(createPackageCard(p)));
+
+    // 4. Highlights
+    const hlContainer = $('#landingHighlightsContainer');
+    hlContainer.innerHTML = '';
+    const highlights = (cur.highlights && cur.highlights.length) ? cur.highlights : (def.highlights || []);
+    highlights.forEach(h => hlContainer.appendChild(createHighlightRow(h)));
+
+    // 5. FAQs
+    const faqContainer = $('#landingFaqsContainer');
+    faqContainer.innerHTML = '';
+    const faqs = (cur.faqs && cur.faqs.length) ? cur.faqs : (def.faqs || []);
+    faqs.forEach(f => faqContainer.appendChild(createFaqCard(f)));
+  }
+
+  // Setup add buttons
+  const addPkgBtn = $('#landingAddPackageBtn');
+  if (addPkgBtn) {
+    addPkgBtn.onclick = () => {
+      $('#landingPackagesList').appendChild(createPackageCard({
+        name: 'New Package',
+        price: 150,
+        unit: 'person',
+        badge: '',
+        desc: 'Exciting tour package option',
+        inclusions: ['Inclusion 1', 'Inclusion 2'],
+        waMsg: 'Hi Phoenix Tours, I would like to book this experience.'
+      }));
+    };
+  }
+
+  const addHlBtn = $('#landingAddHighlightBtn');
+  if (addHlBtn) {
+    addHlBtn.onclick = () => {
+      $('#landingHighlightsContainer').appendChild(createHighlightRow(''));
+    };
+  }
+
+  const addFaqBtn = $('#landingAddFaqBtn');
+  if (addFaqBtn) {
+    addFaqBtn.onclick = () => {
+      $('#landingFaqsContainer').appendChild(createFaqCard({
+        q: 'New Question?',
+        a: 'Detailed answer goes here.'
+      }));
+    };
+  }
+
+  // Selector change
+  const sel = $('#landingPageSelector');
+  if (sel) {
+    sel.onchange = (e) => {
+      populateLandingPage(e.target.value);
+    };
+  }
+
+  // Save
+  const saveBtn = $('#landingSaveBtn');
+  if (saveBtn) {
+    saveBtn.onclick = () => {
+      const heroImage = $('#landingHeroImage').value.trim() || 'hero.jpg';
+      const trust = [
+        $('#landingHeroTrust1').value.trim(),
+        $('#landingHeroTrust2').value.trim(),
+        $('#landingHeroTrust3').value.trim(),
+        $('#landingHeroTrust4').value.trim()
+      ].filter(Boolean);
+
+      const packages = [...$$('#landingPackagesList .cms-card-item')].map(item => {
+        const incl = item.querySelector('.lpkg-inclusions').value
+          .split('\n')
+          .map(s => s.trim())
+          .filter(Boolean);
+        return {
+          id: slug(item.querySelector('.lpkg-name').value.trim()),
+          name: item.querySelector('.lpkg-name').value.trim(),
+          badge: item.querySelector('.lpkg-badge').value.trim(),
+          price: Number(item.querySelector('.lpkg-price').value) || 0,
+          unit: item.querySelector('.lpkg-unit').value,
+          desc: item.querySelector('.lpkg-desc').value.trim(),
+          inclusions: incl,
+          waMsg: item.querySelector('.lpkg-wamsg').value.trim()
+        };
+      }).filter(p => p.name);
+
+      const highlights = [...$$('#landingHighlightsContainer .hl-text')]
+        .map(i => i.value.trim())
+        .filter(Boolean);
+
+      const faqs = [...$$('#landingFaqsContainer .landing-faq-card')].map(c => ({
+        q: c.querySelector('.faq-q').value.trim(),
+        a: c.querySelector('.faq-a').value.trim()
+      })).filter(f => f.q && f.a);
+
+      const pageData = {
+        name: DEFAULTS[currentKey]?.name || currentKey,
+        hero: {
+          eyebrow: $('#landingHeroEyebrow').value.trim(),
+          title: $('#landingHeroTitle').value.trim(),
+          subtitle: $('#landingHeroSubtitle').value.trim(),
+          image: heroImage,
+          trust: trust
+        },
+        narrative: {
+          eyebrow: $('#landingNarrativeEyebrow').value.trim(),
+          title: $('#landingNarrativeTitle').value.trim(),
+          lead: $('#landingNarrativeLead').value.trim(),
+          body: $('#landingNarrativeBody').value.trim()
+        },
+        packages: packages,
+        highlights: highlights,
+        faqs: faqs
+      };
+
+      const storedAll = getStoredLandingCMS();
+      storedAll[currentKey] = pageData;
+      saveStoredLandingCMS(storedAll);
+
+      showLandingToast(`✅ "${DEFAULTS[currentKey]?.name || currentKey}" landing page saved successfully! Changes are live.`);
+    };
+  }
+
+  // Reset page defaults
+  const resetBtn = $('#landingResetBtn');
+  if (resetBtn) {
+    resetBtn.onclick = () => {
+      const pageName = DEFAULTS[currentKey]?.name || currentKey;
+      if (confirm(`Reset all custom edits for "${pageName}" back to original defaults?`)) {
+        const storedAll = getStoredLandingCMS();
+        delete storedAll[currentKey];
+        saveStoredLandingCMS(storedAll);
+        populateLandingPage(currentKey);
+        showLandingToast(`Reverted "${pageName}" to factory defaults.`);
+      }
+    };
+  }
+
+  // Image input & upload sync
+  const heroImgInput = $('#landingHeroImage');
+  if (heroImgInput) {
+    heroImgInput.addEventListener('input', (e) => {
+      const thumb = $('#landingHeroImgThumb');
+      if (thumb) thumb.src = e.target.value || 'hero.jpg';
+    });
+  }
+
+  const heroFileInput = $('#landingHeroFile');
+  if (heroFileInput) {
+    heroFileInput.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        $('#landingHeroImage').value = ev.target.result;
+        const thumb = $('#landingHeroImgThumb');
+        if (thumb) thumb.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  const resetImgBtn = $('#landingHeroResetImg');
+  if (resetImgBtn) {
+    resetImgBtn.onclick = () => {
+      const defaultImg = DEFAULTS[currentKey]?.hero?.image || 'hero.jpg';
+      $('#landingHeroImage').value = defaultImg;
+      const thumb = $('#landingHeroImgThumb');
+      if (thumb) thumb.src = defaultImg;
+    };
+  }
+
+  // Global expose
+  window.refreshLandingCMS = () => {
+    const selector = $('#landingPageSelector');
+    if (selector) populateLandingPage(selector.value || 'safari');
+  };
+
+  // Initial load
+  if ($('#landingPageSelector')) {
+    populateLandingPage('safari');
+  }
+})();
+
 

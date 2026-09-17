@@ -67,6 +67,17 @@
 .cms-status.err{background:#ffebe8;color:#a84444;border:1px solid #f6cfcb}
 .cms-tab-content{display:none}
 .cms-tab-content.active{display:block}
+.landing-tab-content{display:none}
+.landing-tab-content.active{display:block}
+.landing-highlight-row{display:flex;gap:8px;align-items:center;background:#fbfdfc;border:1px solid var(--line);border-radius:10px;padding:8px 12px;}
+.landing-highlight-row input{flex:1;border:0;background:transparent;outline:none;font-size:11px;color:var(--ink);}
+.landing-highlight-row button{border:0;background:#ffebeb;color:#ad3d3d;border-radius:6px;width:24px;height:24px;font-size:12px;font-weight:900;cursor:pointer;}
+.landing-faq-card{border:1px solid var(--line);border-radius:12px;background:#fbfdfc;padding:12px;display:grid;gap:8px;}
+.landing-faq-header{display:flex;justify-content:space-between;align-items:center;}
+.landing-faq-header strong{font-size:11px;color:var(--navy);}
+.landing-faq-header button{border:0;background:#ffebeb;color:#ad3d3d;border-radius:6px;padding:3px 8px;font-size:10px;font-weight:900;cursor:pointer;}
+.landing-faq-card input{border:1px solid var(--line);border-radius:8px;padding:8px;font-size:11px;background:#fff;outline:none;}
+.landing-faq-card textarea{border:1px solid var(--line);border-radius:8px;padding:8px;font-size:11px;background:#fff;outline:none;resize:vertical;}
 .cms-section-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px;margin-bottom:18px;box-shadow:var(--shadow)}
 .cms-section-card h3{font-size:16px;margin:0 0 4px}
 .cms-section-card>p{font-size:9px;color:#7c8e93;margin:0 0 16px;line-height:1.5}
