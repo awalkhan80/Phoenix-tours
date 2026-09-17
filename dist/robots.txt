@@ -1,8 +1,13 @@
 User-agent: *
 Allow: /
 Disallow: /admin.html
+Disallow: /admin.js
+Disallow: /admin.css
 
 User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
 Allow: /
 
 User-agent: Yandex
@@ -11,4 +16,4 @@ Allow: /
 User-agent: Baiduspider
 Allow: /
 
-Sitemap: https://phoenix-tours-barayshah.vercel.app/sitemap.xml
+Sitemap: https://desertsafaridxbpro.com/sitemap.xml
