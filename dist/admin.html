@@ -1,300 +1,855 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Phoenix Tours Admin Dashboard</title><link rel="stylesheet" href="/admin.css"></head><body>
-<aside class="sidebar"><a class="admin-brand" href="index.html"><span>P</span><div><strong>PHOENIX</strong><small>ADMIN CONTROL</small></div></a><nav><button class="active" data-view="overview"><i>⌂</i><span>Overview</span></button><button data-view="bookings"><i>▦</i><span>Bookings</span></button><button data-view="tours"><i>◈</i><span>Tour Manager</span></button><button data-view="cms"><i>✎</i><span>Homepage CMS</span></button><button data-view="landing"><i>📄</i><span>Landing Pages CMS</span></button><button data-view="media"><i>▤</i><span>Media Library</span></button><button data-view="settings"><i>⚙</i><span>Settings</span></button></nav><div class="sidebar-card"><small>PUBLIC WEBSITE</small><strong>Phoenix Tours</strong><a href="index.html">Open website →</a></div><div class="sidebar-bottom"><span>Dubai, UAE</span></div></aside>
-<main class="admin-main"><header class="admin-header"><button class="admin-mobile-toggle" id="adminSidebarToggle" aria-label="Toggle navigation">☰ Menu</button><div><span class="eyebrow">PHOENIX TOURS · ADMIN</span><h1 id="viewTitle">Dashboard Overview</h1><p id="viewSubtitle">Bookings, tours and website content in one place.</p></div><div class="header-actions"><button id="exportBtn">Export CSV</button><button class="primary" id="addBookingBtn">+ Add booking</button></div></header>
-<section class="view active" id="overview"><section class="welcome-banner"><div><span>LIVE BUSINESS OVERVIEW</span><h2>Manage today’s tours without the clutter.</h2><p>Track booking requests, update statuses and keep your tour catalog current.</p><div class="banner-actions"><button class="primary" data-go="bookings">Manage bookings</button><button data-go="tours">Manage tours</button><button data-go="cms">Homepage CMS</button></div></div><div class="banner-mark">P</div></section><div class="stats-grid"><article><div class="stat-icon">↗</div><span>Today's bookings</span><strong id="statToday">0</strong><small>New requests for today</small></article><article><div class="stat-icon">▦</div><span>Total bookings</span><strong id="statTotal">0</strong><small>All stored requests</small></article><article><div class="stat-icon">AED</div><span>Estimated revenue</span><strong id="statRevenue">AED 0</strong><small>Excludes cancelled bookings</small></article><article><div class="stat-icon">!</div><span>Pending</span><strong id="statPending">0</strong><small>Needs team confirmation</small></article></div><div class="dashboard-grid"><section class="panel wide"><div class="panel-head"><div><h2>Recent bookings</h2><p>Newest requests and current status</p></div><button data-go="bookings">View all →</button></div><div class="table-wrap"><table><thead><tr><th>ID</th><th>Customer</th><th>Tour</th><th>Date</th><th>Total</th><th>Status</th></tr></thead><tbody id="recentRows"></tbody></table></div></section><section class="panel"><div class="panel-head"><div><h2>Popular tours</h2><p>Most requested experiences</p></div></div><div id="popularTours" class="popular-list"></div></section></div></section>
-<section class="view" id="bookings"><section class="panel"><div class="panel-head booking-head"><div><h2>Booking management</h2><p>Search, filter and update customer requests</p></div><button class="primary" id="addBookingInline">+ New booking</button></div><div class="toolbar"><input id="bookingSearch" placeholder="Search ID, customer, phone or tour"><select id="statusFilter"><option value="all">All statuses</option><option>New</option><option>Confirmed</option><option>Completed</option><option>Cancelled</option></select></div><div class="table-wrap"><table><thead><tr><th>ID</th><th>Customer</th><th>Tour / Package</th><th>Date</th><th>Qty</th><th>Total</th><th>Status</th><th>Update</th></tr></thead><tbody id="bookingRows"></tbody></table></div></section></section>
-<section class="view" id="tours"><div class="tour-manager-top"><div><span class="eyebrow">CATALOG MANAGER</span><h2>Tour & Price Manager</h2><p>Create new experiences or edit your existing tours, pricing and Pexels media.</p></div><button class="primary" id="addTourBtn">+ Add new tour</button></div><div class="tour-summary"><span><b id="tourCount">0</b> tours</span><span><b id="activeTourCount">0</b> active</span><span><b id="packageCount">0</b> price packages</span></div><div class="tour-toolbar"><input id="tourSearchAdmin" placeholder="Search tours..."><select id="tourTypeFilter"><option value="all">All categories</option><option value="safari">Safari</option><option value="quad">Quad</option><option value="buggy">Buggy</option><option value="other">Other</option></select><button id="resetToursBtn">Reset defaults</button></div><div class="tour-admin-grid" id="tourAdminGrid"></div></section>
-<section class="view" id="cms">
-<div class="cms-top-bar"><div><span class="eyebrow">HOMEPAGE CONTENT MANAGEMENT</span><h2>Full Homepage CMS</h2><p>Live customize hero messaging, categories, tours intro, why us selling points, assistance banner, latest experiences, footer & contact, and manage all homepage images.</p></div><div class="cms-actions"><button type="button" id="cmsResetBtn" class="ghost">Reset Defaults</button><a href="index.html" target="_blank" rel="noopener" class="preview-btn">View Homepage ↗</a><button type="button" id="cmsSaveBtn" class="primary save-cms-btn">💾 Save Homepage CMS</button></div></div>
-<div class="cms-tabs" id="cmsTabs"><button type="button" class="active" data-cms-tab="hero"><span>1. Hero Editor</span></button><button type="button" data-cms-tab="categories"><span>2. Category Section</span></button><button type="button" data-cms-tab="tours"><span>3. Tour Cards</span></button><button type="button" data-cms-tab="why"><span>4. Why Choose Us</span></button><button type="button" data-cms-tab="banner"><span>5. Banner Editor</span></button><button type="button" data-cms-tab="latest"><span>6. Latest Experiences</span></button><button type="button" data-cms-tab="footer"><span>7. Footer & Contact</span></button><button type="button" data-cms-tab="images"><span>8. Image Manager</span></button></div>
-<div id="cmsStatus" class="cms-status"></div>
-
-<div class="cms-tab-content active" id="cmsTab_hero">
-<section class="cms-section-card"><h3>Hero Section Editor</h3><p>Manage the main introductory banner at the very top of your homepage.</p>
-<div class="cms-form-grid">
-<label>Eyebrow badge<input id="cmsHeroEyebrow" placeholder="DUBAI · UAE · DESERT EXPERIENCES"></label>
-<label>Side vertical text<input id="cmsHeroSide" placeholder="DUBAI DESERT · CITY · ADVENTURE"></label>
-<label class="full">Main headline (H1)<input id="cmsHeroTitle" placeholder="Dubai desert safari, quad bike & buggy adventures"></label>
-<label class="full">Subtitle / Description<textarea id="cmsHeroSubtitle" rows="3" placeholder="Explore Dubai desert safaris, quad bike rides and premium Can-Am buggy experiences..."></textarea></label>
-<label>Primary button label<input id="cmsHeroBtn1" placeholder="Book an experience"></label>
-<label>Secondary button label<input id="cmsHeroBtn2" placeholder="Explore tours"></label>
-<label>Secondary button link<input id="cmsHeroLink2" placeholder="#tours"></label>
-<label>Trust highlight 1<input id="cmsHeroTrust1" placeholder="✓ Pay on arrival"></label>
-<label>Trust highlight 2<input id="cmsHeroTrust2" placeholder="✓ WhatsApp confirmation"></label>
-<label>Trust highlight 3<input id="cmsHeroTrust3" placeholder="✓ Private & sharing options"></label>
-<div class="full">
-<label>Hero background image<input id="cmsHeroImage" placeholder="hero.jpg or https://..."></label>
-<img id="cmsHeroImgThumb" class="cms-preview-thumb" src="hero.jpg" alt="Hero preview">
-<div class="cms-upload-row"><label>Upload from device<input type="file" id="cmsHeroFile" accept="image/*"></label><button type="button" id="cmsHeroResetImg">Reset to default hero image</button></div>
-</div>
-</div>
-<div class="cms-hero-preview"><small id="cmsHeroPrevEye">DUBAI · UAE · DESERT EXPERIENCES</small><h4 id="cmsHeroPrevH1">Dubai desert safari, quad bike & buggy adventures</h4><p id="cmsHeroPrevP">Explore Dubai desert safaris, quad bike rides and premium Can-Am buggy experiences...</p></div>
-</section>
-</div>
-
-<div class="cms-tab-content" id="cmsTab_categories">
-<section class="cms-section-card"><h3>Category Section Editor</h3><p>Configure the “What kind of Dubai experience are you looking for?” section and the 4 visual category cards.</p>
-<div class="cms-form-grid">
-<label>Section eyebrow<input id="cmsCatEyebrow" placeholder="CHOOSE YOUR STYLE"></label>
-<label>Section heading<input id="cmsCatTitle" placeholder="What kind of Dubai experience are you looking for?"></label>
-<label>Header link label<input id="cmsCatAllText" placeholder="See all experiences →"></label>
-<label>Header link destination<input id="cmsCatAllUrl" placeholder="#tours"></label>
-</div>
-<div class="cms-card-grid">
-<div class="cms-card-item"><div class="cms-card-item-header"><strong>Card 1: Desert Safari</strong></div><img id="cmsCat1Thumb" class="cms-preview-thumb" src="hero.jpg" alt=""><div class="cms-form-grid"><label>Card title<input id="cmsCat1Title" value="Desert Safari Dubai"></label><label>Target link<input id="cmsCat1Link" value="desert-safari-dubai.html"></label><label class="full">Image URL<input id="cmsCat1Img" value="hero.jpg"></label></div><div class="cms-upload-row"><label>Upload<input type="file" id="cmsCat1File" accept="image/*"></label><button type="button" id="cmsCat1Reset">Reset</button></div></div>
-<div class="cms-card-item"><div class="cms-card-item-header"><strong>Card 2: Quad Bike Dubai</strong></div><img id="cmsCat2Thumb" class="cms-preview-thumb" src="hero.jpg" alt=""><div class="cms-form-grid"><label>Card title<input id="cmsCat2Title" value="Quad Bike Dubai"></label><label>Target link<input id="cmsCat2Link" value="quad-bike-dubai.html"></label><label class="full">Image URL<input id="cmsCat2Img"></label></div><div class="cms-upload-row"><label>Upload<input type="file" id="cmsCat2File" accept="image/*"></label><button type="button" id="cmsCat2Reset">Reset</button></div></div>
-<div class="cms-card-item"><div class="cms-card-item-header"><strong>Card 3: Dune Buggy Dubai</strong></div><img id="cmsCat3Thumb" class="cms-preview-thumb" src="hero.jpg" alt=""><div class="cms-form-grid"><label>Card title<input id="cmsCat3Title" value="Dune Buggy Dubai"></label><label>Target link<input id="cmsCat3Link" value="dune-buggy-dubai.html"></label><label class="full">Image URL<input id="cmsCat3Img"></label></div><div class="cms-upload-row"><label>Upload<input type="file" id="cmsCat3File" accept="image/*"></label><button type="button" id="cmsCat3Reset">Reset</button></div></div>
-<div class="cms-card-item"><div class="cms-card-item-header"><strong>Card 4: Dubai City Tours</strong></div><img id="cmsCat4Thumb" class="cms-preview-thumb" src="dubai.jpg" alt=""><div class="cms-form-grid"><label>Card title<input id="cmsCat4Title" value="Dubai City Tours"></label><label>Target link<input id="cmsCat4Link" value="dubai-city-tour.html"></label><label class="full">Image URL<input id="cmsCat4Img" value="dubai.jpg"></label></div><div class="cms-upload-row"><label>Upload<input type="file" id="cmsCat4File" accept="image/*"></label><button type="button" id="cmsCat4Reset">Reset</button></div></div>
-</div>
-</section>
-</div>
-
-<div class="cms-tab-content" id="cmsTab_tours">
-<section class="cms-section-card"><h3>Tour Cards Section Editor</h3><p>Manage the headings and landing page guide links displayed directly above and below the homepage tour cards.</p>
-<div class="cms-form-grid">
-<label>Section eyebrow<input id="cmsTourEyebrow" placeholder="RECOMMENDED EXPERIENCES"></label>
-<label>Section heading<input id="cmsTourTitle" placeholder="Popular Dubai tours and desert adventures"></label>
-<label class="full">Footer guide note prefix<input id="cmsTourNoteText" placeholder="Explore detailed guides and rates for our"></label>
-<label>Guide 1 label<input id="cmsTourGuide1Text" value="Dubai desert safari tours"></label><label>Guide 1 URL<input id="cmsTourGuide1Url" value="desert-safari-dubai.html"></label>
-<label>Guide 2 label<input id="cmsTourGuide2Text" value="quad bike Dubai experiences"></label><label>Guide 2 URL<input id="cmsTourGuide2Url" value="quad-bike-dubai.html"></label>
-<label>Guide 3 label<input id="cmsTourGuide3Text" value="Dubai dune buggy rides"></label><label>Guide 3 URL<input id="cmsTourGuide3Url" value="dune-buggy-dubai.html"></label>
-</div>
-<div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--line)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><strong>Active Tours on Homepage</strong><button type="button" data-go="tours" style="font-size:8px;padding:7px 11px">Open Tour & Price Manager →</button></div><div id="cmsTourRefList" class="cms-tour-ref-list"></div></div>
-</section>
-</div>
-
-<div class="cms-tab-content" id="cmsTab_why">
-<section class="cms-section-card"><h3>“Why Choose Us” Section Editor</h3><p>Customize the 4 core trust and value propositions highlighted on the homepage.</p>
-<div class="cms-form-grid">
-<label>Section eyebrow<input id="cmsWhyEyebrow" placeholder="WHY PHOENIX TOURS"></label>
-<label>Section heading<input id="cmsWhyTitle" placeholder="Simple booking. Clear rates. Memorable UAE experiences."></label>
-</div>
-<div style="display:flex;justify-content:space-between;align-items:center;margin:18px 0 10px"><strong style="font-size:12px">Value Proposition Points</strong><button type="button" id="cmsAddWhyBtn" style="font-size:8px;padding:7px 11px">+ Add selling point</button></div>
-<div id="cmsWhyItemsContainer" class="cms-card-grid"></div>
-</section>
-</div>
-
-<div class="cms-tab-content" id="cmsTab_banner">
-<section class="cms-section-card"><h3>Assistance Banner Editor</h3><p>Configure the “Need help choosing?” callout banner displayed between the tour list and selling points.</p>
-<div class="cms-form-grid">
-<label>Banner eyebrow<input id="cmsBannerEyebrow" placeholder="NEED HELP CHOOSING?"></label>
-<label>Banner headline<input id="cmsBannerTitle" placeholder="Plan your Dubai tour with a local team."></label>
-<label class="full">Description text<textarea id="cmsBannerDesc" rows="2" placeholder="Tell us your date, group size and the experience you want. We’ll help you choose the right package."></textarea></label>
-<label>WhatsApp CTA button text<input id="cmsBannerWaText" placeholder="Chat on WhatsApp"></label>
-<label>WhatsApp phone number<input id="cmsBannerWaNum" placeholder="+971561505270"></label>
-<label>Phone call button text<input id="cmsBannerCallText" placeholder="Call us"></label>
-<label>Phone call number<input id="cmsBannerCallNum" placeholder="+971561505270"></label>
-<div class="full">
-<label>Banner background image<input id="cmsBannerImg" placeholder="hero.jpg or https://..."></label>
-<img id="cmsBannerThumb" class="cms-preview-thumb" src="hero.jpg" alt="Banner preview">
-<div class="cms-upload-row"><label>Upload from device<input type="file" id="cmsBannerFile" accept="image/*"></label><button type="button" id="cmsBannerReset">Reset to default</button></div>
-</div>
-</div>
-</section>
-</div>
-
-<div class="cms-tab-content" id="cmsTab_latest">
-<section class="cms-section-card"><h3>Latest Experiences Editor</h3><p>Manage the “More UAE Experiences” cards featured near the bottom of the homepage.</p>
-<div class="cms-form-grid">
-<label>Section eyebrow<input id="cmsLatestEyebrow" placeholder="MORE UAE EXPERIENCES"></label>
-<label>Section heading<input id="cmsLatestTitle" placeholder="Dubai and Abu Dhabi city tours"></label>
-</div>
-<div style="display:flex;justify-content:space-between;align-items:center;margin:18px 0 10px"><strong style="font-size:12px">Featured Experiences</strong><button type="button" id="cmsAddLatestBtn" style="font-size:8px;padding:7px 11px">+ Add experience</button></div>
-<div id="cmsLatestContainer" class="cms-card-grid"></div>
-</section>
-</div>
-
-<div class="cms-tab-content" id="cmsTab_footer">
-<section class="cms-section-card"><h3>Footer & Contact Section Editor</h3><p>Manage the pre-footer call to action and the global footer information.</p>
-<h4 style="font-size:13px;margin:12px 0 8px;color:var(--navy)">Pre-Footer Contact CTA</h4>
-<div class="cms-form-grid">
-<label>Contact eyebrow<input id="cmsContactEyebrow" placeholder="PHOENIX TOURS · DUBAI"></label>
-<label>Contact headline<input id="cmsContactTitle" placeholder="Your UAE adventure starts here."></label>
-<label class="full">Service list / subtitle<input id="cmsContactSubtitle" placeholder="Desert Safari · Quad Bike · Dune Buggy · Dubai City Tour · Abu Dhabi Tour"></label>
-<label>Button label<input id="cmsContactBtn" placeholder="Start booking"></label>
-<label>Phone number display<input id="cmsContactPhone" placeholder="+971 56 150 5270"></label>
-<label>Phone dial number (tel:)<input id="cmsContactTel" placeholder="+971561505270"></label>
-</div>
-<h4 style="font-size:13px;margin:24px 0 8px;color:var(--navy);border-top:1px solid var(--line);padding-top:16px">Footer Information</h4>
-<div class="cms-form-grid">
-<label>Brand name<input id="cmsFooterBrand" placeholder="PHOENIX"></label>
-<label>Brand tagline<input id="cmsFooterTagline" placeholder="TOURS & ADVENTURES"></label>
-<label>Location string<input id="cmsFooterLocation" placeholder="Dubai, United Arab Emirates"></label>
-<label>Copyright name<input id="cmsFooterCopyright" placeholder="Phoenix Tours"></label>
-<label>WhatsApp display<input id="cmsFooterPhoneDisplay" placeholder="+971 56 150 5270"></label>
-<label>WhatsApp URL<input id="cmsFooterPhoneUrl" placeholder="https://wa.me/971561505270"></label>
-</div>
-<div style="display:flex;justify-content:space-between;align-items:center;margin:20px 0 10px"><strong style="font-size:12px">Footer Navigation Links</strong><button type="button" id="cmsAddFooterLinkBtn" style="font-size:8px;padding:7px 11px">+ Add link</button></div>
-<div id="cmsFooterLinksContainer" class="cms-tour-ref-list"></div>
-</section>
-</div>
-
-<div class="cms-tab-content" id="cmsTab_images">
-<section class="cms-section-card"><h3>Homepage Image Manager</h3><p>Manage all images used across the homepage from one central dashboard. Update URLs, upload custom images, or apply from our curated Dubai adventure photo presets.</p>
-<h4 style="font-size:13px;margin:10px 0 6px;color:var(--navy)">Homepage Image Slots</h4>
-<div class="cms-image-slot-grid" id="cmsImageSlotsGrid"></div>
-
-<h4 style="font-size:13px;margin:28px 0 6px;color:var(--navy);border-top:1px solid var(--line);padding-top:16px">Curated Dubai Adventure Photo Presets</h4>
-<p>Verified, license-free commercial photography from Pexels. Select an image and choose where to apply it.</p>
-<div class="preset-grid" id="cmsPresetGrid"></div>
-
-<div style="margin-top:24px;display:flex;justify-content:flex-end;gap:12px;border-top:1px solid var(--line);padding-top:16px;">
-<button type="button" id="cmsSaveBtnBottom" class="primary save-cms-btn">💾 Save Homepage CMS</button>
-</div>
-</section>
-</div>
-</section>
-<section class="view" id="landing">
-<div class="cms-top-bar">
-<div><span class="eyebrow">TOUR LANDING PAGES CMS</span><h2>Tour Landing Pages Editor</h2><p>Live customize Hero headlines, descriptions, rates & pricing packages, highlights and FAQs for all 6 tour landing pages.</p></div>
-<div class="cms-actions" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-<select id="landingPageSelector" style="border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:11px;font-weight:800;color:var(--navy);background:#fff;outline:none;">
-<option value="safari">Desert Safari Dubai (desert-safari-dubai.html)</option>
-<option value="quad">Quad Bike Dubai (quad-bike-dubai.html)</option>
-<option value="buggy">Dune Buggy Dubai (dune-buggy-dubai.html)</option>
-<option value="lake-ride">Burj Khalifa Lake Ride (burj-khalifa-lake-ride.html)</option>
-<option value="dubai-city">Dubai City Tour (dubai-city-tour.html)</option>
-<option value="abu-dhabi">Abu Dhabi Tour (abu-dhabi-city-tour.html)</option>
-</select>
-<button type="button" id="landingResetBtn" class="ghost">Reset Page Defaults</button>
-<a id="landingViewPageBtn" href="desert-safari-dubai.html" target="_blank" rel="noopener" class="preview-btn">View Landing Page ↗</a>
-<button type="button" id="landingSaveBtn" class="primary save-cms-btn">💾 Save Landing Page CMS</button>
-</div>
-</div>
-<div class="cms-tabs" id="landingTabs">
-<button type="button" class="active" data-landing-tab="hero"><span>1. Hero & Header</span></button>
-<button type="button" data-landing-tab="narrative"><span>2. Narrative & Overview</span></button>
-<button type="button" data-landing-tab="packages"><span>3. Packages & Pricing</span></button>
-<button type="button" data-landing-tab="highlights"><span>4. Highlights</span></button>
-<button type="button" data-landing-tab="faqs"><span>5. FAQs</span></button>
-</div>
-<div id="landingCmsStatus" class="cms-status"></div>
-
-<div class="landing-tab-content active" id="landingTab_hero">
-<section class="cms-section-card">
-<h3>Hero & Header Section</h3>
-<p>Configure the top banner, primary H1 heading, introduction, background photo and trust badges.</p>
-<div class="cms-form-grid">
-<label>Section eyebrow<input id="landingHeroEyebrow" placeholder="DUBAI DESERT EXPERIENCES · BEST DEALS"></label>
-<label class="full">Main headline (H1)<input id="landingHeroTitle" placeholder="Dubai Desert Safari Tours"></label>
-<label class="full">Subtitle / Intro text<textarea id="landingHeroSubtitle" rows="3" placeholder="Embark on Dubai's premier desert adventure..."></textarea></label>
-<div class="full">
-<label>Hero background image URL<input id="landingHeroImage" placeholder="hero.jpg or https://images.pexels.com/..."></label>
-<img id="landingHeroImgThumb" class="cms-preview-thumb" src="hero.jpg" alt="Hero preview">
-<div class="cms-upload-row">
-<label>Upload from device<input type="file" id="landingHeroFile" accept="image/*"></label>
-<button type="button" id="landingHeroResetImg">Reset image</button>
-</div>
-</div>
-<label>Trust badge 1<input id="landingHeroTrust1" placeholder="✓ Pay on Arrival"></label>
-<label>Trust badge 2<input id="landingHeroTrust2" placeholder="✓ 4x4 Hotel Pickup"></label>
-<label>Trust badge 3<input id="landingHeroTrust3" placeholder="✓ Lahbab Red Dunes"></label>
-<label>Trust badge 4<input id="landingHeroTrust4" placeholder="✓ 5-Star Camp & Buffet"></label>
-</div>
-</section>
-</div>
-
-<div class="landing-tab-content" id="landingTab_narrative">
-<section class="cms-section-card">
-<h3>Experience Narrative & Guide Text</h3>
-<p>Edit the in-depth SEO storytelling section, tour lead paragraph and detailed experience overview.</p>
-<div class="cms-form-grid">
-<label>Narrative eyebrow<input id="landingNarrativeEyebrow" placeholder="AUTHENTIC ARABIAN ADVENTURE"></label>
-<label class="full">Narrative heading (H2)<input id="landingNarrativeTitle" placeholder="Experience the Magic of the Dubai Desert..."></label>
-<label class="full">Lead paragraph (Summary)<textarea id="landingNarrativeLead" rows="3" placeholder="A trip to the United Arab Emirates is never complete..."></textarea></label>
-<label class="full">Detailed body paragraph<textarea id="landingNarrativeBody" rows="4" placeholder="We take you directly to the prestigious Lahbab Red Dunes..."></textarea></label>
-</div>
-</section>
-</div>
-
-<div class="landing-tab-content" id="landingTab_packages">
-<section class="cms-section-card">
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-<div>
-<h3 style="margin:0;">Tour Packages & Rates</h3>
-<p style="margin:4px 0 0;">Add, modify or remove packages, AED rates, badges, descriptions, bullet inclusions and WhatsApp text.</p>
-</div>
-<button type="button" id="landingAddPackageBtn" class="primary" style="font-size:10px;padding:8px 14px;">+ Add Package</button>
-</div>
-<div id="landingPackagesList" class="cms-card-grid"></div>
-</section>
-</div>
-
-<div class="landing-tab-content" id="landingTab_highlights">
-<section class="cms-section-card">
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-<div>
-<h3 style="margin:0;">Experience Highlights</h3>
-<p style="margin:4px 0 0;">Bullet points highlighted beneath the experience description.</p>
-</div>
-<button type="button" id="landingAddHighlightBtn" class="primary" style="font-size:10px;padding:8px 14px;">+ Add Highlight</button>
-</div>
-<div id="landingHighlightsContainer" style="display:grid;gap:10px;"></div>
-</section>
-</div>
-
-<div class="landing-tab-content" id="landingTab_faqs">
-<section class="cms-section-card">
-<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-<div>
-<h3 style="margin:0;">Frequently Asked Questions (FAQ)</h3>
-<p style="margin:4px 0 0;">Common customer questions and answers shown on the tour landing page.</p>
-</div>
-<button type="button" id="landingAddFaqBtn" class="primary" style="font-size:10px;padding:8px 14px;">+ Add FAQ</button>
-</div>
-<div id="landingFaqsContainer" style="display:grid;gap:14px;"></div>
-</section>
-</div>
-</section>
-<section class="view" id="media"><div class="tour-manager-top"><div><span class="eyebrow">PEXELS MEDIA</span><h2>Tour media library</h2><p>Review the Pexels images attached to your tour cards and open the original source page when needed.</p></div></div><div class="media-grid" id="mediaGrid"></div></section>
-<section class="view" id="settings">
-  <section class="panel settings-panel">
-    <div class="settings-title">
-      <div><span class="eyebrow">BUSINESS SETTINGS</span><h2>Operations & contact</h2><p>Keep the main details your team uses for customer communication.</p></div>
-    </div>
-    <div class="settings-grid">
-      <label>Company name<input id="settingCompany" value="Phoenix Tours"></label>
-      <label>WhatsApp / Phone<input id="settingPhone" value="+971 56 150 5270"></label>
-      <label>Location<input id="settingLocation" value="Dubai, United Arab Emirates"></label>
-      <label>Booking policy<select id="settingPayment"><option>Pay on arrival</option><option>Deposit required</option><option>Full payment required</option></select></label>
-    </div>
-    <button class="primary save-settings" id="saveSettings">Save settings</button>
-  </section>
-
-  <section class="panel settings-panel" style="margin-top:24px;">
-    <div class="settings-title">
-      <div><span class="eyebrow">AUTOMATED NOTIFICATIONS</span><h2>Email Notification System</h2><p>Automated booking summary emails sent to customers upon reservation submission.</p></div>
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin:16px 0 20px;">
-      <div style="background:#f8faf9;border:1px solid var(--line);border-radius:12px;padding:16px;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-          <strong style="font-size:13px;color:var(--navy);">SMTP Delivery Engine</strong>
-          <span id="smtpStatusBadge" style="padding:4px 10px;border-radius:20px;font-size:10px;font-weight:800;background:#e1f2ee;color:#0c6769;">Active (Simulated/SMTP)</span>
-        </div>
-        <p style="font-size:12px;color:var(--muted);line-height:1.5;margin:0 0 10px;">
-          Every online booking submission triggers an automated branded HTML reservation summary with collection details to the guest's email.
-        </p>
-        <div style="font-size:11px;color:var(--navy);background:#fff;padding:8px 12px;border-radius:8px;border:1px solid var(--line);">
-          <div><strong>Sender:</strong> <span id="emailFromLabel">Phoenix Tours &lt;bookings@phoenix-tours.ae&gt;</span></div>
-          <div style="margin-top:4px;"><strong>Host:</strong> <span id="emailHostLabel">Default / Configured</span></div>
-        </div>
+<!doctype html>
+<html lang="en-AE">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin Dashboard &amp; CMS | Phoenix Tours Dubai</title>
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="stylesheet" href="/admin.css">
+  <script src="/tour-data.js" defer></script>
+  <script src="/admin.js" defer></script>
+  <script src="/backup.js" defer></script>
+</head>
+<body class="admin-body">
+  <div class="admin-layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <a href="/" class="brand-link" target="_blank" title="Open website in new tab">
+          <span class="brand-mark">P</span>
+          <div>
+            <strong>PHOENIX</strong>
+            <small>TOURS ADMIN</small>
+          </div>
+        </a>
       </div>
-
-      <div style="background:#f8faf9;border:1px solid var(--line);border-radius:12px;padding:16px;">
-        <strong style="font-size:13px;color:var(--navy);display:block;margin-bottom:8px;">Send Test Booking Email</strong>
-        <p style="font-size:12px;color:var(--muted);line-height:1.5;margin:0 0 12px;">
-          Verify email delivery by sending a sample booking summary to any email address.
-        </p>
-        <div style="display:flex;gap:8px;align-items:center;">
-          <input type="email" id="testEmailInput" placeholder="your-email@gmail.com" value="awalgsm@gmail.com" style="flex:1;border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:12px;">
-          <button type="button" id="btnSendTestEmail" class="primary" style="font-size:11px;padding:9px 14px;white-space:nowrap;">✉ Send Test</button>
-        </div>
-        <div id="testEmailStatus" style="font-size:11px;margin-top:8px;color:#0f766e;font-weight:700;"></div>
+      <nav>
+        <button type="button" class="active" data-view="overview">
+          <span class="nav-icon">📊</span> Overview
+        </button>
+        <button type="button" data-view="bookings">
+          <span class="nav-icon">📅</span> Bookings
+        </button>
+        <button type="button" data-view="tours">
+          <span class="nav-icon">🐪</span> Tour Catalog
+        </button>
+        <button type="button" data-view="cms">
+          <span class="nav-icon">✏️</span> Homepage CMS
+        </button>
+        <button type="button" data-view="landing">
+          <span class="nav-icon">📄</span> Landing Pages CMS
+        </button>
+        <button type="button" data-view="media">
+          <span class="nav-icon">🖼️</span> Media Library
+        </button>
+        <button type="button" data-view="settings">
+          <span class="nav-icon">⚙️</span> Settings &amp; Backup
+        </button>
+      </nav>
+      <div class="sidebar-footer">
+        <a href="/" class="preview-site-link" target="_blank">View Live Site ↗</a>
       </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+      <!-- TOP HEADER -->
+      <header class="top-header">
+        <div class="header-left">
+          <button type="button" id="adminSidebarToggle" class="mobile-toggle" aria-expanded="false" aria-label="Toggle menu">☰ Menu</button>
+          <div>
+            <h1 id="viewTitle">Admin Dashboard</h1>
+            <p id="viewSubtitle" style="font-size:10px;color:#7e9095;margin:2px 0 0;">Bookings, tours and website content in one place.</p>
+          </div>
+        </div>
+        <div class="header-right">
+          <a href="/" target="_blank" class="header-btn">View Website ↗</a>
+          <button type="button" class="header-btn primary" id="addBookingBtnTop" onclick="document.getElementById('addBookingBtn')?.click()">+ New Booking</button>
+        </div>
+      </header>
+
+      <!-- VIEW 1: OVERVIEW -->
+      <section id="overview" class="view view-panel active">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <small>TODAY'S BOOKINGS</small>
+            <strong id="statToday">0</strong>
+          </div>
+          <div class="stat-card">
+            <small>TOTAL BOOKINGS</small>
+            <strong id="statTotal">0</strong>
+          </div>
+          <div class="stat-card">
+            <small>ESTIMATED REVENUE</small>
+            <strong id="statRevenue">AED 0</strong>
+          </div>
+          <div class="stat-card">
+            <small>PENDING CONFIRMATIONS</small>
+            <strong id="statPending">0</strong>
+          </div>
+        </div>
+
+        <div class="overview-grid">
+          <div class="panel-box">
+            <div class="panel-box-header">
+              <h3>Recent Bookings</h3>
+              <button type="button" class="text-link-btn" data-go="bookings">View all →</button>
+            </div>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Customer</th>
+                    <th>Tour &amp; Package</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="recentRows">
+                  <tr><td colspan="5" class="empty-state">Loading recent bookings...</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div style="margin-top:14px;">
+              <button type="button" class="btn-subtle" id="addBookingInline">+ Create Manual Booking</button>
+            </div>
+          </div>
+
+          <div class="panel-box">
+            <div class="panel-box-header">
+              <h3>Popular Tours Catalog</h3>
+              <button type="button" class="text-link-btn" data-go="tours">Manage tours →</button>
+            </div>
+            <div id="popularTours" class="popular-tours-list">
+              <!-- Rendered by admin.js -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 2: BOOKINGS -->
+      <section id="bookings" class="view view-panel">
+        <div class="toolbar">
+          <div class="search-input-wrap">
+            <input type="text" id="bookingSearch" placeholder="Search customer, tour or phone..." aria-label="Search bookings">
+          </div>
+          <select id="statusFilter" aria-label="Filter bookings by status">
+            <option value="all">All Statuses</option>
+            <option value="pending">Pending</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+          <button type="button" class="btn-subtle" id="exportBtn">Export CSV</button>
+          <button type="button" class="btn-primary" id="addBookingBtn">+ New Booking</button>
+        </div>
+
+        <div class="panel-box">
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Ref ID</th>
+                  <th>Customer</th>
+                  <th>Contact</th>
+                  <th>Tour Details</th>
+                  <th>Qty / Date</th>
+                  <th>Total</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="bookingRows">
+                <tr><td colspan="8" class="empty-state">No bookings recorded yet.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 3: TOURS -->
+      <section id="tours" class="view view-panel">
+        <div class="toolbar">
+          <div class="search-input-wrap">
+            <input type="text" id="tourSearchAdmin" placeholder="Search tour name, category or tags..." aria-label="Search tours">
+          </div>
+          <select id="tourTypeFilter" aria-label="Filter tours by category">
+            <option value="all">All Categories</option>
+            <option value="safari">Desert Safari</option>
+            <option value="quad">Quad Bike</option>
+            <option value="buggy">Dune Buggy</option>
+            <option value="city">City Tours</option>
+            <option value="other">Other / Sightseeing</option>
+          </select>
+          <button type="button" class="btn-subtle" id="resetToursBtn">Reset Defaults</button>
+          <button type="button" class="btn-primary" id="addTourBtn">+ Add Tour</button>
+        </div>
+
+        <div class="tour-meta-bar">
+          <span>Total Tours: <strong id="tourCount">0</strong></span>
+          <span>Active: <strong id="activeTourCount">0</strong></span>
+          <span>Total Pricing Packages: <strong id="packageCount">0</strong></span>
+        </div>
+
+        <div id="tourAdminGrid" class="tour-admin-grid">
+          <!-- Rendered by admin.js -->
+        </div>
+      </section>
+
+      <!-- VIEW 4: HOMEPAGE CMS -->
+      <section id="cms" class="view view-panel">
+        <div class="cms-header-row">
+          <div class="cms-tabs-scroll cms-tabs" id="cmsTabs">
+            <button type="button" class="active" data-cms-tab="hero">1. Hero Section</button>
+            <button type="button" data-cms-tab="categories">2. Categories</button>
+            <button type="button" data-cms-tab="tours">3. Tour Catalog Intro</button>
+            <button type="button" data-cms-tab="why">4. Why Choose Us</button>
+            <button type="button" data-cms-tab="banner">5. Assistance Banner</button>
+            <button type="button" data-cms-tab="latest">6. Latest Experiences</button>
+            <button type="button" data-cms-tab="contact">7. Contact &amp; CTA</button>
+            <button type="button" data-cms-tab="footer">8. Footer &amp; Branding</button>
+            <button type="button" data-cms-tab="images">9. Homepage Image Manager</button>
+          </div>
+          <div class="cms-actions-group">
+            <a href="/" target="_blank" class="preview-btn">Preview Site ↗</a>
+            <button type="button" class="btn-subtle" id="cmsResetBtn">Reset to Default</button>
+            <button type="button" class="btn-primary" id="cmsSaveBtn">Save All Changes</button>
+          </div>
+        </div>
+
+        <div id="cmsStatus" class="cms-status"></div>
+
+        <!-- CMS Tab 1: Hero -->
+        <div id="cmsTab_hero" class="cms-tab-content active">
+          <div class="cms-card">
+            <h3>Hero Section Content</h3>
+            <div class="cms-form-grid">
+              <label>Top Eyebrow
+                <input type="text" id="cmsHeroEyebrow" placeholder="DUBAI · UAE · DESERT EXPERIENCES">
+              </label>
+              <label>Side Decorative Label
+                <input type="text" id="cmsHeroSide" placeholder="DUBAI DESERT SAFARI">
+              </label>
+              <label class="full">Main Headline (H1)
+                <input type="text" id="cmsHeroTitle" placeholder="Dubai desert safari, quad bike & buggy adventures">
+              </label>
+              <label class="full">Subtitle Paragraph
+                <textarea id="cmsHeroSubtitle" rows="2" placeholder="Explore Dubai desert safaris with high red dune bashing..."></textarea>
+              </label>
+              <label>Primary Button Text
+                <input type="text" id="cmsHeroBtn1" placeholder="Book an experience">
+              </label>
+              <label>Secondary Button Text
+                <input type="text" id="cmsHeroBtn2" placeholder="Explore tours">
+              </label>
+              <label class="full">Secondary Button Target Link
+                <input type="text" id="cmsHeroLink2" placeholder="#tours">
+              </label>
+            </div>
+
+            <h4 style="margin:20px 0 10px;font-size:11px;text-transform:uppercase;color:#536d72;">Trust Row Badges</h4>
+            <div class="cms-form-grid">
+              <label>Trust Badge 1
+                <input type="text" id="cmsHeroTrust1" placeholder="✓ Pay on arrival">
+              </label>
+              <label>Trust Badge 2
+                <input type="text" id="cmsHeroTrust2" placeholder="✓ WhatsApp confirmation">
+              </label>
+              <label>Trust Badge 3
+                <input type="text" id="cmsHeroTrust3" placeholder="✓ Private & sharing options">
+              </label>
+            </div>
+
+            <h4 style="margin:20px 0 10px;font-size:11px;text-transform:uppercase;color:#536d72;">Hero Background Image</h4>
+            <div class="cms-media-uploader">
+              <img id="cmsHeroImgThumb" src="https://images.pexels.com/photos/28730135/pexels-photo-28730135.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Hero preview" class="cms-preview-thumb">
+              <div class="cms-media-inputs">
+                <input type="url" id="cmsHeroImage" placeholder="https://images.pexels.com/..." style="width:100%;">
+                <div class="cms-upload-row">
+                  <label class="upload-btn-label">
+                    <span>Upload local image</span>
+                    <input type="file" id="cmsHeroFile" accept="image/*" style="display:none">
+                  </label>
+                  <button type="button" class="btn-subtle" id="cmsHeroResetImg">Reset Default</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="cms-hero-preview">
+              <small id="cmsHeroPrevEye">DUBAI · UAE · DESERT EXPERIENCES</small>
+              <h4 id="cmsHeroPrevH1">Dubai desert safari, quad bike &amp; buggy adventures</h4>
+              <p id="cmsHeroPrevP">Explore Dubai desert safaris with high red dune bashing...</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- CMS Tab 2: Categories -->
+        <div id="cmsTab_categories" class="cms-tab-content">
+          <div class="cms-card">
+            <h3>Categories Section Header</h3>
+            <div class="cms-form-grid">
+              <label>Eyebrow Label
+                <input type="text" id="cmsCatEyebrow" placeholder="EXPERIENCES &amp; DESTINATIONS">
+              </label>
+              <label>Section Title
+                <input type="text" id="cmsCatTitle" placeholder="Popular Dubai Tour Categories">
+              </label>
+              <label>All Tours Link Text
+                <input type="text" id="cmsCatAllText" placeholder="All tours →">
+              </label>
+              <label>All Tours URL
+                <input type="text" id="cmsCatAllUrl" placeholder="#tours">
+              </label>
+            </div>
+
+            <h4 style="margin:20px 0 10px;font-size:11px;text-transform:uppercase;color:#536d72;">Category Cards (4 Items)</h4>
+            <div class="cms-card-grid">
+              <!-- Card 1 -->
+              <div class="cms-card-item">
+                <strong>Card 1: Safari</strong>
+                <label>Title<input type="text" id="cmsCat1Title" value="Desert Safari Dubai"></label>
+                <label>Link<input type="text" id="cmsCat1Link" value="desert-safari-dubai.html"></label>
+                <img id="cmsCat1Thumb" class="cms-preview-thumb" src="" alt="Category 1">
+                <input type="url" id="cmsCat1Img" placeholder="Image URL">
+                <div class="cms-upload-row">
+                  <label class="upload-btn-label"><span>Upload</span><input type="file" id="cmsCat1File" accept="image/*" style="display:none"></label>
+                  <button type="button" class="btn-subtle" id="cmsCat1Reset">Reset</button>
+                </div>
+              </div>
+
+              <!-- Card 2 -->
+              <div class="cms-card-item">
+                <strong>Card 2: Quad Bike</strong>
+                <label>Title<input type="text" id="cmsCat2Title" value="Quad Bike Dubai"></label>
+                <label>Link<input type="text" id="cmsCat2Link" value="quad-bike-dubai.html"></label>
+                <img id="cmsCat2Thumb" class="cms-preview-thumb" src="" alt="Category 2">
+                <input type="url" id="cmsCat2Img" placeholder="Image URL">
+                <div class="cms-upload-row">
+                  <label class="upload-btn-label"><span>Upload</span><input type="file" id="cmsCat2File" accept="image/*" style="display:none"></label>
+                  <button type="button" class="btn-subtle" id="cmsCat2Reset">Reset</button>
+                </div>
+              </div>
+
+              <!-- Card 3 -->
+              <div class="cms-card-item">
+                <strong>Card 3: Dune Buggy</strong>
+                <label>Title<input type="text" id="cmsCat3Title" value="Dune Buggy Dubai"></label>
+                <label>Link<input type="text" id="cmsCat3Link" value="dune-buggy-dubai.html"></label>
+                <img id="cmsCat3Thumb" class="cms-preview-thumb" src="" alt="Category 3">
+                <input type="url" id="cmsCat3Img" placeholder="Image URL">
+                <div class="cms-upload-row">
+                  <label class="upload-btn-label"><span>Upload</span><input type="file" id="cmsCat3File" accept="image/*" style="display:none"></label>
+                  <button type="button" class="btn-subtle" id="cmsCat3Reset">Reset</button>
+                </div>
+              </div>
+
+              <!-- Card 4 -->
+              <div class="cms-card-item">
+                <strong>Card 4: City Tours</strong>
+                <label>Title<input type="text" id="cmsCat4Title" value="Dubai City Tours"></label>
+                <label>Link<input type="text" id="cmsCat4Link" value="dubai-city-tour.html"></label>
+                <img id="cmsCat4Thumb" class="cms-preview-thumb" src="" alt="Category 4">
+                <input type="url" id="cmsCat4Img" placeholder="Image URL">
+                <div class="cms-upload-row">
+                  <label class="upload-btn-label"><span>Upload</span><input type="file" id="cmsCat4File" accept="image/*" style="display:none"></label>
+                  <button type="button" class="btn-subtle" id="cmsCat4Reset">Reset</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CMS Tab 3: Tour Section -->
+        <div id="cmsTab_tours" class="cms-tab-content">
+          <div class="cms-card">
+            <h3>Tour Catalog Section Intro</h3>
+            <div class="cms-form-grid">
+              <label>Eyebrow Label
+                <input type="text" id="cmsTourEyebrow" placeholder="HANDPICKED EXPERIENCES">
+              </label>
+              <label class="full">Section Title
+                <input type="text" id="cmsTourTitle" placeholder="Our Most Popular Dubai Tours &amp; Adventures">
+              </label>
+              <label class="full">Note Prefix Text
+                <input type="text" id="cmsTourNoteText" placeholder="Explore detailed guides and rates for our">
+              </label>
+              <label>Guide Link 1 Text
+                <input type="text" id="cmsTourGuide1Text" placeholder="Desert Safari Dubai">
+              </label>
+              <label>Guide Link 1 URL
+                <input type="text" id="cmsTourGuide1Url" placeholder="desert-safari-dubai.html">
+              </label>
+              <label>Guide Link 2 Text
+                <input type="text" id="cmsTourGuide2Text" placeholder="Quad Bike Dubai">
+              </label>
+              <label>Guide Link 2 URL
+                <input type="text" id="cmsTourGuide2Url" placeholder="quad-bike-dubai.html">
+              </label>
+              <label>Guide Link 3 Text
+                <input type="text" id="cmsTourGuide3Text" placeholder="Dune Buggy Dubai">
+              </label>
+              <label>Guide Link 3 URL
+                <input type="text" id="cmsTourGuide3Url" placeholder="dune-buggy-dubai.html">
+              </label>
+            </div>
+
+            <h4 style="margin:20px 0 10px;font-size:11px;text-transform:uppercase;color:#536d72;">Current Tours in Catalog</h4>
+            <div id="cmsTourRefList" class="cms-tour-ref-list"></div>
+          </div>
+        </div>
+
+        <!-- CMS Tab 4: Why Us -->
+        <div id="cmsTab_why" class="cms-tab-content">
+          <div class="cms-card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+              <h3>Why Choose Us Section</h3>
+              <button type="button" class="btn-subtle" id="cmsAddWhyBtn">+ Add Selling Point</button>
+            </div>
+            <div class="cms-form-grid">
+              <label>Eyebrow Label
+                <input type="text" id="cmsWhyEyebrow" placeholder="WHY CHOOSE PHOENIX TOURS">
+              </label>
+              <label class="full">Section Title
+                <input type="text" id="cmsWhyTitle" placeholder="The Trusted Dubai Desert &amp; Tour Specialists">
+              </label>
+            </div>
+            <div id="cmsWhyItemsContainer" class="cms-card-grid" style="margin-top:16px;"></div>
+          </div>
+        </div>
+
+        <!-- CMS Tab 5: Banner -->
+        <div id="cmsTab_banner" class="cms-tab-content">
+          <div class="cms-card">
+            <h3>Assistance Banner Section</h3>
+            <div class="cms-form-grid">
+              <label>Eyebrow Label
+                <input type="text" id="cmsBannerEyebrow" placeholder="NEED HELP CHOOSING?">
+              </label>
+              <label class="full">Banner Title
+                <input type="text" id="cmsBannerTitle" placeholder="Speak directly with our Dubai travel experts">
+              </label>
+              <label class="full">Description
+                <textarea id="cmsBannerDesc" rows="2" placeholder="Get immediate recommendations..."></textarea>
+              </label>
+              <label>WhatsApp Button Label
+                <input type="text" id="cmsBannerWaText" placeholder="Chat on WhatsApp">
+              </label>
+              <label>WhatsApp Number
+                <input type="text" id="cmsBannerWaNum" placeholder="+971 56 150 5270">
+              </label>
+              <label>Call Button Label
+                <input type="text" id="cmsBannerCallText" placeholder="Call Us Now">
+              </label>
+              <label>Call Phone Number
+                <input type="text" id="cmsBannerCallNum" placeholder="+971 56 150 5270">
+              </label>
+            </div>
+
+            <h4 style="margin:20px 0 10px;font-size:11px;text-transform:uppercase;color:#536d72;">Banner Background Image</h4>
+            <div class="cms-media-uploader">
+              <img id="cmsBannerThumb" class="cms-preview-thumb" src="" alt="Banner thumb">
+              <div class="cms-media-inputs">
+                <input type="url" id="cmsBannerImg" placeholder="Image URL" style="width:100%;">
+                <div class="cms-upload-row">
+                  <label class="upload-btn-label"><span>Upload image</span><input type="file" id="cmsBannerFile" accept="image/*" style="display:none"></label>
+                  <button type="button" class="btn-subtle" id="cmsBannerReset">Reset Default</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CMS Tab 6: Latest Experiences -->
+        <div id="cmsTab_latest" class="cms-tab-content">
+          <div class="cms-card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+              <h3>Latest Experiences &amp; Stories</h3>
+              <button type="button" class="btn-subtle" id="cmsAddLatestBtn">+ Add Story Card</button>
+            </div>
+            <div class="cms-form-grid">
+              <label>Eyebrow Label
+                <input type="text" id="cmsLatestEyebrow" placeholder="FEATURED STORIES &amp; ITINERARIES">
+              </label>
+              <label class="full">Section Title
+                <input type="text" id="cmsLatestTitle" placeholder="Latest Dubai Desert &amp; City Adventures">
+              </label>
+            </div>
+            <div id="cmsLatestContainer" class="cms-card-grid" style="margin-top:16px;"></div>
+          </div>
+        </div>
+
+        <!-- CMS Tab 7: Contact & CTA -->
+        <div id="cmsTab_contact" class="cms-tab-content">
+          <div class="cms-card">
+            <h3>Bottom Contact CTA Section</h3>
+            <div class="cms-form-grid">
+              <label>Eyebrow
+                <input type="text" id="cmsContactEyebrow" placeholder="READY FOR AN UNFORGETTABLE DUBAI ADVENTURE?">
+              </label>
+              <label class="full">CTA Title
+                <input type="text" id="cmsContactTitle" placeholder="Book your tour with pay on arrival convenience">
+              </label>
+              <label class="full">CTA Subtitle
+                <textarea id="cmsContactSubtitle" rows="2" placeholder="Reserve your date in seconds..."></textarea>
+              </label>
+              <label>Button Label
+                <input type="text" id="cmsContactBtn" placeholder="Reserve Your Tour Now">
+              </label>
+              <label>Phone Display
+                <input type="text" id="cmsContactPhone" placeholder="+971 56 150 5270">
+              </label>
+              <label>Phone Tel (Numeric)
+                <input type="text" id="cmsContactTel" placeholder="+971561505270">
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- CMS Tab 8: Footer & Branding -->
+        <div id="cmsTab_footer" class="cms-tab-content">
+          <div class="cms-card">
+            <h3>Footer Branding &amp; Links</h3>
+            <div class="cms-form-grid">
+              <label>Brand Name
+                <input type="text" id="cmsFooterBrand" placeholder="PHOENIX TOURS">
+              </label>
+              <label>Tagline
+                <input type="text" id="cmsFooterTagline" placeholder="DUBAI &amp; UAE ADVENTURES">
+              </label>
+              <label>Location
+                <input type="text" id="cmsFooterLocation" placeholder="Dubai, United Arab Emirates">
+              </label>
+              <label>Copyright Name
+                <input type="text" id="cmsFooterCopyright" placeholder="Phoenix Tours &amp; Adventures. All rights reserved.">
+              </label>
+              <label>Phone / WhatsApp Display
+                <input type="text" id="cmsFooterPhoneDisplay" placeholder="+971 56 150 5270">
+              </label>
+              <label>WhatsApp Link URL
+                <input type="text" id="cmsFooterPhoneUrl" placeholder="https://wa.me/971561505270">
+              </label>
+            </div>
+
+            <div style="display:flex;justify-content:space-between;align-items:center;margin:24px 0 12px;">
+              <h4>Footer Navigation Links</h4>
+              <button type="button" class="btn-subtle" id="cmsAddFooterLinkBtn">+ Add Link</button>
+            </div>
+            <div id="cmsFooterLinksContainer" style="display:grid;gap:8px;"></div>
+          </div>
+        </div>
+
+        <!-- CMS Tab 9: Homepage Image Manager & Preset Library -->
+        <div id="cmsTab_images" class="cms-tab-content">
+          <div class="cms-card">
+            <div class="cms-section-header">
+              <h3>Homepage Image Slot Manager</h3>
+              <p style="font-size:9px;color:#788b90;margin-top:2px;">Quickly review and replace images across the entire homepage slots. Click 'Apply' to update any slot immediately.</p>
+            </div>
+            <div id="cmsImageSlotsGrid" class="cms-image-slot-grid">
+              <!-- Rendered by renderImageSlots() in admin.js -->
+            </div>
+
+            <hr style="border:0;border-top:1px solid #e1ebed;margin:28px 0 20px;">
+
+            <div class="cms-section-header">
+              <h3>Curated Dubai Image Presets</h3>
+              <p style="font-size:9px;color:#788b90;margin-top:2px;">Select any destination slot from the dropdown and click 'Apply to slot' to assign high-resolution photography.</p>
+            </div>
+            <div id="cmsPresetGrid" class="preset-grid">
+              <!-- Rendered by renderPresets() in admin.js -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 5: LANDING PAGES CMS -->
+      <section id="landing" class="view view-panel">
+        <div class="cms-header-row">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <label for="landingPageSelector" style="font-size:10px;font-weight:800;color:var(--navy);white-space:nowrap;">Choose Landing Page:</label>
+            <select id="landingPageSelector" style="padding:6px 10px;font-size:10px;border-radius:8px;border:1px solid var(--line);font-weight:700;">
+              <option value="safari">Desert Safari Dubai (desert-safari-dubai.html)</option>
+              <option value="quad">Quad Bike Dubai (quad-bike-dubai.html)</option>
+              <option value="buggy">Dune Buggy Dubai (dune-buggy-dubai.html)</option>
+              <option value="lake-ride">Burj Khalifa Lake Ride (burj-khalifa-lake-ride.html)</option>
+              <option value="dubai-city">Dubai City Tour (dubai-city-tour.html)</option>
+              <option value="abu-dhabi">Abu Dhabi City Tour (abu-dhabi-city-tour.html)</option>
+            </select>
+          </div>
+          <div class="cms-actions-group">
+            <a id="landingViewPageBtn" href="/desert-safari-dubai.html" target="_blank" class="preview-btn">View Landing Page ↗</a>
+            <button type="button" class="btn-subtle" id="landingResetBtn">Reset to Defaults</button>
+            <button type="button" class="btn-primary" id="landingSaveBtn">Save Landing Page</button>
+          </div>
+        </div>
+
+        <div id="landingCmsStatus" class="cms-status"></div>
+
+        <div class="cms-tabs-scroll" id="landingTabs" style="margin-top:12px;">
+          <button type="button" class="active" data-landing-tab="hero">1. Hero Section</button>
+          <button type="button" data-landing-tab="narrative">2. Story &amp; Narrative</button>
+          <button type="button" data-landing-tab="packages">3. Packages &amp; Pricing</button>
+          <button type="button" data-landing-tab="highlights">4. Key Highlights</button>
+          <button type="button" data-landing-tab="faqs">5. FAQs</button>
+        </div>
+
+        <!-- Landing Sub-tab: Hero -->
+        <div id="landingTab_hero" class="landing-tab-content active">
+          <div class="cms-card">
+            <h3>Landing Hero Content</h3>
+            <div class="cms-form-grid">
+              <label>Hero Eyebrow<input type="text" id="landingHeroEyebrow"></label>
+              <label class="full">Page Title (H1)<input type="text" id="landingHeroTitle"></label>
+              <label class="full">Hero Subtitle Paragraph<textarea id="landingHeroSubtitle" rows="2"></textarea></label>
+            </div>
+            <h4 style="margin:20px 0 10px;font-size:11px;text-transform:uppercase;color:#536d72;">Hero Background Image</h4>
+            <div class="cms-media-uploader">
+              <img id="landingHeroImgThumb" class="cms-preview-thumb" src="" alt="Landing hero preview">
+              <div class="cms-media-inputs">
+                <input type="url" id="landingHeroImage" placeholder="Image URL" style="width:100%;">
+                <div class="cms-upload-row">
+                  <label class="upload-btn-label"><span>Upload image</span><input type="file" id="landingHeroFile" accept="image/*" style="display:none"></label>
+                  <button type="button" class="btn-subtle" id="landingHeroResetImg">Reset Default</button>
+                </div>
+              </div>
+            </div>
+            <h4 style="margin:20px 0 10px;font-size:11px;text-transform:uppercase;color:#536d72;">Trust Badges (Up to 4)</h4>
+            <div class="cms-form-grid">
+              <label>Trust 1<input type="text" id="landingHeroTrust1"></label>
+              <label>Trust 2<input type="text" id="landingHeroTrust2"></label>
+              <label>Trust 3<input type="text" id="landingHeroTrust3"></label>
+              <label>Trust 4<input type="text" id="landingHeroTrust4"></label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Landing Sub-tab: Narrative -->
+        <div id="landingTab_narrative" class="landing-tab-content">
+          <div class="cms-card">
+            <h3>Story &amp; Narrative Section</h3>
+            <div class="cms-form-grid">
+              <label>Eyebrow<input type="text" id="landingNarrativeEyebrow"></label>
+              <label class="full">Section Title<input type="text" id="landingNarrativeTitle"></label>
+              <label class="full">Lead Paragraph<textarea id="landingNarrativeLead" rows="2"></textarea></label>
+              <label class="full">Full Narrative Body<textarea id="landingNarrativeBody" rows="4"></textarea></label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Landing Sub-tab: Packages -->
+        <div id="landingTab_packages" class="landing-tab-content">
+          <div class="cms-card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+              <h3>Landing Packages &amp; Pricing</h3>
+              <button type="button" class="btn-subtle" id="landingAddPackageBtn">+ Add Package Tier</button>
+            </div>
+            <div id="landingPackagesList" class="cms-card-grid"></div>
+          </div>
+        </div>
+
+        <!-- Landing Sub-tab: Highlights -->
+        <div id="landingTab_highlights" class="landing-tab-content">
+          <div class="cms-card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+              <h3>Experience Highlights Checklist</h3>
+              <button type="button" class="btn-subtle" id="landingAddHighlightBtn">+ Add Highlight Item</button>
+            </div>
+            <div id="landingHighlightsContainer" style="display:grid;gap:8px;"></div>
+          </div>
+        </div>
+
+        <!-- Landing Sub-tab: FAQs -->
+        <div id="landingTab_faqs" class="landing-tab-content">
+          <div class="cms-card">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+              <h3>Frequently Asked Questions</h3>
+              <button type="button" class="btn-subtle" id="landingAddFaqBtn">+ Add FAQ</button>
+            </div>
+            <div id="landingFaqsContainer" class="cms-card-grid"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 6: MEDIA LIBRARY -->
+      <section id="media" class="view view-panel">
+        <div class="panel-box">
+          <div class="panel-box-header">
+            <div>
+              <h3>Tour &amp; CMS Media Assets</h3>
+              <p style="font-size:9px;color:#788b90;margin-top:2px;">All photography currently utilized in your active tour catalog and homepage sections.</p>
+            </div>
+          </div>
+          <div id="mediaGrid" class="media-grid">
+            <!-- Rendered by admin.js -->
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 7: SETTINGS & BACKUP -->
+      <section id="settings" class="view view-panel">
+        <div class="panel-box">
+          <h3>Agency Settings &amp; WhatsApp Coordination</h3>
+          <div class="cms-form-grid" style="margin-top:16px;">
+            <label>Agency / Company Name
+              <input type="text" id="settingCompany" placeholder="Phoenix Tours Dubai">
+            </label>
+            <label>Primary WhatsApp / Contact Phone
+              <input type="text" id="settingPhone" placeholder="+971 56 150 5270">
+            </label>
+            <label>Office Location
+              <input type="text" id="settingLocation" placeholder="Dubai, United Arab Emirates">
+            </label>
+            <label>Default Payment Terms
+              <input type="text" id="settingPayment" placeholder="Pay on arrival · Cash or Card">
+            </label>
+          </div>
+          <div style="margin-top:16px;">
+            <button type="button" class="btn-primary" id="saveSettings">Save Agency Settings</button>
+          </div>
+        </div>
+
+        <div class="panel-box" style="margin-top:20px;">
+          <h3>Email &amp; SMTP Notification Integration</h3>
+          <p style="font-size:9px;color:#788b90;margin-top:4px;">Booking notifications and automated confirmation emails sent to customers and operators.</p>
+          <div style="margin-top:12px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+            <span id="smtpStatusBadge" style="font-size:9px;font-weight:800;padding:4px 9px;border-radius:6px;background:#e5f6f2;color:#0b6656;">Checking SMTP...</span>
+            <span style="font-size:9px;color:#6b7f84;">From: <strong id="emailFromLabel">noreply@phoenixtours.com</strong></span>
+            <span style="font-size:9px;color:#6b7f84;">Host: <strong id="emailHostLabel">Configured via environment</strong></span>
+          </div>
+          <div style="margin-top:16px;display:flex;gap:8px;align-items:center;max-width:500px;">
+            <input type="email" id="testEmailInput" placeholder="Enter recipient email to test SMTP..." style="flex:1;padding:7px 10px;font-size:9px;border:1px solid var(--line);border-radius:8px;">
+            <button type="button" class="btn-subtle" id="btnSendTestEmail">Send Test Email</button>
+          </div>
+          <div id="testEmailStatus" style="font-size:9px;margin-top:8px;font-weight:700;"></div>
+        </div>
+
+        <div class="panel-box" style="margin-top:20px;">
+          <h3>Backup &amp; Restore All CMS Data</h3>
+          <p style="font-size:9px;color:#788b90;margin-top:4px;">Download a complete JSON backup of your bookings, catalog tours, custom images, and landing page content.</p>
+          <div style="margin-top:14px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+            <button type="button" class="btn-primary" id="exportBackupJsonBtn">📥 Export All Data (JSON)</button>
+            <label class="btn-subtle" style="cursor:pointer;margin:0;">
+              <span>📤 Restore from JSON File</span>
+              <input type="file" id="restoreBackupJsonInput" accept=".json,application/json" style="display:none">
+            </label>
+            <span id="backupLastExport" style="font-size:9px;color:#788b90;">No backup exported yet.</span>
+          </div>
+          <div id="restoreBackupStatus" style="font-size:9px;margin-top:8px;font-weight:700;"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- DIALOG: MANUAL BOOKING -->
+  <dialog id="bookingDialog" class="admin-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="bookingDialogTitle">Add Manual Booking</h3>
+        <button type="button" class="modal-close" onclick="document.getElementById('bookingDialog').close()">×</button>
+      </div>
+      <form id="manualBookingForm" class="modal-body">
+        <div class="cms-form-grid">
+          <label>Customer Name
+            <input type="text" id="manualName" required placeholder="Full Name">
+          </label>
+          <label>Phone / WhatsApp
+            <input type="text" id="manualPhone" required placeholder="+971 50 123 4567">
+          </label>
+          <label>Tour Experience
+            <select id="manualTour" required></select>
+          </label>
+          <label>Package Tier
+            <select id="manualPackage" required></select>
+          </label>
+          <label>Date
+            <input type="date" id="manualDate" required>
+          </label>
+          <label>Number of Guests / Units
+            <input type="number" id="manualQty" min="1" max="50" value="2" required>
+          </label>
+          <label>Total Price (AED)
+            <input type="number" id="manualTotal" min="0" required>
+          </label>
+          <label>Status
+            <select id="manualStatus">
+              <option value="pending">Pending</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </label>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-subtle" onclick="document.getElementById('bookingDialog').close()">Cancel</button>
+          <button type="submit" class="btn-primary">Save Booking</button>
+        </div>
+      </form>
     </div>
-  </section>
-</section></main>
-<dialog id="bookingDialog"><form method="dialog" id="manualBookingForm"><div class="dialog-head"><div><span class="eyebrow">ADMIN</span><h2>Add booking</h2></div><button value="cancel">×</button></div><div class="dialog-grid"><label>Customer name<input id="manualName" required></label><label>Phone<input id="manualPhone" required></label><label>Tour<select id="manualTour"></select></label><label>Date<input type="date" id="manualDate" required></label><label>Quantity<input type="number" id="manualQty" min="1" value="1"></label><label>Estimated total (AED)<input type="number" id="manualTotal" min="0" value="0"></label></div><div class="dialog-actions"><button value="cancel">Cancel</button><button type="submit" class="primary" value="default">Save booking</button></div></form></dialog>
-<dialog id="tourDialog"><form method="dialog" id="tourForm"><div class="dialog-head"><div><span class="eyebrow">TOUR MANAGER</span><h2 id="tourDialogTitle">Add new tour</h2><p>Create a complete tour card and booking package.</p></div><button value="cancel">×</button></div><input id="tourEditId" type="hidden"><div class="tour-editor-layout"><div class="tour-form-fields"><div class="dialog-grid"><label>Tour name<input id="tourName" required placeholder="e.g. Red Dunes Safari"></label><label>Category<select id="tourCategory"><option value="safari">Safari</option><option value="quad">Quad</option><option value="buggy">Buggy</option><option value="other">Other</option></select></label><label>Type / label<input id="tourType" required placeholder="Safari"></label><label>Badge<input id="tourBadge" placeholder="BEST SELLER"></label><label>Duration<input id="tourDuration" placeholder="Evening / 30 min"></label><label class="switch-label">Direct meeting point<input id="tourMeetingPoint" type="checkbox"></label><label class="full">Description<textarea id="tourDescription" rows="3" required placeholder="Short customer-friendly description"></textarea></label><label class="full">Pexels image URL<input id="tourImage" required placeholder="https://images.pexels.com/..."></label><label class="full">Pexels source page<input id="tourSource" placeholder="https://www.pexels.com/photo/..."></label></div><div class="price-editor"><div class="price-editor-head"><h3>Pricing packages</h3><button type="button" id="addPackageBtn">+ Add package</button></div><div id="packageEditor"></div></div><label class="active-toggle"><input id="tourActive" type="checkbox" checked><span>Active on website</span></label></div><aside class="tour-preview"><span>LIVE PREVIEW</span><article><img id="tourPreviewImage" src="hero.jpg" alt=""><div><small id="tourPreviewBadge">NEW TOUR</small><h3 id="tourPreviewName">Tour name</h3><p id="tourPreviewDescription">Your description appears here.</p></div></article></aside></div><div class="dialog-actions"><button value="cancel">Cancel</button><button type="submit" class="primary" value="default">Save tour</button></div></form></dialog>
-<dialog id="restoreConfirmDialog"><div style="padding:22px"><div class="dialog-head"><div><span class="eyebrow">DATA SAFETY</span><h2>Confirm Backup Restoration</h2><p>Review the backup file details before restoring into your dashboard.</p></div><button type="button" id="closeRestoreModalBtn">×</button></div><div class="restore-summary-card" id="restoreModalSummary" style="margin:16px 0;padding:14px 16px;background:#f5f9f8;border:1px solid var(--line);border-radius:12px;font-size:12px;display:grid;gap:8px"><div><strong>File: </strong><span id="restoreModalFilename">—</span></div><div><strong>Created: </strong><span id="restoreModalDate">—</span></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px"><span id="restoreModalBookings" style="padding:5px 9px;border-radius:999px;background:#e1f2ee;color:#0c6769;font-weight:800;font-size:10px">0 bookings</span><span id="restoreModalTours" style="padding:5px 9px;border-radius:999px;background:#e1f2ee;color:#0c6769;font-weight:800;font-size:10px">0 tours</span><span id="restoreModalSettings" style="padding:5px 9px;border-radius:999px;background:#e1f2ee;color:#0c6769;font-weight:800;font-size:10px">Settings</span><span id="restoreModalImages" style="padding:5px 9px;border-radius:999px;background:#e1f2ee;color:#0c6769;font-weight:800;font-size:10px">Category images</span></div></div><p style="margin:0 0 16px;font-size:11px;color:#a44848;background:#fff3f3;padding:10px 12px;border-radius:9px;line-height:1.5">⚠️ Restoring will overwrite existing bookings, tour edits and settings stored in this browser.</p><div class="dialog-actions"><button type="button" id="cancelRestoreModalBtn">Cancel</button><button type="button" class="primary" id="applyRestoreBtn">Confirm & Restore Data</button></div></div></dialog>
-<script src="/tour-data.js"></script><script src="/admin.js"></script><script src="/backup.js"></script></body></html>
+  </dialog>
+
+  <!-- DIALOG: TOUR EDITOR -->
+  <dialog id="tourDialog" class="admin-modal tour-modal-wide">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="tourDialogTitle">Edit Tour</h3>
+        <button type="button" class="modal-close" onclick="document.getElementById('tourDialog').close()">×</button>
+      </div>
+      <form id="tourForm" class="modal-body">
+        <input type="hidden" id="tourEditId">
+        <div class="cms-form-grid">
+          <label class="full">Tour Name
+            <input type="text" id="tourName" required placeholder="e.g. Evening Desert Safari">
+          </label>
+          <label>Category
+            <select id="tourCategory">
+              <option value="safari">Desert Safari</option>
+              <option value="quad">Quad Bike</option>
+              <option value="buggy">Dune Buggy</option>
+              <option value="city">City Tours</option>
+              <option value="other">Other / Sightseeing</option>
+            </select>
+          </label>
+          <label>Type / Subtitle
+            <input type="text" id="tourType" placeholder="e.g. Safari / Adventure / Sightseeing">
+          </label>
+          <label>Badge Tag
+            <input type="text" id="tourBadge" placeholder="BEST SELLER / POPULAR / VIP">
+          </label>
+          <label>Duration
+            <input type="text" id="tourDuration" placeholder="e.g. Evening (6 hrs) / 1 hour">
+          </label>
+          <label class="full">Description
+            <textarea id="tourDescription" rows="2" placeholder="Tour overview..."></textarea>
+          </label>
+          <label class="full">Image URL
+            <input type="url" id="tourImage" placeholder="https://images.pexels.com/...">
+          </label>
+          <label>Source Credit (Optional)
+            <input type="text" id="tourSource" placeholder="Pexels / Phoenix Tours">
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;margin-top:14px;">
+            <input type="checkbox" id="tourMeetingPoint" style="width:auto;margin:0;">
+            <span style="font-size:10px;font-weight:700;">Self-Drive / Direct Meeting Point</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;margin-top:14px;">
+            <input type="checkbox" id="tourActive" checked style="width:auto;margin:0;">
+            <span style="font-size:10px;font-weight:700;">Active in Public Catalog</span>
+          </label>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin:20px 0 10px;">
+          <h4 style="font-size:11px;text-transform:uppercase;color:#536d72;">Pricing Packages</h4>
+          <button type="button" class="btn-subtle" id="addPackageBtn">+ Add Package</button>
+        </div>
+        <div id="packageEditor" style="display:grid;gap:10px;"></div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-subtle" onclick="document.getElementById('tourDialog').close()">Cancel</button>
+          <button type="submit" class="btn-primary">Save Tour</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+</body>
+</html>

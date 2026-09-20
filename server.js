@@ -33,6 +33,10 @@ app.get('/burj-khalifa-lake-ride', (req, res) => {
   res.sendFile(path.join(DIST_DIR, 'burj-khalifa-lake-ride.html'));
 });
 
+app.get(['/sky-dive-dubai', '/sky-dive'], (req, res) => {
+  res.sendFile(path.join(DIST_DIR, 'sky-dive-dubai.html'));
+});
+
 app.get('/desert-safari-dubai', (req, res) => {
   res.sendFile(path.join(DIST_DIR, 'desert-safari-dubai.html'));
 });

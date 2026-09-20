@@ -1,6 +1,6 @@
-const DEFAULT_TOURS=(window.PHOENIX_DEFAULT_TOURS||[]);const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];function clone(v){return JSON.parse(JSON.stringify(v))}function esc(v=''){return String(v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}function slug(v=''){return String(v).toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,48)||`tour-${Date.now().toString().slice(-6)}`}function normalizeTour(t){const base=DEFAULT_TOURS.find(x=>x.id===t.id)||{};const oldPrices=Array.isArray(t.prices)?t.prices.map((p,i)=>({id:`package-${i+1}`,name:p[0],price:Number(p[1])||0,unit:/sharing/i.test(p[0])?'person':/private/i.test(p[0])?'vehicle':'booking'})):[];let packages=Array.isArray(t.packages)&&t.packages.length?t.packages:oldPrices.length?oldPrices:clone(base.packages||[{id:'standard',name:'Standard',price:0,unit:'person'}]);if(base.packages&&['quad','canam2','canam4'].includes(t.id)){if(packages.length<2||packages[0].name.includes('1 Bike')||packages[0].name.includes('2 Seater · 30 Minutes')||packages[0].name.includes('4 Seater · 30 Minutes')){packages=clone(base.packages);}}return{...base,...t,id:t.id||slug(t.name),name:t.name||base.name||'New Tour',type:t.type||base.type||'Tour',category:t.category||base.category||'other',badge:t.badge||base.badge||'TOUR',duration:t.duration||base.duration||'Dubai',description:t.description||base.description||'Book this experience with Phoenix Tours.',active:t.active!==false,meetingPoint:Boolean(t.meetingPoint??base.meetingPoint),image:t.image||base.image||'hero.jpg',source:t.source||base.source||'',packages:packages.map((p,i)=>({id:p.id||`package-${i+1}`,name:p.name||`Package ${i+1}`,price:Number(p.price)||0,unit:p.unit||'person'}))}}function loadTours(){try{const raw=JSON.parse(localStorage.getItem('phoenixAdminTours')||'null');if(Array.isArray(raw)&&raw.length)return raw.map(normalizeTour)}catch{}return clone(DEFAULT_TOURS).map(normalizeTour)}let bookings=JSON.parse(localStorage.getItem('phoenixBookings')||'[]');let tours=loadTours();function save(){localStorage.setItem('phoenixBookings',JSON.stringify(bookings));localStorage.setItem('phoenixAdminTours',JSON.stringify(tours))}save();function money(n){return `AED ${Number(n||0).toLocaleString()}`}function statusBadge(s){return `<span class="status ${esc(s)}">${esc(s)}</span>`}function todayDubai(){return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Dubai',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date())}function renderStats(){const today=todayDubai();$('#statToday').textContent=bookings.filter(b=>b.date===today).length;$('#statTotal').textContent=bookings.length;$('#statRevenue').textContent=money(bookings.filter(b=>b.status!=='Cancelled').reduce((a,b)=>a+Number(b.total||0),0));$('#statPending').textContent=bookings.filter(b=>b.status==='New').length}function row(b,actions=false){const coll=b.collectionAmount||b.total||0;const emailHtml=b.email?`<br><small style="color:#0f766e;font-weight:600;">✉ ${esc(b.email)}</small>`:'';const emailAction=actions&&b.email?`<button type="button" class="ghost" style="font-size:9px;padding:3px 6px;margin-top:4px;" data-resend-email="${esc(b.id)}">✉ Resend Email</button>`:'';return `<tr><td><strong>${esc(b.id)}</strong></td><td>${esc(b.name||'—')}<br><small>${esc(b.phone||'')}</small>${emailHtml}</td><td>${esc(b.tour||b.rideName||'—')}<br><small>${esc(b.package||b.duration||'')}</small></td><td>${esc(b.date||'—')}<br><small>${esc(b.slotId||b.time||'')}</small></td>${actions?`<td>${Number(b.quantity||b.riders||1)}</td>`:''}<td><strong>${money(b.total)}</strong><br><small style="color:#0f766e;font-weight:700;">Collect: ${money(coll)}</small></td><td>${statusBadge(b.status||'New')}</td>${actions?`<td><select data-status="${esc(b.id)}"><option${b.status==='New'?' selected':''}>New</option><option${b.status==='Confirmed'?' selected':''}>Confirmed</option><option${b.status==='Completed'?' selected':''}>Completed</option><option${b.status==='Cancelled'?' selected':''}>Cancelled</option></select>${emailAction}</td>`:''}</tr>`}function renderRecent(){$('#recentRows').innerHTML=bookings.slice(0,6).map(b=>row(b)).join('')||'<tr><td colspan="6">No bookings yet.</td></tr>';const counts={};bookings.forEach(b=>counts[b.tour]=(counts[b.tour]||0)+1);const popular=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,5);$('#popularTours').innerHTML=popular.length?popular.map(([n,c])=>`<div class="popular-item"><strong>${esc(n)}</strong><span>${c} booking${c>1?'s':''}</span></div>`).join(''):'<div class="popular-item"><strong>No data yet</strong><span>Bookings will appear here</span></div>'}function renderBookings(){const q=$('#bookingSearch').value.trim().toLowerCase(),sf=$('#statusFilter').value;const list=bookings.filter(b=>(sf==='all'||b.status===sf)&&(!q||`${b.id} ${b.name} ${b.phone} ${b.email||''} ${b.tour}`.toLowerCase().includes(q)));$('#bookingRows').innerHTML=list.map(b=>row(b,true)).join('')||'<tr><td colspan="8">No matching bookings.</td></tr>';$$('[data-status]').forEach(s=>s.onchange=()=>{const b=bookings.find(x=>x.id===s.dataset.status);if(b){b.status=s.value;save();renderAll()}});$$('[data-resend-email]').forEach(btn=>btn.onclick=()=>{const b=bookings.find(x=>x.id===btn.dataset.resendEmail);if(!b||!b.email)return;btn.textContent='Sending...';fetch('/api/send-email',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({booking:b,email:b.email})}).then(r=>r.json()).then(res=>{btn.textContent='✓ Sent!';setTimeout(()=>{btn.textContent='✉ Resend Email'},3000)}).catch(()=>{btn.textContent='Failed';setTimeout(()=>{btn.textContent='✉ Resend Email'},3000)})})}function unitLabel(u){return u==='person'?'per person':u==='vehicle'?'per vehicle':u==='bike'?'per bike':u==='buggy'?'per buggy':`per ${u||'booking'}`}function renderTourSummary(){$('#tourCount').textContent=tours.length;$('#activeTourCount').textContent=tours.filter(t=>t.active!==false).length;$('#packageCount').textContent=tours.reduce((a,t)=>a+(t.packages?.length||0),0)}function renderTours(){const q=$('#tourSearchAdmin').value.trim().toLowerCase(),f=$('#tourTypeFilter').value;const list=tours.filter(t=>(f==='all'||(t.category||'other')===f)&&(!q||`${t.name} ${t.type} ${t.description}`.toLowerCase().includes(q)));$('#tourAdminGrid').innerHTML=list.map(t=>`<article class="tour-admin-card${t.active===false?' inactive':''}" data-tour-card="${esc(t.id)}"><div class="tour-card-image"><img src="${esc(t.image||'hero.jpg')}" alt="${esc(t.name)}"><span class="tour-card-status${t.active===false?' off':''}">${t.active===false?'INACTIVE':'ACTIVE'}</span>${t.source?`<a class="tour-card-source" href="${esc(t.source)}" target="_blank" rel="noopener">Pexels ↗</a>`:''}</div><div class="tour-card-body"><div class="tour-meta"><span>${esc(t.type)}</span><span>${esc(t.duration||'')}</span></div><h3>${esc(t.name)}</h3><p>${esc(t.description)}</p><div class="price-list">${(t.packages||[]).map(p=>`<div class="price-line"><span>${esc(p.name)} · ${unitLabel(p.unit)}</span><strong>${money(p.price)}</strong></div>`).join('')}</div><div class="tour-card-actions"><button class="ghost" data-edit-tour="${esc(t.id)}">Edit</button><button class="ghost" data-landing-tour="${esc(t.id)}" title="Edit Landing Page Content">Landing CMS</button><button class="ghost" data-duplicate-tour="${esc(t.id)}">Duplicate</button><button class="danger" data-delete-tour="${esc(t.id)}">Delete</button></div></div></article>`).join('')||'<div class="panel">No tours match your search.</div>';renderTourSummary();bindTourActions();renderMedia();refreshManualTourOptions()}function renderMedia(){$('#mediaGrid').innerHTML=tours.map(t=>`<article class="media-card"><img src="${esc(t.image||'hero.jpg')}" alt="${esc(t.name)}"><div><h3>${esc(t.name)}</h3><p>${esc(t.type)} · ${esc(t.duration||'')}</p>${t.source?`<a href="${esc(t.source)}" target="_blank" rel="noopener">Open Pexels source →</a>`:'<span>No source URL</span>'}</div></article>`).join('')}function bindTourActions(){$$('[data-edit-tour]').forEach(b=>b.onclick=()=>openTourDialog(b.dataset.editTour));$$('[data-duplicate-tour]').forEach(b=>b.onclick=()=>duplicateTour(b.dataset.duplicateTour));$$('[data-delete-tour]').forEach(b=>b.onclick=()=>deleteTour(b.dataset.deleteTour));$$('[data-landing-tour]').forEach(b=>b.onclick=()=>{const id=b.dataset.landingTour;const map={'evening':'safari','morning':'safari','premium':'safari','safari':'safari','quad':'quad','canam2':'buggy','canam4':'buggy','buggy':'buggy','burj-lake':'lake-ride','lake-ride':'lake-ride','dubai-city':'dubai-city','abudhabi':'abu-dhabi','abu-dhabi':'abu-dhabi'};const targetKey=map[id]||'safari';const sel=$('#landingPageSelector');if(sel){sel.value=targetKey;sel.dispatchEvent(new Event('change'))}const navBtn=document.querySelector('.sidebar nav button[data-view="landing"]');if(navBtn)navBtn.click()})}function duplicateTour(id){const original=tours.find(t=>t.id===id);if(!original)return;const copy=clone(original);copy.id=`${slug(original.name)}-${Date.now().toString().slice(-5)}`;copy.name=`${original.name} Copy`;copy.badge='NEW';tours.unshift(copy);save();renderAll();openTourDialog(copy.id)}function deleteTour(id){const t=tours.find(x=>x.id===id);if(!t)return;if(!confirm(`Delete "${t.name}"? This removes it from this dashboard and the public tour list in this browser.`))return;tours=tours.filter(x=>x.id!==id);save();renderAll()}function refreshManualTourOptions(){const select=$('#manualTour');if(select)select.innerHTML=tours.filter(t=>t.active!==false).map(t=>`<option value="${esc(t.name)}">${esc(t.name)}</option>`).join('')}function renderAll(){renderStats();renderRecent();renderBookings();renderTours()}const titles={overview:['Dashboard Overview','Bookings, tours and website content in one place.'],bookings:['Bookings','Search, confirm and manage customer requests.'],tours:['Tour Manager','Create and edit the experiences shown on your website.'],cms:['Homepage CMS','Manage hero, categories, tours intro, why us, banner, latest experiences and images.'],landing:['Tour Landing Pages CMS','Live edit hero, descriptions, rates & packages, highlights and FAQs for all 6 tour landing pages.'],media:['Media Library','Review the Pexels media attached to your tours.'],settings:['Settings','Update the operational details used by your team.']};$$('.sidebar nav button').forEach(b=>b.onclick=()=>{$$('.sidebar nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');$$('.view').forEach(v=>v.classList.remove('active'));$('#'+b.dataset.view).classList.add('active');$('#viewTitle').textContent=titles[b.dataset.view][0];$('#viewSubtitle').textContent=titles[b.dataset.view][1]});$$('[data-go]').forEach(b=>b.onclick=()=>document.querySelector(`.sidebar nav button[data-view="${b.dataset.go}"]`).click());$('#bookingSearch').oninput=renderBookings;$('#statusFilter').onchange=renderBookings;$('#tourSearchAdmin').oninput=renderTours;$('#tourTypeFilter').onchange=renderTours;$('#resetToursBtn').onclick=()=>{if(confirm('Reset all tour edits to the default Phoenix Tours catalog?')){tours=clone(DEFAULT_TOURS).map(normalizeTour);save();renderAll()}};$('#exportBtn').onclick=()=>{if(!bookings.length)return alert('No bookings to export.');const heads=['ID','Created','Customer','Phone','Tour','Package','Quantity','Date','Time','Pickup','Total','Status'];const lines=[heads.join(','),...bookings.map(b=>[b.id,b.createdAt,b.name,b.phone,b.tour,b.package,b.quantity,b.date,b.time,b.pickup,b.total,b.status].map(v=>`"${String(v??'').replaceAll('"','""')}"`).join(','))];const blob=new Blob([lines.join('\n')],{type:'text/csv'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='phoenix-bookings.csv';a.click();URL.revokeObjectURL(a.href)};
+const DEFAULT_TOURS=(window.PHOENIX_DEFAULT_TOURS||[]);const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];function clone(v){return JSON.parse(JSON.stringify(v))}function esc(v=''){return String(v).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}function slug(v=''){return String(v).toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,48)||`tour-${Date.now().toString().slice(-6)}`}function normalizeTour(t){const base=DEFAULT_TOURS.find(x=>x.id===t.id)||{};const oldPrices=Array.isArray(t.prices)?t.prices.map((p,i)=>({id:`package-${i+1}`,name:p[0],price:Number(p[1])||0,unit:/sharing/i.test(p[0])?'person':/private/i.test(p[0])?'vehicle':'booking'})):[];let packages=Array.isArray(t.packages)&&t.packages.length?t.packages:oldPrices.length?oldPrices:clone(base.packages||[{id:'standard',name:'Standard',price:0,unit:'person'}]);if(base.packages&&['quad','canam2','canam4'].includes(t.id)){if(packages.length<2||packages[0].name.includes('1 Bike')||packages[0].name.includes('2 Seater · 30 Minutes')||packages[0].name.includes('4 Seater · 30 Minutes')){packages=clone(base.packages);}}return{...base,...t,id:t.id||slug(t.name),name:t.name||base.name||'New Tour',type:t.type||base.type||'Tour',category:t.category||base.category||'other',badge:t.badge||base.badge||'TOUR',duration:t.duration||base.duration||'Dubai',description:t.description||base.description||'Book this experience with Phoenix Tours.',active:t.active!==false,meetingPoint:Boolean(t.meetingPoint??base.meetingPoint),image:t.image||base.image||'hero.jpg',source:t.source||base.source||'',imageLink:t.imageLink||base.imageLink||'',packages:packages.map((p,i)=>({id:p.id||`package-${i+1}`,name:p.name||`Package ${i+1}`,price:Number(p.price)||0,unit:p.unit||'person'}))}}function loadTours(){try{const raw=JSON.parse(localStorage.getItem('phoenixAdminTours')||'null');if(Array.isArray(raw)&&raw.length)return raw.map(normalizeTour)}catch{}return clone(DEFAULT_TOURS).map(normalizeTour)}let bookings=JSON.parse(localStorage.getItem('phoenixBookings')||'[]');let tours=loadTours();function save(){localStorage.setItem('phoenixBookings',JSON.stringify(bookings));localStorage.setItem('phoenixAdminTours',JSON.stringify(tours))}save();function money(n){return `AED ${Number(n||0).toLocaleString()}`}function statusBadge(s){return `<span class="status ${esc(s)}">${esc(s)}</span>`}function todayDubai(){return new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Dubai',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date())}function renderStats(){const today=todayDubai();$('#statToday').textContent=bookings.filter(b=>b.date===today).length;$('#statTotal').textContent=bookings.length;$('#statRevenue').textContent=money(bookings.filter(b=>b.status!=='Cancelled').reduce((a,b)=>a+Number(b.total||0),0));$('#statPending').textContent=bookings.filter(b=>b.status==='New').length}function row(b,actions=false){const coll=b.collectionAmount||b.total||0;const emailHtml=b.email?`<br><small style="color:#0f766e;font-weight:600;">✉ ${esc(b.email)}</small>`:'';const emailAction=actions&&b.email?`<button type="button" class="ghost" style="font-size:9px;padding:3px 6px;margin-top:4px;" data-resend-email="${esc(b.id)}">✉ Resend Email</button>`:'';return `<tr><td><strong>${esc(b.id)}</strong></td><td>${esc(b.name||'—')}<br><small>${esc(b.phone||'')}</small>${emailHtml}</td><td>${esc(b.tour||b.rideName||'—')}<br><small>${esc(b.package||b.duration||'')}</small></td><td>${esc(b.date||'—')}<br><small>${esc(b.slotId||b.time||'')}</small></td>${actions?`<td>${Number(b.quantity||b.riders||1)}</td>`:''}<td><strong>${money(b.total)}</strong><br><small style="color:#0f766e;font-weight:700;">Collect: ${money(coll)}</small></td><td>${statusBadge(b.status||'New')}</td>${actions?`<td><select data-status="${esc(b.id)}"><option${b.status==='New'?' selected':''}>New</option><option${b.status==='Confirmed'?' selected':''}>Confirmed</option><option${b.status==='Completed'?' selected':''}>Completed</option><option${b.status==='Cancelled'?' selected':''}>Cancelled</option></select>${emailAction}</td>`:''}</tr>`}function renderRecent(){$('#recentRows').innerHTML=bookings.slice(0,6).map(b=>row(b)).join('')||'<tr><td colspan="6">No bookings yet.</td></tr>';const counts={};bookings.forEach(b=>counts[b.tour]=(counts[b.tour]||0)+1);const popular=Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,5);$('#popularTours').innerHTML=popular.length?popular.map(([n,c])=>`<div class="popular-item"><strong>${esc(n)}</strong><span>${c} booking${c>1?'s':''}</span></div>`).join(''):'<div class="popular-item"><strong>No data yet</strong><span>Bookings will appear here</span></div>'}function renderBookings(){const q=$('#bookingSearch').value.trim().toLowerCase(),sf=$('#statusFilter').value;const list=bookings.filter(b=>(sf==='all'||b.status===sf)&&(!q||`${b.id} ${b.name} ${b.phone} ${b.email||''} ${b.tour}`.toLowerCase().includes(q)));$('#bookingRows').innerHTML=list.map(b=>row(b,true)).join('')||'<tr><td colspan="8">No matching bookings.</td></tr>';$$('[data-status]').forEach(s=>s.onchange=()=>{const b=bookings.find(x=>x.id===s.dataset.status);if(b){b.status=s.value;save();renderAll()}});$$('[data-resend-email]').forEach(btn=>btn.onclick=()=>{const b=bookings.find(x=>x.id===btn.dataset.resendEmail);if(!b||!b.email)return;btn.textContent='Sending...';fetch('/api/send-email',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({booking:b,email:b.email})}).then(r=>r.json()).then(res=>{btn.textContent='✓ Sent!';setTimeout(()=>{btn.textContent='✉ Resend Email'},3000)}).catch(()=>{btn.textContent='Failed';setTimeout(()=>{btn.textContent='✉ Resend Email'},3000)})})}function unitLabel(u){return u==='person'?'per person':u==='vehicle'?'per vehicle':u==='bike'?'per bike':u==='buggy'?'per buggy':`per ${u||'booking'}`}function renderTourSummary(){$('#tourCount').textContent=tours.length;$('#activeTourCount').textContent=tours.filter(t=>t.active!==false).length;$('#packageCount').textContent=tours.reduce((a,t)=>a+(t.packages?.length||0),0)}function renderTours(){const q=$('#tourSearchAdmin').value.trim().toLowerCase(),f=$('#tourTypeFilter').value;const list=tours.filter(t=>(f==='all'||(t.category||'other')===f)&&(!q||`${t.name} ${t.type} ${t.description}`.toLowerCase().includes(q)));$('#tourAdminGrid').innerHTML=list.map(t=>`<article class="tour-admin-card${t.active===false?' inactive':''}" data-tour-card="${esc(t.id)}"><div class="tour-card-image"><img src="${esc(t.image||'hero.jpg')}" alt="${esc(t.name)}"><span class="tour-card-status${t.active===false?' off':''}">${t.active===false?'INACTIVE':'ACTIVE'}</span>${t.source?`<a class="tour-card-source" href="${esc(t.source)}" target="_blank" rel="noopener">Pexels ↗</a>`:''}</div><div class="tour-card-body"><div class="tour-meta"><span>${esc(t.type)}</span><span>${esc(t.duration||'')}</span></div><h3>${esc(t.name)}</h3><p>${esc(t.description)}</p><div class="price-list">${(t.packages||[]).map(p=>`<div class="price-line"><span>${esc(p.name)} · ${unitLabel(p.unit)}</span><strong>${money(p.price)}</strong></div>`).join('')}</div><div class="tour-card-actions"><button class="ghost" data-edit-tour="${esc(t.id)}">Edit</button><button class="ghost" data-landing-tour="${esc(t.id)}" title="Edit Landing Page Content">Landing CMS</button><button class="ghost" data-duplicate-tour="${esc(t.id)}">Duplicate</button><button class="danger" data-delete-tour="${esc(t.id)}">Delete</button></div></div></article>`).join('')||'<div class="panel">No tours match your search.</div>';renderTourSummary();bindTourActions();renderMedia();refreshManualTourOptions()}function renderMedia(){$('#mediaGrid').innerHTML=tours.map(t=>`<article class="media-card"><img src="${esc(t.image||'hero.jpg')}" alt="${esc(t.name)}"><div><h3>${esc(t.name)}</h3><p>${esc(t.type)} · ${esc(t.duration||'')}</p>${t.source?`<a href="${esc(t.source)}" target="_blank" rel="noopener">Open Pexels source →</a>`:'<span>No source URL</span>'}</div></article>`).join('')}function bindTourActions(){$$('[data-edit-tour]').forEach(b=>b.onclick=()=>openTourDialog(b.dataset.editTour));$$('[data-duplicate-tour]').forEach(b=>b.onclick=()=>duplicateTour(b.dataset.duplicateTour));$$('[data-delete-tour]').forEach(b=>b.onclick=()=>deleteTour(b.dataset.deleteTour));$$('[data-landing-tour]').forEach(b=>b.onclick=()=>{const id=b.dataset.landingTour;const map={'evening':'safari','morning':'safari','premium':'safari','safari':'safari','quad':'quad','canam2':'buggy','canam4':'buggy','buggy':'buggy','burj-lake':'lake-ride','lake-ride':'lake-ride','dubai-city':'dubai-city','abudhabi':'abu-dhabi','abu-dhabi':'abu-dhabi'};const targetKey=map[id]||'safari';const sel=$('#landingPageSelector');if(sel){sel.value=targetKey;sel.dispatchEvent(new Event('change'))}const navBtn=document.querySelector('.sidebar nav button[data-view="landing"]');if(navBtn)navBtn.click()})}function duplicateTour(id){const original=tours.find(t=>t.id===id);if(!original)return;const copy=clone(original);copy.id=`${slug(original.name)}-${Date.now().toString().slice(-5)}`;copy.name=`${original.name} Copy`;copy.badge='NEW';tours.unshift(copy);save();renderAll();openTourDialog(copy.id)}function deleteTour(id){const t=tours.find(x=>x.id===id);if(!t)return;if(!confirm(`Delete "${t.name}"? This removes it from this dashboard and the public tour list in this browser.`))return;tours=tours.filter(x=>x.id!==id);save();renderAll()}function refreshManualTourOptions(){const select=$('#manualTour');if(select)select.innerHTML=tours.filter(t=>t.active!==false).map(t=>`<option value="${esc(t.name)}">${esc(t.name)}</option>`).join('')}function renderAll(){renderStats();renderRecent();renderBookings();renderTours()}const titles={overview:['Dashboard Overview','Bookings, tours and website content in one place.'],bookings:['Bookings','Search, confirm and manage customer requests.'],tours:['Tour Manager','Create and edit the experiences shown on your website.'],cms:['Homepage CMS','Manage hero, categories, tours intro, why us, banner, latest experiences and images.'],landing:['Tour Landing Pages CMS','Live edit hero, descriptions, rates & packages, highlights and FAQs for all 6 tour landing pages.'],media:['Media Library','Review the Pexels media attached to your tours.'],settings:['Settings','Update the operational details used by your team.']};$$('.sidebar nav button').forEach(b=>b.onclick=()=>{$$('.sidebar nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');$$('.view').forEach(v=>v.classList.remove('active'));$('#'+b.dataset.view).classList.add('active');$('#viewTitle').textContent=titles[b.dataset.view][0];$('#viewSubtitle').textContent=titles[b.dataset.view][1]});$$('[data-go]').forEach(b=>b.onclick=()=>document.querySelector(`.sidebar nav button[data-view="${b.dataset.go}"]`).click());$('#bookingSearch').oninput=renderBookings;$('#statusFilter').onchange=renderBookings;$('#tourSearchAdmin').oninput=renderTours;$('#tourTypeFilter').onchange=renderTours;$('#resetToursBtn').onclick=()=>{if(confirm('Reset all tour edits to the default Phoenix Tours catalog?')){tours=clone(DEFAULT_TOURS).map(normalizeTour);save();renderAll()}};$('#exportBtn').onclick=()=>{if(!bookings.length)return alert('No bookings to export.');const heads=['ID','Created','Customer','Phone','Tour','Package','Quantity','Date','Time','Pickup','Total','Status'];const lines=[heads.join(','),...bookings.map(b=>[b.id,b.createdAt,b.name,b.phone,b.tour,b.package,b.quantity,b.date,b.time,b.pickup,b.total,b.status].map(v=>`"${String(v??'').replaceAll('"','""')}"`).join(','))];const blob=new Blob([lines.join('\n')],{type:'text/csv'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='phoenix-bookings.csv';a.click();URL.revokeObjectURL(a.href)};
 const bookingDialog=$('#bookingDialog');function openBookingDialog(){refreshManualTourOptions();bookingDialog.showModal()}$('#addBookingBtn').onclick=openBookingDialog;$('#addBookingInline').onclick=openBookingDialog;$('#manualBookingForm').onsubmit=e=>{e.preventDefault();const b={id:`PX-${Date.now().toString().slice(-8)}`,createdAt:new Date().toISOString(),name:$('#manualName').value.trim(),phone:$('#manualPhone').value.trim(),tour:$('#manualTour').value,package:'Manual booking',quantity:Number($('#manualQty').value)||1,date:$('#manualDate').value,time:'To confirm',pickup:'To confirm',total:Number($('#manualTotal').value)||0,status:'New'};bookings.unshift(b);save();renderAll();bookingDialog.close();e.target.reset()};
-const tourDialog=$('#tourDialog'),tourForm=$('#tourForm'),packageEditor=$('#packageEditor');function packageRow(p={}){const row=document.createElement('div');row.className='package-row';row.innerHTML=`<input class="pkg-name" placeholder="Package name" value="${esc(p.name||'')}" required><input class="pkg-price" type="number" min="0" placeholder="Price" value="${Number(p.price||0)}" required><select class="pkg-unit"><option value="person"${p.unit==='person'?' selected':''}>Per person</option><option value="vehicle"${p.unit==='vehicle'?' selected':''}>Per vehicle</option><option value="bike"${p.unit==='bike'?' selected':''}>Per bike</option><option value="buggy"${p.unit==='buggy'?' selected':''}>Per buggy</option><option value="booking"${p.unit==='booking'?' selected':''}>Per booking</option></select><button class="remove-package" type="button">×</button>`;row.querySelector('.remove-package').onclick=()=>{if(packageEditor.children.length>1)row.remove()};return row}function addPackage(p){packageEditor.appendChild(packageRow(p))}$('#addPackageBtn').onclick=()=>addPackage({name:'New Package',price:0,unit:'person'});function updatePreview(){const img=$('#tourImage').value.trim();$('#tourPreviewImage').src=img||'hero.jpg';$('#tourPreviewName').textContent=$('#tourName').value.trim()||'Tour name';$('#tourPreviewBadge').textContent=$('#tourBadge').value.trim()||'NEW TOUR';$('#tourPreviewDescription').textContent=$('#tourDescription').value.trim()||'Your description appears here.'}['tourImage','tourName','tourBadge','tourDescription'].forEach(id=>$('#'+id).addEventListener('input',updatePreview));function openTourDialog(id=null){tourForm.reset();packageEditor.innerHTML='';const t=id?tours.find(x=>x.id===id):null;$('#tourEditId').value=t?.id||'';$('#tourDialogTitle').textContent=t?'Edit tour':'Add new tour';$('#tourName').value=t?.name||'';$('#tourCategory').value=t?.category||'safari';$('#tourType').value=t?.type||'Safari';$('#tourBadge').value=t?.badge||'';$('#tourDuration').value=t?.duration||'';$('#tourDescription').value=t?.description||'';$('#tourImage').value=t?.image||'';$('#tourSource').value=t?.source||'';$('#tourMeetingPoint').checked=Boolean(t?.meetingPoint);$('#tourActive').checked=t?.active!==false;(t?.packages?.length?t.packages:[{name:'Standard',price:0,unit:'person'}]).forEach(addPackage);updatePreview();tourDialog.showModal()}$('#addTourBtn').onclick=()=>openTourDialog();tourForm.onsubmit=e=>{e.preventDefault();const editingId=$('#tourEditId').value;const packages=[...packageEditor.querySelectorAll('.package-row')].map((row,i)=>({id:`package-${i+1}`,name:row.querySelector('.pkg-name').value.trim(),price:Number(row.querySelector('.pkg-price').value)||0,unit:row.querySelector('.pkg-unit').value})).filter(p=>p.name);if(!packages.length)return alert('Add at least one pricing package.');let id=editingId||slug($('#tourName').value);if(!editingId&&tours.some(t=>t.id===id))id=`${id}-${Date.now().toString().slice(-4)}`;const tour={id,name:$('#tourName').value.trim(),category:$('#tourCategory').value,type:$('#tourType').value.trim()||'Tour',badge:$('#tourBadge').value.trim()||'TOUR',duration:$('#tourDuration').value.trim()||'Dubai',description:$('#tourDescription').value.trim(),image:$('#tourImage').value.trim()||'hero.jpg',source:$('#tourSource').value.trim(),meetingPoint:$('#tourMeetingPoint').checked,active:$('#tourActive').checked,packages};if(editingId){const i=tours.findIndex(t=>t.id===editingId);if(i>=0)tours[i]=tour}else tours.unshift(tour);save();renderAll();tourDialog.close()};
+const tourDialog=$('#tourDialog'),tourForm=$('#tourForm'),packageEditor=$('#packageEditor');function packageRow(p={}){const row=document.createElement('div');row.className='package-row';row.innerHTML=`<input class="pkg-name" placeholder="Package name" value="${esc(p.name||'')}" required><input class="pkg-price" type="number" min="0" placeholder="Price" value="${Number(p.price||0)}" required><select class="pkg-unit"><option value="person"${p.unit==='person'?' selected':''}>Per person</option><option value="vehicle"${p.unit==='vehicle'?' selected':''}>Per vehicle</option><option value="bike"${p.unit==='bike'?' selected':''}>Per bike</option><option value="buggy"${p.unit==='buggy'?' selected':''}>Per buggy</option><option value="booking"${p.unit==='booking'?' selected':''}>Per booking</option></select><button class="remove-package" type="button">×</button>`;row.querySelector('.remove-package').onclick=()=>{if(packageEditor.children.length>1)row.remove()};return row}function addPackage(p){packageEditor.appendChild(packageRow(p))}$('#addPackageBtn').onclick=()=>addPackage({name:'New Package',price:0,unit:'person'});function updatePreview(){const img=$('#tourImage').value.trim();$('#tourPreviewImage').src=img||'hero.jpg';$('#tourPreviewName').textContent=$('#tourName').value.trim()||'Tour name';$('#tourPreviewBadge').textContent=$('#tourBadge').value.trim()||'NEW TOUR';$('#tourPreviewDescription').textContent=$('#tourDescription').value.trim()||'Your description appears here.'}['tourImage','tourName','tourBadge','tourDescription'].forEach(id=>$('#'+id).addEventListener('input',updatePreview));function openTourDialog(id=null){tourForm.reset();packageEditor.innerHTML='';const t=id?tours.find(x=>x.id===id):null;$('#tourEditId').value=t?.id||'';$('#tourDialogTitle').textContent=t?'Edit tour':'Add new tour';$('#tourName').value=t?.name||'';$('#tourCategory').value=t?.category||'safari';$('#tourType').value=t?.type||'Safari';$('#tourBadge').value=t?.badge||'';$('#tourDuration').value=t?.duration||'';$('#tourDescription').value=t?.description||'';$('#tourImage').value=t?.image||'';$('#tourSource').value=t?.source||'';$('#tourImageLink').value=t?.imageLink||'';$('#tourMeetingPoint').checked=Boolean(t?.meetingPoint);$('#tourActive').checked=t?.active!==false;(t?.packages?.length?t.packages:[{name:'Standard',price:0,unit:'person'}]).forEach(addPackage);updatePreview();tourDialog.showModal()}$('#addTourBtn').onclick=()=>openTourDialog();tourForm.onsubmit=e=>{e.preventDefault();const editingId=$('#tourEditId').value;const packages=[...packageEditor.querySelectorAll('.package-row')].map((row,i)=>({id:`package-${i+1}`,name:row.querySelector('.pkg-name').value.trim(),price:Number(row.querySelector('.pkg-price').value)||0,unit:row.querySelector('.pkg-unit').value})).filter(p=>p.name);if(!packages.length)return alert('Add at least one pricing package.');let id=editingId||slug($('#tourName').value);if(!editingId&&tours.some(t=>t.id===id))id=`${id}-${Date.now().toString().slice(-4)}`;const tour={id,name:$('#tourName').value.trim(),category:$('#tourCategory').value,type:$('#tourType').value.trim()||'Tour',badge:$('#tourBadge').value.trim()||'TOUR',duration:$('#tourDuration').value.trim()||'Dubai',description:$('#tourDescription').value.trim(),image:$('#tourImage').value.trim()||'hero.jpg',source:$('#tourSource').value.trim(),imageLink:$('#tourImageLink').value.trim(),meetingPoint:$('#tourMeetingPoint').checked,active:$('#tourActive').checked,packages};if(editingId){const i=tours.findIndex(t=>t.id===editingId);if(i>=0)tours[i]=tour}else tours.unshift(tour);save();renderAll();tourDialog.close()};
 const settings=JSON.parse(localStorage.getItem('phoenixSettings')||'{}');if(settings.company)$('#settingCompany').value=settings.company;if(settings.phone)$('#settingPhone').value=settings.phone;if(settings.location)$('#settingLocation').value=settings.location;if(settings.payment)$('#settingPayment').value=settings.payment;$('#saveSettings').onclick=()=>{localStorage.setItem('phoenixSettings',JSON.stringify({company:$('#settingCompany').value,phone:$('#settingPhone').value,location:$('#settingLocation').value,payment:$('#settingPayment').value}));alert('Settings saved.')};
 function loadEmailStatus(){fetch('/api/email-status').then(r=>r.json()).then(st=>{const badge=$('#smtpStatusBadge'),fromLbl=$('#emailFromLabel'),hostLbl=$('#emailHostLabel');if(badge){badge.textContent=st.smtpConfigured?'Connected (Live SMTP)':'Active (Simulated Delivery)';badge.style.background=st.smtpConfigured?'#e1f2ee':'#fef3c7';badge.style.color=st.smtpConfigured?'#0c6769':'#92400e';}if(fromLbl)fromLbl.textContent=st.fromAddress||'Phoenix Tours <bookings@phoenix-tours.ae>';if(hostLbl)hostLbl.textContent=st.smtpHost||'Default';}).catch(()=>{});}
 loadEmailStatus();
@@ -485,7 +485,8 @@ window.reloadAdminDashboard=function(){bookings=JSON.parse(localStorage.getItem(
         setUrl: v => {
           if($('#cmsHeroImage')) $('#cmsHeroImage').value = v;
           if($('#cmsHeroImgThumb')) $('#cmsHeroImgThumb').src = v;
-          if(cmsState.hero) cmsState.hero.image = v;
+          if(!cmsState.hero) cmsState.hero = {};
+          cmsState.hero.image = v;
         },
         defaultVal: DEFAULT_CMS.hero?.image || 'hero.jpg'
       },
@@ -497,7 +498,10 @@ window.reloadAdminDashboard=function(){bookings=JSON.parse(localStorage.getItem(
         setUrl: v => {
           if($('#cmsCat1Img')) $('#cmsCat1Img').value = v;
           if($('#cmsCat1Thumb')) $('#cmsCat1Thumb').src = v;
-          if(cmsState.categories?.cards?.[0]) cmsState.categories.cards[0].image = v;
+          if(!cmsState.categories) cmsState.categories = {cards:[]};
+          if(!Array.isArray(cmsState.categories.cards)) cmsState.categories.cards = [];
+          if(!cmsState.categories.cards[0]) cmsState.categories.cards[0] = {id:'safari',title:'Desert Safari Dubai',link:'desert-safari-dubai.html'};
+          cmsState.categories.cards[0].image = v;
         },
         defaultVal: DEFAULT_CMS.categories?.cards?.[0]?.image || 'hero.jpg'
       },
@@ -509,7 +513,10 @@ window.reloadAdminDashboard=function(){bookings=JSON.parse(localStorage.getItem(
         setUrl: v => {
           if($('#cmsCat2Img')) $('#cmsCat2Img').value = v;
           if($('#cmsCat2Thumb')) $('#cmsCat2Thumb').src = v;
-          if(cmsState.categories?.cards?.[1]) cmsState.categories.cards[1].image = v;
+          if(!cmsState.categories) cmsState.categories = {cards:[]};
+          if(!Array.isArray(cmsState.categories.cards)) cmsState.categories.cards = [];
+          if(!cmsState.categories.cards[1]) cmsState.categories.cards[1] = {id:'quad',title:'Quad Bike Dubai',link:'quad-bike-dubai.html'};
+          cmsState.categories.cards[1].image = v;
         },
         defaultVal: DEFAULT_CMS.categories?.cards?.[1]?.image || 'hero.jpg'
       },
@@ -521,7 +528,10 @@ window.reloadAdminDashboard=function(){bookings=JSON.parse(localStorage.getItem(
         setUrl: v => {
           if($('#cmsCat3Img')) $('#cmsCat3Img').value = v;
           if($('#cmsCat3Thumb')) $('#cmsCat3Thumb').src = v;
-          if(cmsState.categories?.cards?.[2]) cmsState.categories.cards[2].image = v;
+          if(!cmsState.categories) cmsState.categories = {cards:[]};
+          if(!Array.isArray(cmsState.categories.cards)) cmsState.categories.cards = [];
+          if(!cmsState.categories.cards[2]) cmsState.categories.cards[2] = {id:'buggy',title:'Dune Buggy Dubai',link:'dune-buggy-dubai.html'};
+          cmsState.categories.cards[2].image = v;
         },
         defaultVal: DEFAULT_CMS.categories?.cards?.[2]?.image || 'hero.jpg'
       },
@@ -533,7 +543,10 @@ window.reloadAdminDashboard=function(){bookings=JSON.parse(localStorage.getItem(
         setUrl: v => {
           if($('#cmsCat4Img')) $('#cmsCat4Img').value = v;
           if($('#cmsCat4Thumb')) $('#cmsCat4Thumb').src = v;
-          if(cmsState.categories?.cards?.[3]) cmsState.categories.cards[3].image = v;
+          if(!cmsState.categories) cmsState.categories = {cards:[]};
+          if(!Array.isArray(cmsState.categories.cards)) cmsState.categories.cards = [];
+          if(!cmsState.categories.cards[3]) cmsState.categories.cards[3] = {id:'premium',title:'Dubai City Tours',link:'dubai-city-tour.html'};
+          cmsState.categories.cards[3].image = v;
         },
         defaultVal: DEFAULT_CMS.categories?.cards?.[3]?.image || 'dubai.jpg'
       },
@@ -545,7 +558,8 @@ window.reloadAdminDashboard=function(){bookings=JSON.parse(localStorage.getItem(
         setUrl: v => {
           if($('#cmsBannerImg')) $('#cmsBannerImg').value = v;
           if($('#cmsBannerThumb')) $('#cmsBannerThumb').src = v;
-          if(cmsState.banner) cmsState.banner.image = v;
+          if(!cmsState.banner) cmsState.banner = {};
+          cmsState.banner.image = v;
         },
         defaultVal: DEFAULT_CMS.banner?.image || 'hero.jpg'
       }
@@ -560,7 +574,16 @@ window.reloadAdminDashboard=function(){bookings=JSON.parse(localStorage.getItem(
         getUrl: () => c.image || 'hero.jpg',
         setUrl: v => {
           c.image = v;
-          populateLatest();
+          const container = $('#cmsLatestContainer');
+          if(container){
+            const cardItem = container.querySelector(`[data-latest-idx="${idx}"]`);
+            if(cardItem){
+              const imgInp = cardItem.querySelector('.latest-img-url');
+              const thumb = cardItem.querySelector('.latest-thumb');
+              if(imgInp) imgInp.value = v;
+              if(thumb) thumb.src = v;
+            }
+          }
         },
         defaultVal: DEFAULT_CMS.latest?.cards?.[idx]?.image || 'hero.jpg'
       });
@@ -570,7 +593,7 @@ window.reloadAdminDashboard=function(){bookings=JSON.parse(localStorage.getItem(
   }
 
   function renderImageSlots(){
-    const grid = $('#cmsImageSlotsGrid');
+    const grid = $('#cmsImageSlotsGrid') || $('.cms-image-slot-grid');
     if(!grid) return;
     const slots = getImageSlotsDef();
 
@@ -581,7 +604,10 @@ window.reloadAdminDashboard=function(){bookings=JSON.parse(localStorage.getItem(
           <strong>${esc(s.label)}</strong>
           <small>${esc(s.desc)}</small>
           <img src="${esc(cur)}" alt="${esc(s.label)}">
-          <input type="url" value="${esc(cur.startsWith('data:')?'':cur)}" placeholder="Paste image URL...">
+          <div class="cms-slot-url-row">
+            <input type="url" value="${esc(cur.startsWith('data:')?'':cur)}" placeholder="Paste image URL...">
+            <button type="button" class="slot-apply-btn">Apply</button>
+          </div>
           <div class="cms-upload-row">
             <label>Upload<input type="file" accept="image/*"></label>
             <button type="button" class="slot-reset">Reset</button>
@@ -599,12 +625,41 @@ window.reloadAdminDashboard=function(){bookings=JSON.parse(localStorage.getItem(
       const input = slotCard.querySelector('input[type=url]');
       const file = slotCard.querySelector('input[type=file]');
       const resetBtn = slotCard.querySelector('.slot-reset');
+      const applyBtn = slotCard.querySelector('.slot-apply-btn');
 
-      input.oninput = () => {
-        const val = input.value.trim();
-        if(val){
-          img.src = val;
-          slotDef.setUrl(val);
+      const applyUrl = () => {
+        const val = input.value.trim().replace(/^["']|["']$/g, '');
+        if(!val){
+          alert('Please enter or paste an image URL first.');
+          input.focus();
+          return;
+        }
+        img.src = val;
+        slotDef.setUrl(val);
+        saveCMS(true);
+
+        if(applyBtn){
+          applyBtn.textContent = '✓ Applied!';
+          applyBtn.classList.add('applied');
+          setTimeout(() => {
+            applyBtn.textContent = 'Apply';
+            applyBtn.classList.remove('applied');
+          }, 2500);
+        }
+        showCmsToast(`✓ Image applied & saved live to ${slotDef.label}!`);
+      };
+
+      if(applyBtn){
+        applyBtn.onclick = (e) => {
+          e.preventDefault();
+          applyUrl();
+        };
+      }
+
+      input.onkeydown = (e) => {
+        if(e.key === 'Enter'){
+          e.preventDefault();
+          applyUrl();
         }
       };
 
@@ -621,6 +676,8 @@ window.reloadAdminDashboard=function(){bookings=JSON.parse(localStorage.getItem(
           img.src = r.result;
           input.value = '';
           slotDef.setUrl(r.result);
+          saveCMS(true);
+          showCmsToast(`✓ Custom image uploaded & saved to ${slotDef.label}!`);
         };
         r.readAsDataURL(f);
       };
@@ -629,46 +686,79 @@ window.reloadAdminDashboard=function(){bookings=JSON.parse(localStorage.getItem(
         img.src = slotDef.defaultVal;
         input.value = slotDef.defaultVal;
         slotDef.setUrl(slotDef.defaultVal);
+        saveCMS(true);
+        showCmsToast(`Restored default image for ${slotDef.label}.`);
       };
     });
   }
 
   function renderPresets(){
-    const grid = $('#cmsPresetGrid');
+    const grid = $('#cmsPresetGrid') || $('.preset-grid');
     if(!grid) return;
     const slots = getImageSlotsDef();
 
-    grid.innerHTML = PRESETS.map(p => `
+    grid.innerHTML = PRESETS.map((p, idx) => `
       <div class="preset-card">
         <img src="${esc(p.url)}" alt="${esc(p.title)}" loading="lazy">
         <div class="preset-card-body">
           <strong>${esc(p.title)}</strong>
           <small>${esc(p.desc)}</small>
           <div class="preset-actions">
-            <select class="preset-target-select">
+            <select class="preset-target-select" aria-label="Target destination for preset photo">
               ${slots.map(s => `<option value="${esc(s.key)}">${esc(s.label)}</option>`).join('')}
             </select>
-            <button type="button" class="apply-preset-btn">Apply</button>
+            <button type="button" class="apply-preset-btn" data-preset-idx="${idx}">Apply</button>
           </div>
         </div>
       </div>
     `).join('');
 
-    grid.querySelectorAll('.preset-card').forEach((card, idx) => {
+    grid.querySelectorAll('.preset-card').forEach(card => {
       const select = card.querySelector('.preset-target-select');
       const applyBtn = card.querySelector('.apply-preset-btn');
+      const idx = Number(applyBtn?.dataset?.presetIdx);
       const p = PRESETS[idx];
 
-      applyBtn.onclick = () => {
-        const targetKey = select.value;
-        const currentSlots = getImageSlotsDef();
-        const targetSlot = currentSlots.find(s => s.key === targetKey);
-        if(targetSlot && p){
+      if(applyBtn && select && p){
+        applyBtn.onclick = (e) => {
+          e.preventDefault();
+          const targetKey = select.value;
+          const currentSlots = getImageSlotsDef();
+          const targetSlot = currentSlots.find(s => s.key === targetKey);
+          if(!targetSlot){
+            alert('Please select a valid image slot to apply this preset to.');
+            return;
+          }
+
+          // 1. Set the URL into the target slot and relevant inputs/in-memory state
           targetSlot.setUrl(p.url);
-          renderImageSlots();
-          showCmsToast(`Applied preset photo to ${targetSlot.label}. Click "Save Homepage CMS" to publish.`);
-        }
-      };
+
+          // 2. Persist to localStorage and notify all listeners immediately
+          saveCMS(true);
+
+          // 3. Update the matching slot card thumbnail and input in the DOM
+          const slotCards = $$('.cms-image-slot');
+          slotCards.forEach(sc => {
+            if(sc.dataset.slotKey === targetKey){
+              const sImg = sc.querySelector('img');
+              const sInp = sc.querySelector('input[type=url]');
+              if(sImg) sImg.src = p.url;
+              if(sInp) sInp.value = p.url;
+            }
+          });
+
+          // 4. Visual confirmation state on the button
+          applyBtn.textContent = '✓ Applied!';
+          applyBtn.classList.add('applied');
+          setTimeout(() => {
+            applyBtn.textContent = 'Apply';
+            applyBtn.classList.remove('applied');
+          }, 2500);
+
+          // 5. Toast notification
+          showCmsToast(`✓ Applied "${p.title}" to ${targetSlot.label}! Changes are live.`);
+        };
+      }
     });
   }
 
@@ -686,171 +776,198 @@ window.reloadAdminDashboard=function(){bookings=JSON.parse(localStorage.getItem(
   }
 
   // Save All CMS Content
-  $('#cmsSaveBtn').onclick = () => {
+  function saveCMS(silent = false){
     // 1. Hero
-    cmsState.hero = {
-      image: $('#cmsHeroImage').value.trim() || 'hero.jpg',
-      eyebrow: $('#cmsHeroEyebrow').value.trim(),
-      sideText: $('#cmsHeroSide').value.trim(),
-      title: $('#cmsHeroTitle').value.trim(),
-      subtitle: $('#cmsHeroSubtitle').value.trim(),
-      btnPrimaryText: $('#cmsHeroBtn1').value.trim(),
-      btnSecondaryText: $('#cmsHeroBtn2').value.trim(),
-      btnSecondaryLink: $('#cmsHeroLink2').value.trim(),
-      trustItems: [
-        $('#cmsHeroTrust1').value.trim() || '✓ Pay on arrival',
-        $('#cmsHeroTrust2').value.trim() || '✓ WhatsApp confirmation',
-        $('#cmsHeroTrust3').value.trim() || '✓ Private & sharing options'
-      ]
-    };
+    if($('#cmsHeroImage')){
+      cmsState.hero = {
+        image: $('#cmsHeroImage').value.trim() || cmsState.hero?.image || 'hero.jpg',
+        eyebrow: $('#cmsHeroEyebrow')?.value.trim() ?? cmsState.hero?.eyebrow ?? '',
+        sideText: $('#cmsHeroSide')?.value.trim() ?? cmsState.hero?.sideText ?? '',
+        title: $('#cmsHeroTitle')?.value.trim() ?? cmsState.hero?.title ?? '',
+        subtitle: $('#cmsHeroSubtitle')?.value.trim() ?? cmsState.hero?.subtitle ?? '',
+        btnPrimaryText: $('#cmsHeroBtn1')?.value.trim() ?? cmsState.hero?.btnPrimaryText ?? '',
+        btnSecondaryText: $('#cmsHeroBtn2')?.value.trim() ?? cmsState.hero?.btnSecondaryText ?? '',
+        btnSecondaryLink: $('#cmsHeroLink2')?.value.trim() ?? cmsState.hero?.btnSecondaryLink ?? '',
+        trustItems: [
+          $('#cmsHeroTrust1')?.value.trim() || '✓ Pay on arrival',
+          $('#cmsHeroTrust2')?.value.trim() || '✓ WhatsApp confirmation',
+          $('#cmsHeroTrust3')?.value.trim() || '✓ Private & sharing options'
+        ]
+      };
+    }
 
     // 2. Categories
-    cmsState.categories = {
-      eyebrow: $('#cmsCatEyebrow').value.trim(),
-      title: $('#cmsCatTitle').value.trim(),
-      allLinkText: $('#cmsCatAllText').value.trim(),
-      allLinkUrl: $('#cmsCatAllUrl').value.trim(),
-      cards: [
-        {
-          id: 'safari',
-          title: $('#cmsCat1Title').value.trim() || 'Desert Safari Dubai',
-          link: $('#cmsCat1Link').value.trim() || 'desert-safari-dubai.html',
-          image: $('#cmsCat1Img').value.trim() || 'hero.jpg'
-        },
-        {
-          id: 'quad',
-          title: $('#cmsCat2Title').value.trim() || 'Quad Bike Dubai',
-          link: $('#cmsCat2Link').value.trim() || 'quad-bike-dubai.html',
-          image: $('#cmsCat2Img').value.trim() || 'hero.jpg'
-        },
-        {
-          id: 'buggy',
-          title: $('#cmsCat3Title').value.trim() || 'Dune Buggy Dubai',
-          link: $('#cmsCat3Link').value.trim() || 'dune-buggy-dubai.html',
-          image: $('#cmsCat3Img').value.trim() || 'hero.jpg'
-        },
-        {
-          id: 'premium',
-          title: $('#cmsCat4Title').value.trim() || 'Dubai City Tours',
-          link: $('#cmsCat4Link').value.trim() || 'dubai-city-tour.html',
-          image: $('#cmsCat4Img').value.trim() || 'dubai.jpg'
-        }
-      ]
-    };
+    if($('#cmsCat1Img')){
+      cmsState.categories = {
+        eyebrow: $('#cmsCatEyebrow')?.value.trim() ?? cmsState.categories?.eyebrow ?? '',
+        title: $('#cmsCatTitle')?.value.trim() ?? cmsState.categories?.title ?? '',
+        allLinkText: $('#cmsCatAllText')?.value.trim() ?? cmsState.categories?.allLinkText ?? '',
+        allLinkUrl: $('#cmsCatAllUrl')?.value.trim() ?? cmsState.categories?.allLinkUrl ?? '',
+        cards: [
+          {
+            id: 'safari',
+            title: $('#cmsCat1Title')?.value.trim() || 'Desert Safari Dubai',
+            link: $('#cmsCat1Link')?.value.trim() || 'desert-safari-dubai.html',
+            image: $('#cmsCat1Img')?.value.trim() || cmsState.categories?.cards?.[0]?.image || 'hero.jpg'
+          },
+          {
+            id: 'quad',
+            title: $('#cmsCat2Title')?.value.trim() || 'Quad Bike Dubai',
+            link: $('#cmsCat2Link')?.value.trim() || 'quad-bike-dubai.html',
+            image: $('#cmsCat2Img')?.value.trim() || cmsState.categories?.cards?.[1]?.image || 'hero.jpg'
+          },
+          {
+            id: 'buggy',
+            title: $('#cmsCat3Title')?.value.trim() || 'Dune Buggy Dubai',
+            link: $('#cmsCat3Link')?.value.trim() || 'dune-buggy-dubai.html',
+            image: $('#cmsCat3Img')?.value.trim() || cmsState.categories?.cards?.[2]?.image || 'hero.jpg'
+          },
+          {
+            id: 'premium',
+            title: $('#cmsCat4Title')?.value.trim() || 'Dubai City Tours',
+            link: $('#cmsCat4Link')?.value.trim() || 'dubai-city-tour.html',
+            image: $('#cmsCat4Img')?.value.trim() || cmsState.categories?.cards?.[3]?.image || 'dubai.jpg'
+          }
+        ]
+      };
+    }
 
     // 3. Tour Section
-    cmsState.tourSection = {
-      eyebrow: $('#cmsTourEyebrow').value.trim(),
-      title: $('#cmsTourTitle').value.trim(),
-      noteText: $('#cmsTourNoteText').value.trim(),
-      guides: [
-        {text: $('#cmsTourGuide1Text').value.trim(), url: $('#cmsTourGuide1Url').value.trim()},
-        {text: $('#cmsTourGuide2Text').value.trim(), url: $('#cmsTourGuide2Url').value.trim()},
-        {text: $('#cmsTourGuide3Text').value.trim(), url: $('#cmsTourGuide3Url').value.trim()}
-      ]
-    };
+    if($('#cmsTourEyebrow')){
+      cmsState.tourSection = {
+        eyebrow: $('#cmsTourEyebrow')?.value.trim() ?? '',
+        title: $('#cmsTourTitle')?.value.trim() ?? '',
+        noteText: $('#cmsTourNoteText')?.value.trim() ?? '',
+        guides: [
+          {text: $('#cmsTourGuide1Text')?.value.trim() ?? '', url: $('#cmsTourGuide1Url')?.value.trim() ?? ''},
+          {text: $('#cmsTourGuide2Text')?.value.trim() ?? '', url: $('#cmsTourGuide2Url')?.value.trim() ?? ''},
+          {text: $('#cmsTourGuide3Text')?.value.trim() ?? '', url: $('#cmsTourGuide3Url')?.value.trim() ?? ''}
+        ]
+      };
+    }
 
     // 4. Why Us
     const whyCards = $$('#cmsWhyItemsContainer .cms-card-item');
-    cmsState.whyUs = {
-      eyebrow: $('#cmsWhyEyebrow').value.trim(),
-      title: $('#cmsWhyTitle').value.trim(),
-      items: whyCards.map(c => ({
-        num: c.querySelector('.why-num').value.trim(),
-        title: c.querySelector('.why-title').value.trim(),
-        desc: c.querySelector('.why-desc').value.trim()
-      })).filter(x => x.title)
-    };
+    if(whyCards.length > 0 && $('#cmsWhyEyebrow')){
+      cmsState.whyUs = {
+        eyebrow: $('#cmsWhyEyebrow')?.value.trim() ?? '',
+        title: $('#cmsWhyTitle')?.value.trim() ?? '',
+        items: whyCards.map(c => ({
+          num: c.querySelector('.why-num')?.value.trim() ?? '',
+          title: c.querySelector('.why-title')?.value.trim() ?? '',
+          desc: c.querySelector('.why-desc')?.value.trim() ?? ''
+        })).filter(x => x.title)
+      };
+    }
 
     // 5. Banner
-    cmsState.banner = {
-      image: $('#cmsBannerImg').value.trim() || 'hero.jpg',
-      eyebrow: $('#cmsBannerEyebrow').value.trim(),
-      title: $('#cmsBannerTitle').value.trim(),
-      desc: $('#cmsBannerDesc').value.trim(),
-      ctaWhatsappText: $('#cmsBannerWaText').value.trim(),
-      ctaWhatsappNumber: $('#cmsBannerWaNum').value.trim(),
-      ctaCallText: $('#cmsBannerCallText').value.trim(),
-      ctaCallNumber: $('#cmsBannerCallNum').value.trim()
-    };
+    if($('#cmsBannerImg')){
+      cmsState.banner = {
+        image: $('#cmsBannerImg').value.trim() || cmsState.banner?.image || 'hero.jpg',
+        eyebrow: $('#cmsBannerEyebrow')?.value.trim() ?? '',
+        title: $('#cmsBannerTitle')?.value.trim() ?? '',
+        desc: $('#cmsBannerDesc')?.value.trim() ?? '',
+        ctaWhatsappText: $('#cmsBannerWaText')?.value.trim() ?? '',
+        ctaWhatsappNumber: $('#cmsBannerWaNum')?.value.trim() ?? '',
+        ctaCallText: $('#cmsBannerCallText')?.value.trim() ?? '',
+        ctaCallNumber: $('#cmsBannerCallNum')?.value.trim() ?? ''
+      };
+    }
 
     // 6. Latest
     const latestCards = $$('#cmsLatestContainer .cms-card-item');
-    cmsState.latest = {
-      eyebrow: $('#cmsLatestEyebrow').value.trim(),
-      title: $('#cmsLatestTitle').value.trim(),
-      cards: latestCards.map((c, i) => ({
-        id: `exp-${i + 1}`,
-        tag: c.querySelector('.latest-tag').value.trim(),
-        title: c.querySelector('.latest-title').value.trim(),
-        desc: c.querySelector('.latest-desc').value.trim(),
-        link: c.querySelector('.latest-link').value.trim(),
-        btnText: c.querySelector('.latest-btn-text').value.trim(),
-        image: c.querySelector('.latest-img-url').value.trim() || 'hero.jpg'
-      })).filter(x => x.title)
-    };
+    if(latestCards.length > 0 && $('#cmsLatestEyebrow')){
+      cmsState.latest = {
+        eyebrow: $('#cmsLatestEyebrow')?.value.trim() ?? '',
+        title: $('#cmsLatestTitle')?.value.trim() ?? '',
+        cards: latestCards.map((c, i) => ({
+          id: `exp-${i + 1}`,
+          tag: c.querySelector('.latest-tag')?.value.trim() ?? '',
+          title: c.querySelector('.latest-title')?.value.trim() ?? '',
+          desc: c.querySelector('.latest-desc')?.value.trim() ?? '',
+          link: c.querySelector('.latest-link')?.value.trim() ?? '',
+          btnText: c.querySelector('.latest-btn-text')?.value.trim() ?? '',
+          image: c.querySelector('.latest-img-url')?.value.trim() || cmsState.latest?.cards?.[i]?.image || 'hero.jpg'
+        })).filter(x => x.title)
+      };
+    }
 
     // 7. Footer & Contact
-    cmsState.contact = {
-      eyebrow: $('#cmsContactEyebrow').value.trim(),
-      title: $('#cmsContactTitle').value.trim(),
-      subtitle: $('#cmsContactSubtitle').value.trim(),
-      btnText: $('#cmsContactBtn').value.trim(),
-      phoneDisplay: $('#cmsContactPhone').value.trim(),
-      phoneTel: $('#cmsContactTel').value.trim()
-    };
+    if($('#cmsContactEyebrow')){
+      cmsState.contact = {
+        eyebrow: $('#cmsContactEyebrow')?.value.trim() ?? '',
+        title: $('#cmsContactTitle')?.value.trim() ?? '',
+        subtitle: $('#cmsContactSubtitle')?.value.trim() ?? '',
+        btnText: $('#cmsContactBtn')?.value.trim() ?? '',
+        phoneDisplay: $('#cmsContactPhone')?.value.trim() ?? '',
+        phoneTel: $('#cmsContactTel')?.value.trim() ?? ''
+      };
+    }
 
     const footerLinks = $$('#cmsFooterLinksContainer .cms-tour-ref-item');
-    cmsState.footer = {
-      brandName: $('#cmsFooterBrand').value.trim(),
-      brandTagline: $('#cmsFooterTagline').value.trim(),
-      location: $('#cmsFooterLocation').value.trim(),
-      copyrightName: $('#cmsFooterCopyright').value.trim(),
-      phoneDisplay: $('#cmsFooterPhoneDisplay').value.trim(),
-      phoneUrl: $('#cmsFooterPhoneUrl').value.trim(),
-      links: footerLinks.map(l => ({
-        title: l.querySelector('.fl-title').value.trim(),
-        url: l.querySelector('.fl-url').value.trim()
-      })).filter(x => x.title)
-    };
+    if(footerLinks.length > 0 && $('#cmsFooterBrand')){
+      cmsState.footer = {
+        brandName: $('#cmsFooterBrand')?.value.trim() ?? '',
+        brandTagline: $('#cmsFooterTagline')?.value.trim() ?? '',
+        location: $('#cmsFooterLocation')?.value.trim() ?? '',
+        copyrightName: $('#cmsFooterCopyright')?.value.trim() ?? '',
+        phoneDisplay: $('#cmsFooterPhoneDisplay')?.value.trim() ?? '',
+        phoneUrl: $('#cmsFooterPhoneUrl')?.value.trim() ?? '',
+        links: footerLinks.map(l => ({
+          title: l.querySelector('.fl-title')?.value.trim() ?? '',
+          url: l.querySelector('.fl-url')?.value.trim() ?? ''
+        })).filter(x => x.title)
+      };
+    }
 
     // Save to localStorage
     localStorage.setItem('phoenixHomepageCMS', JSON.stringify(cmsState));
 
     // Also sync category images for backward compatibility with media/backup
     const catImages = {
-      safari: cmsState.categories.cards[0]?.image || 'hero.jpg',
-      quad: cmsState.categories.cards[1]?.image || 'hero.jpg',
-      buggy: cmsState.categories.cards[2]?.image || 'hero.jpg',
-      premium: cmsState.categories.cards[3]?.image || 'dubai.jpg'
+      safari: cmsState.categories?.cards?.[0]?.image || 'hero.jpg',
+      quad: cmsState.categories?.cards?.[1]?.image || 'hero.jpg',
+      buggy: cmsState.categories?.cards?.[2]?.image || 'hero.jpg',
+      premium: cmsState.categories?.cards?.[3]?.image || 'dubai.jpg'
     };
     localStorage.setItem('phoenixCategoryImages', JSON.stringify(catImages));
 
     // Broadcast updates
-    window.dispatchEvent(new CustomEvent('phoenix:cms-updated'));
+    window.dispatchEvent(new CustomEvent('phoenix:cms-updated', { detail: { fromAdmin: true } }));
     if(typeof window.refreshCategoryEditor === 'function') window.refreshCategoryEditor();
 
-    showCmsToast('Homepage CMS saved successfully! All updates are live on the homepage.');
-  };
+    if(!silent){
+      showCmsToast('Homepage CMS saved successfully! All updates are live on the homepage.');
+    }
+  }
+
+  const saveBtn = $('#cmsSaveBtn') || $('#saveCmsBtn');
+  if(saveBtn) saveBtn.onclick = () => saveCMS(false);
 
   const bottomSave = $('#cmsSaveBtnBottom');
-  if(bottomSave) bottomSave.onclick = () => $('#cmsSaveBtn').click();
+  if(bottomSave) bottomSave.onclick = () => (saveBtn ? saveBtn.click() : saveCMS(false));
 
   // Reset to Defaults
-  $('#cmsResetBtn').onclick = () => {
-    if(confirm('Reset all homepage content, texts and image overrides back to the default Phoenix Tours template?')){
-      localStorage.removeItem('phoenixHomepageCMS');
-      localStorage.removeItem('phoenixCategoryImages');
-      populateCMSForm();
-      window.dispatchEvent(new CustomEvent('phoenix:cms-updated'));
-      if(typeof window.refreshCategoryEditor === 'function') window.refreshCategoryEditor();
-      showCmsToast('Homepage CMS restored to default settings.');
-    }
-  };
+  const resetBtn = $('#cmsResetBtn') || $('#resetCmsBtn');
+  if(resetBtn){
+    resetBtn.onclick = () => {
+      if(confirm('Reset all homepage content, texts and image overrides back to the default Phoenix Tours template?')){
+        localStorage.removeItem('phoenixHomepageCMS');
+        localStorage.removeItem('phoenixCategoryImages');
+        populateCMSForm();
+        window.dispatchEvent(new CustomEvent('phoenix:cms-updated', { detail: { reset: true } }));
+        if(typeof window.refreshCategoryEditor === 'function') window.refreshCategoryEditor();
+        showCmsToast('Homepage CMS restored to default settings.');
+      }
+    };
+  }
 
   // Expose global refresh
   window.refreshHomepageCMS = populateCMSForm;
-  window.addEventListener('phoenix:cms-updated', populateCMSForm);
+  window.addEventListener('phoenix:cms-updated', (e) => {
+    if(e?.detail?.fromAdmin) return;
+    populateCMSForm();
+  });
 
   // Initialize
   populateCMSForm();

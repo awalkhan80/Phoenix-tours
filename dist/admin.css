@@ -100,7 +100,12 @@
 .cms-image-slot strong{display:block;font-size:10px;margin-bottom:4px}
 .cms-image-slot small{display:block;font-size:8px;color:#7e9095;margin-bottom:8px}
 .cms-image-slot img{width:100%;height:130px;object-fit:cover;border-radius:9px;background:#e5efed}
-.cms-image-slot input[type=url]{width:100%;border:1px solid var(--line);border-radius:8px;padding:8px;font-size:8px;margin-top:8px}
+.cms-slot-url-row{display:flex;gap:6px;margin-top:8px}
+.cms-slot-url-row input[type=url]{flex:1;border:1px solid var(--line);border-radius:8px;padding:7px 8px;font-size:8px;margin-top:0;outline:none}
+.cms-slot-url-row input[type=url]:focus{border-color:#158e8b;box-shadow:0 0 0 2px #158e8b15}
+.slot-apply-btn{font-size:8px;padding:6px 10px;border-radius:7px;background:#158e8b;color:#fff;border:0;font-weight:800;cursor:pointer;white-space:nowrap;transition:all .2s ease}
+.slot-apply-btn:hover{background:#0e6b68}
+.slot-apply-btn.applied, .apply-preset-btn.applied{background:#16854b !important;color:#fff !important;transform:scale(1.02)}
 .preset-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
 .preset-card{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff;display:flex;flex-direction:column}
 .preset-card img{width:100%;height:115px;object-fit:cover}
@@ -109,7 +114,8 @@
 .preset-card-body small{display:block;font-size:8px;color:#7c8e93;margin-bottom:9px;line-height:1.4}
 .preset-actions{display:flex;gap:6px;margin-top:auto}
 .preset-actions select{flex:1;font-size:8px;padding:6px;border-radius:7px;border:1px solid var(--line);background:#fbfdfc}
-.preset-actions button{font-size:8px;padding:6px 10px;border-radius:7px;background:#158e8b;color:#fff;border:0;font-weight:800}
+.preset-actions button{font-size:8px;padding:6px 10px;border-radius:7px;background:#158e8b;color:#fff;border:0;font-weight:800;cursor:pointer;white-space:nowrap;transition:all .2s ease}
+.preset-actions button:hover{background:#0e6b68}
 .cms-hero-preview{margin-top:14px;padding:16px;background:linear-gradient(135deg,#063c49,#0c5966);border-radius:14px;color:#fff;position:relative;overflow:hidden}
 .cms-hero-preview small{font-size:8px;letter-spacing:1.2px;color:#a2dad8;font-weight:800;display:block}
 .cms-hero-preview h4{font-size:16px;margin:5px 0}

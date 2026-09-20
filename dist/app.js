@@ -104,6 +104,7 @@ function unitText(unit){return unit==='person'?'per person':unit==='vehicle'?'pe
 
 function getTourLandingUrl(t){
   const id=String(t.id||'').toLowerCase();
+  if(id.includes('sky')) return '/sky-dive-dubai.html';
   if(id.includes('quad')) return '/rides/quad-bike';
   if(id.includes('canam')||id.includes('buggy')) return '/rides/buggy';
   if(id.includes('burj')) return '/burj-khalifa-lake-ride.html';
@@ -230,7 +231,7 @@ function applyHomepageCMS(){
       let legacyImages={};
       try{legacyImages=JSON.parse(localStorage.getItem('phoenixCategoryImages')||'{}')}catch{}
       catGrid.innerHTML=cms.categories.cards.map(c=>{
-        const imgUrl=legacyImages[c.id]||c.image||'hero.jpg';
+        const imgUrl=c.image||legacyImages[c.id]||'hero.jpg';
         return `<a class="category-card" href="${esc(c.link)}"><img src="${esc(imgUrl)}" alt="${esc(c.title)}" loading="lazy" decoding="async" width="600" height="400"><span>${esc(c.title)}</span></a>`;
       }).join('');
     }
