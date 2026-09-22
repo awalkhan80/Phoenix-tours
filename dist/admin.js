@@ -142,7 +142,7 @@ const tourDialog=$('#tourDialog'),tourForm=$('#tourForm'),packageEditor=$('#pack
 const settings=JSON.parse(localStorage.getItem('phoenixSettings')||'{}');if(settings.company)$('#settingCompany').value=settings.company;if(settings.phone)$('#settingPhone').value=settings.phone;if(settings.location)$('#settingLocation').value=settings.location;if(settings.payment)$('#settingPayment').value=settings.payment;$('#saveSettings').onclick=()=>{safeSetItem('phoenixSettings',JSON.stringify({company:$('#settingCompany').value,phone:$('#settingPhone').value,location:$('#settingLocation').value,payment:$('#settingPayment').value}));alert('Settings saved.')};
 function loadEmailStatus(){fetch('/api/email-status').then(r=>r.json()).then(st=>{const badge=$('#smtpStatusBadge'),fromLbl=$('#emailFromLabel'),hostLbl=$('#emailHostLabel');if(badge){badge.textContent=st.smtpConfigured?'Connected (Live SMTP)':'Active (Simulated Delivery)';badge.style.background=st.smtpConfigured?'#e1f2ee':'#fef3c7';badge.style.color=st.smtpConfigured?'#0c6769':'#92400e';}if(fromLbl)fromLbl.textContent=st.fromAddress||'Phoenix Tours <bookings@phoenix-tours.ae>';if(hostLbl)hostLbl.textContent=st.smtpHost||'Default';}).catch(()=>{});}
 loadEmailStatus();
-const testEmailBtn=$('#btnSendTestEmail');if(testEmailBtn){testEmailBtn.onclick=()=>{const email=($('#testEmailInput')?.value||'').trim();const st=$('#testEmailStatus');if(!email){if(st)st.textContent='Please provide an email address.';return;}testEmailBtn.disabled=true;testEmailBtn.textContent='Sending...';if(st)st.textContent='Dispatching test booking summary email...';fetch('/api/test-email',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email})}).then(r=>r.json()).then(res=>{testEmailBtn.disabled=false;testEmailBtn.textContent='✉ Send Test';if(st){st.textContent=`✓ Test summary email dispatched to ${email}! Check inbox/spam or server logs.`;st.style.color='#0f766e';}}).catch(err=>{testEmailBtn.disabled=false;testEmailBtn.textContent='✉ Send Test';if(st){st.textContent=`Error: ${err.message||'Failed'}`;st.style.color='#dc2626';}});};}
+const testEmailBtn=$('#btnSendTestEmail');if(testEmailBtn){testEmailBtn.onclick=()=>{const email=($('#testEmailInput')?.value||'').trim();const st=$('#testEmailStatus');if(!email){if(st)st.textContent='Please provide an email address.';return;}testEmailBtn.disabled=true;testEmailBtn.textContent='Sending...';if(st)st.textContent='Dispatching test booking summary email...';fetch('/api/test-email',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email})}).then(r=>r.json()).then(res=>{testEmailBtn.disabled=false;testEmailBtn.textContent='✉ Send Test';if(st){st.textContent=`✓ Test summary email dispatched to ${email}! Check inbox/spam or server logs.`;st.style.color='#0d9488';}}).catch(err=>{testEmailBtn.disabled=false;testEmailBtn.textContent='✉ Send Test';if(st){st.textContent=`Error: ${err.message||'Failed'}`;st.style.color='#dc2626';}});};}
 renderAll();
 
 // Master SEO & AEO Command Center Controller
@@ -278,7 +278,7 @@ function renderSeoAuditTable(filter = '') {
     <tr>
       <td>
         <strong style="color:var(--navy);font-size:12.5px;">${esc(p.name)}</strong>
-        <br><code style="color:#0f766e;font-size:11px;">${esc(p.path)}</code>
+        <br><code style="color:#0d9488;font-size:11px;">${esc(p.path)}</code>
       </td>
       <td>
         <span style="font-weight:600;color:#334155;">${esc(p.keyword)}</span>
@@ -295,7 +295,7 @@ function renderSeoAuditTable(filter = '') {
       <td><span style="background:#f1f5f9;color:#334155;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:600;">${esc(p.schema)}</span></td>
       <td><span style="background:#fef3c7;color:#92400e;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700;">${esc(p.aeo)}</span></td>
       <td><span style="background:#e1f2ee;color:#0c6769;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:800;">✓ Active</span></td>
-      <td><a href="${esc(p.preview)}" target="_blank" rel="noopener" style="color:#0f766e;font-weight:700;text-decoration:none;">Open ↗</a></td>
+      <td><a href="${esc(p.preview)}" target="_blank" rel="noopener" style="color:#0d9488;font-weight:700;text-decoration:none;">Open ↗</a></td>
     </tr>
   `).join('') || '<tr><td colspan="8">No matching pages.</td></tr>';
 }
@@ -1071,7 +1071,7 @@ window.saveStoredLandingCMS = saveStoredLandingCMS;
               </select>
               <button type="button" class="apply-preset-btn" data-preset-idx="${idx}">Apply</button>
             </div>
-            <div class="preset-feedback" style="display:none;font-size:8.5px;font-weight:700;color:#0f766e;margin-top:6px;"></div>
+            <div class="preset-feedback" style="display:none;font-size:8.5px;font-weight:700;color:#0d9488;margin-top:6px;"></div>
           </div>
         </div>
       `;
@@ -1452,7 +1452,7 @@ window.saveStoredLandingCMS = saveStoredLandingCMS;
   function createHighlightRow(text = ''){
     const row = document.createElement('div');
     row.className = 'landing-highlight-row';
-    row.innerHTML = `<span style="color:#18aaa6;font-weight:900;">•</span>
+    row.innerHTML = `<span style="color:#0d9488;font-weight:900;">•</span>
       <input type="text" class="hl-text" placeholder="Highlight item..." value="${esc(text)}">
       <button type="button" title="Remove">×</button>`;
     row.querySelector('button').onclick = () => row.remove();
