@@ -11,4 +11,13 @@ Allow: /
 User-agent: Bingbot
 Allow: /
 
-Sitemap: https://phoenix-tours-barayshah.vercel.app/sitemap.xml
+User-agent: GPTBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+Sitemap: https://desertsafaridxbpro.com/sitemap.xml

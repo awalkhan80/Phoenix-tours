@@ -127,8 +127,8 @@ export function generateBookingEmailHtml(booking) {
     <div class="container">
       <!-- HEADER -->
       <div class="header">
-        <h1 class="header-logo">Phoenix Tours</h1>
-        <div class="header-tagline">Dubai Desert Adventures & Sightseeing</div>
+        <img src="https://desertsafaridxbpro.com/phoenix-logo-white.png" alt="Phoenix Travel &amp; Tours" width="210" style="display:block;margin:0 auto 12px;max-width:210px;height:auto;">
+        <div class="header-tagline">Licensed Dubai Tour Operator · Business Bay, Dubai</div>
         <div class="badge-code">CONFIRMATION: ${code}</div>
       </div>
 

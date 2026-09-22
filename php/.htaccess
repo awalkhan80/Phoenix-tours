@@ -1,0 +1,33 @@
+# =======================================================================
+# Phoenix Travel & Tours - Enterprise PHP Server Apache Configuration
+# Domain: https://desertsafaridxbpro.com
+# Office: Office 701, XL Tower, Business Bay, Dubai, UAE
+# WhatsApp: +971561505270
+# =======================================================================
+
+RewriteEngine On
+RewriteBase /
+
+# Custom 404 Handler powered by PHP Redirect Engine
+ErrorDocument 404 /php/404.php
+
+# Canonical HTTPS
+RewriteCond %{HTTPS} off [OR]
+RewriteCond %{HTTP_HOST} ^www\.desertsafaridxbpro\.com [NC]
+RewriteRule ^(.*)$ https://desertsafaridxbpro.com/$1 [L,R=301]
+
+# Dynamic Sitemap Rewrite to PHP generator
+RewriteRule ^sitemap\.xml$ /php/sitemap.php [L]
+
+# Clean URL rewriting to tour_template.php or static pages
+RewriteRule ^tours/([a-zA-Z0-9_-]+)/?$ /php/tour_template.php?slug=$1 [L,QSA]
+RewriteRule ^rides/quad-bike/?$ /quad-bike-dubai.html [L,QSA]
+RewriteRule ^rides/buggy/?$ /dune-buggy-dubai.html [L,QSA]
+RewriteRule ^book/?$ /book.html [L,QSA]
+RewriteRule ^admin/?$ /admin.html [L,QSA]
+
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+  Header set X-Frame-Options "SAMEORIGIN"
+  Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
