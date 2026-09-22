@@ -861,7 +861,10 @@ window.saveStoredLandingCMS = saveStoredLandingCMS;
     });
   }
 
-  function renderPresets(){
+  let presetGridInitialized = false;
+  let presetSelections = {};
+
+  function renderPresets(force = false){
     const grid = $('#cmsPresetGrid');
     if(!grid) return;
     const slots = getImageSlotsDef();
@@ -880,63 +883,95 @@ window.saveStoredLandingCMS = saveStoredLandingCMS;
       </optgroup>
     `).join('');
 
-    grid.innerHTML = PRESETS.map(p => `
-      <div class="preset-card">
-        <img src="${esc(p.url)}" alt="${esc(p.title)}" loading="lazy">
-        <div class="preset-card-body">
-          <strong>${esc(p.title)}</strong>
-          <small>${esc(p.desc)}</small>
-          <div class="preset-actions">
-            <select class="preset-target-select" aria-label="Select slot for ${esc(p.title)}">
-              ${optgroupsHtml}
-            </select>
-            <button type="button" class="apply-preset-btn">Apply</button>
+    // Save existing user dropdown selections before re-rendering if already built
+    if(presetGridInitialized && !force){
+      grid.querySelectorAll('.preset-card').forEach(card => {
+        const idx = card.dataset.presetIdx;
+        const sel = card.querySelector('.preset-target-select');
+        if(idx !== undefined && sel) presetSelections[idx] = sel.value;
+      });
+    }
+
+    grid.innerHTML = PRESETS.map((p, idx) => {
+      const savedChoice = presetSelections[idx] || (slots[0]?.key || '');
+      return `
+        <div class="preset-card" data-preset-idx="${idx}">
+          <img src="${esc(p.url)}" alt="${esc(p.title)}" loading="lazy">
+          <div class="preset-card-body">
+            <strong>${esc(p.title)}</strong>
+            <small>${esc(p.desc)}</small>
+            <div class="preset-actions">
+              <select class="preset-target-select" aria-label="Select slot for ${esc(p.title)}" data-preset-idx="${idx}">
+                ${optgroupsHtml}
+              </select>
+              <button type="button" class="apply-preset-btn" data-preset-idx="${idx}">Apply</button>
+            </div>
+            <div class="preset-feedback" style="display:none;font-size:8.5px;font-weight:700;color:#0f766e;margin-top:6px;"></div>
           </div>
-          <div class="preset-feedback" style="display:none;font-size:7.5px;font-weight:800;color:#0f766e;margin-top:6px;"></div>
         </div>
-      </div>
-    `).join('');
+      `;
+    }).join('');
 
-    grid.querySelectorAll('.preset-card').forEach((card, idx) => {
-      const select = card.querySelector('.preset-target-select');
-      const applyBtn = card.querySelector('.apply-preset-btn');
-      const feedback = card.querySelector('.preset-feedback');
-      const p = PRESETS[idx];
+    // Restore user selections
+    grid.querySelectorAll('.preset-target-select').forEach(sel => {
+      const idx = sel.dataset.presetIdx;
+      if(presetSelections[idx] && sel.querySelector(`option[value="${presetSelections[idx]}"]`)){
+        sel.value = presetSelections[idx];
+      }
+      sel.onchange = () => {
+        presetSelections[idx] = sel.value;
+      };
+    });
 
-      applyBtn.onclick = () => {
-        const targetKey = select.value;
+    // Event delegation on grid for reliable click handling
+    if(!presetGridInitialized){
+      grid.addEventListener('click', (e) => {
+        const applyBtn = e.target.closest('.apply-preset-btn');
+        if(!applyBtn) return;
+        const card = applyBtn.closest('.preset-card');
+        if(!card) return;
+        const idx = Number(applyBtn.dataset.presetIdx ?? card.dataset.presetIdx);
+        const p = PRESETS[idx];
+        if(!p) return;
+
+        const select = card.querySelector('.preset-target-select');
+        const targetKey = select ? select.value : '';
         const currentSlots = getImageSlotsDef();
         const targetSlot = currentSlots.find(s => s.key === targetKey);
-        if(!targetSlot || !p) return;
+        if(!targetSlot) return;
 
-        // 1. Set the URL
+        // 1. Update the slot URL
         targetSlot.setUrl(p.url);
 
-        // 2. Immediate persistent save
+        // 2. Persist according to target type
         if(!targetSlot.targetType || targetSlot.targetType === 'cms'){
           saveHomepageCMS(true);
-          renderImageSlots();
         }
 
-        // 3. Visual button feedback
+        // 3. Immediately refresh the Image Slots cards in Tab 8 so the preview updates
+        renderImageSlots();
+
+        // 4. Highlight the slot card in the Image Manager section above
+        const matchingCard = document.querySelector(`.cms-image-slot[data-slot-key="${targetKey}"]`);
+        if(matchingCard){
+          matchingCard.classList.add('slot-highlight');
+          matchingCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+          setTimeout(() => matchingCard.classList.remove('slot-highlight'), 3000);
+        }
+
+        // 5. Visual button & card feedback
         const origText = 'Apply';
         applyBtn.textContent = '✓ Applied!';
         applyBtn.classList.add('applied');
         applyBtn.disabled = true;
 
+        const feedback = card.querySelector('.preset-feedback');
         if(feedback){
-          feedback.textContent = `✓ Applied to ${targetSlot.label} & saved live`;
+          feedback.textContent = `✓ Applied to ${targetSlot.label} & saved live!`;
           feedback.style.display = 'block';
         }
 
-        // 4. Highlight slot card if visible
-        const matchingCard = document.querySelector(`.cms-image-slot[data-slot-key="${targetKey}"]`);
-        if(matchingCard){
-          matchingCard.classList.add('slot-highlight');
-          setTimeout(() => matchingCard.classList.remove('slot-highlight'), 2500);
-        }
-
-        // 5. Toast notice
+        // 6. Toast notice
         showCmsToast(`✓ Photo preset "${p.title}" applied to ${targetSlot.label} and saved live!`);
 
         setTimeout(() => {
@@ -944,8 +979,10 @@ window.saveStoredLandingCMS = saveStoredLandingCMS;
           applyBtn.classList.remove('applied');
           applyBtn.disabled = false;
         }, 2500);
-      };
-    });
+      });
+
+      presetGridInitialized = true;
+    }
   }
 
   function populateCMSForm(){
@@ -1153,7 +1190,11 @@ window.saveStoredLandingCMS = saveStoredLandingCMS;
 
   // Expose global refresh
   window.refreshHomepageCMS = populateCMSForm;
-  window.addEventListener('phoenix:cms-updated', populateCMSForm);
+  window.addEventListener('storage', (e) => {
+    if(e.key === 'phoenixHomepageCMS'){
+      populateCMSForm();
+    }
+  });
 
   // Initialize
   populateCMSForm();

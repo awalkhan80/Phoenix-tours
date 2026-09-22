@@ -191,6 +191,11 @@ app.get('/api/bookings', (req, res) => {
   res.json({ bookings: serverBookings });
 });
 
+// Explicit 404 page handler (returns HTTP 404)
+app.get(['/404', '/404.html'], (req, res) => {
+  res.status(404).sendFile(path.join(DIST_DIR, '404.html'));
+});
+
 // Also serve static assets for sub-paths (e.g. /rides/style.css, /rides/tour-data.js)
 app.use('/rides', express.static(DIST_DIR));
 
@@ -212,9 +217,9 @@ app.use((req, res, next) => {
   next();
 });
 
-// Fallback to index.html for client-side navigation
+// Fallback: serve branded 404 page with genuine HTTP 404 status
 app.use((req, res) => {
-  res.sendFile(path.join(DIST_DIR, 'index.html'));
+  res.status(404).sendFile(path.join(DIST_DIR, '404.html'));
 });
 
 app.listen(PORT, '0.0.0.0', () => {
