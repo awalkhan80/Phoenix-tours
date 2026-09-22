@@ -343,7 +343,7 @@ function applyHomepageCMS(){
   }
 
   // 8. Footer
-  const footerEl=$('footer');
+  const footerEl=$('footer') || $('.site-footer');
   if(footerEl&&cms.footer){
     const brandCopy=footerEl.querySelector('.brand-copy');
     if(brandCopy){
@@ -352,17 +352,19 @@ function applyHomepageCMS(){
       const small=brandCopy.querySelector('small');
       if(small&&cms.footer.brandTagline) small.textContent=cms.footer.brandTagline;
     }
-    const paras=footerEl.querySelectorAll('p');
-    if(paras.length>=1&&cms.footer.location) paras[0].textContent=cms.footer.location;
+    const locEl = footerEl.querySelector('.footer-location') || footerEl.querySelectorAll('p')[0];
+    if(locEl&&cms.footer.location) locEl.textContent=cms.footer.location;
     const nav=footerEl.querySelector('nav');
     if(nav&&Array.isArray(cms.footer.links)&&cms.footer.links.length){
-      nav.innerHTML=cms.footer.links.map(l=>`<a href="${esc(l.url)}">${esc(l.title)}</a>`).join(' · ');
+      nav.innerHTML=cms.footer.links.map(l=>`<a href="${esc(l.url)}">${esc(l.title)}</a>`).join('');
     }
-    if(paras.length>=2&&cms.footer.phoneDisplay){
-      paras[1].innerHTML=`WhatsApp: <a href="${esc(cms.footer.phoneUrl||'https://wa.me/971561505270')}">${esc(cms.footer.phoneDisplay)}</a>`;
+    const waEl = footerEl.querySelector('.footer-whatsapp') || footerEl.querySelectorAll('p')[1];
+    if(waEl&&cms.footer.phoneDisplay){
+      waEl.innerHTML=`WhatsApp: <a href="${esc(cms.footer.phoneUrl||'https://wa.me/971561505270')}" target="_blank" rel="noopener">${esc(cms.footer.phoneDisplay)}</a>`;
     }
-    if(paras.length>=3&&cms.footer.copyrightName){
-      paras[2].innerHTML=`© <span id="year">${new Date().getFullYear()}</span> ${esc(cms.footer.copyrightName)}`;
+    const copyEl = footerEl.querySelector('.footer-copyright') || footerEl.querySelectorAll('p')[2];
+    if(copyEl&&cms.footer.copyrightName){
+      copyEl.innerHTML=`© <span id="year">${new Date().getFullYear()}</span> ${esc(cms.footer.copyrightName)}. All rights reserved.`;
     }
   }
 }
@@ -432,8 +434,7 @@ window.addEventListener('storage',e=>{
   }
 })();
 
-const yearEl = $('#year');
-if (yearEl) yearEl.textContent = new Date().getFullYear();
+$$('#year, .copyright-year').forEach(el => { el.textContent = new Date().getFullYear(); });
 
 function filterCards(type = 'all', query = '') {
   const cards = $$('.tour-card');
