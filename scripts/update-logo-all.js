@@ -14,19 +14,19 @@ for (const file of files) {
   if (file === 'admin.html') {
     html = html.replace(
       /src="\/[^\"]*logo[^\"]*"/gi,
-      `src="/Logo.png"`
+      `src="/Logo.svg"`
     );
   } else {
     // Replace all logo image sources in header and footer
     html = html.replace(
-      /src="\/(phoenix-logo|phoenix-logo-white|logo)\.(svg|png)"/gi,
-      `src="/Logo.png"`
+      /src="\/(phoenix-logo|phoenix-logo-white|logo|Logo)\.(svg|png)"/gi,
+      `src="/Logo.svg"`
     );
 
     // Update schema logo URL
     html = html.replace(
       /"logo":\s*"https:\/\/desertsafaridxbpro\.com\/[^\"]*"/g,
-      `"logo":"https://desertsafaridxbpro.com/Logo.png"`
+      `"logo":"https://desertsafaridxbpro.com/Logo.svg"`
     );
   }
 

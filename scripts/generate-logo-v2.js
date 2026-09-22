@@ -39,10 +39,13 @@ const createTightSvg = (isDark = false) => `<?xml version="1.0" encoding="UTF-8"
 // Generate Light/Default Vector SVG
 const lightSvg = createTightSvg(false);
 fs.writeFileSync('dist/phoenix-logo.svg', lightSvg);
+fs.writeFileSync('dist/logo-light.svg', lightSvg);
 
 // Generate Dark Variant Vector SVG (for dark header/navbars)
 const darkSvg = createTightSvg(true);
 fs.writeFileSync('dist/phoenix-logo-white.svg', darkSvg);
+fs.writeFileSync('dist/Logo.svg', darkSvg);
+fs.writeFileSync('dist/logo.svg', darkSvg);
 
 // Render to high-resolution PNGs using Rust-based Resvg
 const resvgLight = new Resvg(lightSvg, { fitTo: { mode: 'width', value: 1200 } });

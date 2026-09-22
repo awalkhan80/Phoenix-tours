@@ -222,6 +222,63 @@ function generateGeoHtml(geoObj) {
   return html;
 }
 
+function generateFaqJsonLd(aeoList) {
+  if (!aeoList || !aeoList.length) return '';
+  const faqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    'mainEntity': aeoList.map(item => ({
+      '@type': 'Question',
+      'name': item.q,
+      'acceptedAnswer': {
+        '@type': 'Answer',
+        'text': `${item.a}${item.details ? ' ' + item.details : ''}`
+      }
+    }))
+  };
+  return `\n<script type="application/ld+json">\n${JSON.stringify(faqSchema, null, 2)}\n</script>\n`;
+}
+
+function generateGeoEntityJsonLd(filename, config) {
+  const entitySchema = {
+    '@context': 'https://schema.org',
+    '@type': 'TravelAgency',
+    'name': BUSINESS_NAME,
+    'url': config.canonical || DOMAIN,
+    'logo': `${DOMAIN}/Logo.png`,
+    'image': `${DOMAIN}/Logo.png`,
+    'telephone': PHONE,
+    'priceRange': 'AED 120 - AED 2700',
+    'currenciesAccepted': 'AED, USD, EUR',
+    'paymentAccepted': 'Cash, Credit Card, Pay on Arrival',
+    'address': {
+      '@type': 'PostalAddress',
+      'streetAddress': 'Office 701, XL Tower, Business Bay',
+      'addressLocality': 'Dubai',
+      'addressRegion': 'Dubai',
+      'addressCountry': 'AE'
+    },
+    'geo': {
+      '@type': 'GeoCoordinates',
+      'latitude': 25.1852,
+      'longitude': 55.2744
+    },
+    'openingHoursSpecification': {
+      '@type': 'OpeningHoursSpecification',
+      'dayOfWeek': ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+      'opens': '00:00',
+      'closes': '23:59'
+    },
+    'areaServed': [
+      { '@type': 'City', 'name': 'Dubai' },
+      { '@type': 'City', 'name': 'Abu Dhabi' },
+      { '@type': 'Country', 'name': 'United Arab Emirates' }
+    ]
+  };
+
+  return `\n<script type="application/ld+json">\n${JSON.stringify(entitySchema, null, 2)}\n</script>\n`;
+}
+
 function updateFile(filename, config) {
   const filePath = path.join(__dirname, '..', 'dist', filename);
   if (!fs.existsSync(filePath)) {
@@ -241,12 +298,16 @@ function updateFile(filename, config) {
   content = content.replace(/Phoenix Tours/g, 'Phoenix Travel & Tours');
 
   // Replace address
-  content = content.replace(/Dubai, United Arab Emirates/g, 'Office 701, XL Tower, Business Bay, Dubai, UAE');
-  content = content.replace(/Dubai, UAE/g, 'Office 701, XL Tower, Business Bay, Dubai, UAE');
+  content = content.replace(/Dubai, United Arab Emirates/g, OFFICE_ADDRESS);
+  content = content.replace(/Dubai, UAE/g, OFFICE_ADDRESS);
 
   // Update canonical
   if (config.canonical) {
-    content = content.replace(/<link rel="canonical" href="[^"]*">/, `<link rel="canonical" href="${config.canonical}">`);
+    if (content.includes('<link rel="canonical"')) {
+      content = content.replace(/<link rel="canonical" href="[^"]*">/, `<link rel="canonical" href="${config.canonical}">`);
+    } else {
+      content = content.replace('</head>', `  <link rel="canonical" href="${config.canonical}">\n</head>`);
+    }
   }
 
   // Update title
@@ -263,19 +324,27 @@ function updateFile(filename, config) {
     content = content.replace(/<meta name="twitter:description" content="[^"]*">/, `<meta name="twitter:description" content="${config.desc}">`);
   }
 
-  // Inject AEO & GEO blocks if configured and not already present
-  if (config.aeo && !content.includes('aeo-direct-answer-box')) {
+  // Inject AEO JSON-LD Schema (FAQPage) and GEO Entity Schema into <head>
+  if (config.aeo && !content.includes('"@type": "FAQPage"')) {
+    const faqJsonLd = generateFaqJsonLd(config.aeo);
+    content = content.replace('</head>', `${faqJsonLd}\n</head>`);
+  }
+
+  if (!content.includes('"@type": "TravelAgency"')) {
+    const geoJsonLd = generateGeoEntityJsonLd(filename, config);
+    content = content.replace('</head>', `${geoJsonLd}\n</head>`);
+  }
+
+  // Ensure visible AEO FAQ section and GEO entity grid are present
+  if (config.aeo && !content.includes('class="faq-section"')) {
     const aeoBlock = generateAeoHtml(config.aeo);
     const geoBlock = generateGeoHtml(config.geo);
-    const combined = aeoBlock + geoBlock;
+    const combined = geoBlock + aeoBlock;
 
-    // Find suitable insertion anchor
-    if (content.includes('id="safari-packages"')) {
-      content = content.replace('id="safari-packages"', `id="safari-packages-anchor"></div>${combined}<div id="safari-packages"`);
-    } else if (content.includes('class="sands-narrative"')) {
-      content = content.replace(/(<div class="sands-narrative">[\s\S]*?<\/p>)/, `$1\n${combined}`);
-    } else if (content.includes('<main')) {
-      content = content.replace(/(<main[^>]*>)/, `$1\n<div style="max-width:1140px;margin:20px auto;padding:0 20px;">${combined}</div>`);
+    if (content.includes('</main>')) {
+      content = content.replace('</main>', `${combined}\n</main>`);
+    } else {
+      content = content.replace('</body>', `<div style="max-width:1140px;margin:20px auto;padding:0 20px;">${combined}</div>\n</body>`);
     }
   }
 
