@@ -47,11 +47,13 @@ fs.writeFileSync('dist/phoenix-logo-white.svg', darkSvg);
 // Render to high-resolution PNGs using Rust-based Resvg
 const resvgLight = new Resvg(lightSvg, { fitTo: { mode: 'width', value: 1200 } });
 const lightPng = resvgLight.render().asPng();
-fs.writeFileSync('dist/phoenix-logo.png', lightPng);
-fs.writeFileSync('dist/Phoenix Logo.png', lightPng);
-
 const resvgDark = new Resvg(darkSvg, { fitTo: { mode: 'width', value: 1200 } });
 const darkPng = resvgDark.render().asPng();
+
+fs.writeFileSync('dist/phoenix-logo.png', lightPng);
+fs.writeFileSync('dist/Phoenix Logo.png', lightPng);
 fs.writeFileSync('dist/phoenix-logo-white.png', darkPng);
+fs.writeFileSync('dist/Logo.png', darkPng);
+fs.writeFileSync('dist/logo.png', darkPng);
 
 console.log('Successfully regenerated tight-viewBox logos with vivid contrast!');

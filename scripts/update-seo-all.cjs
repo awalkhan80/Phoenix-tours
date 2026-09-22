@@ -198,17 +198,11 @@ const pagesConfig = {
 
 function generateAeoHtml(aeoList) {
   if (!aeoList || !aeoList.length) return '';
-  let html = '\n<!-- AEO Direct Answer Section -->\n<div class="aeo-direct-answer-section" style="margin:24px 0;">\n';
+  let html = '\n<!-- Frequently Asked Questions -->\n<div class="faq-section">\n  <h3>Frequently Asked Questions</h3>\n';
   for (const item of aeoList) {
-    html += `  <div class="aeo-direct-answer-box">\n`;
-    html += `    <div class="aeo-badge-row">\n`;
-    html += `      <span class="aeo-badge">AEO Direct Answer</span>\n`;
-    html += `      <h3 class="aeo-question">${item.q}</h3>\n`;
-    html += `    </div>\n`;
-    html += `    <p class="aeo-summary">${item.a}</p>\n`;
-    if (item.details) {
-      html += `    <p class="aeo-details">${item.details}</p>\n`;
-    }
+    html += `  <div class="faq-item">\n`;
+    html += `    <div class="faq-question">${item.q}</div>\n`;
+    html += `    <div class="faq-answer">${item.a}${item.details ? ' ' + item.details : ''}</div>\n`;
     html += `  </div>\n`;
   }
   html += `</div>\n`;

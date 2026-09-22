@@ -13,7 +13,7 @@ for (const file of files) {
   // Replace header logo with white variant for dark header
   const newHtml = html.replace(
     /(<header class="site-header">[\s\S]*?<a class="brand"[^>]*>[\s\S]*?<img class="brand-logo"[^>]*src=")[^"]*(")/,
-    '$1/phoenix-logo-white.svg$2'
+    '$1/Logo.png$2'
   );
 
   if (newHtml !== html) {
