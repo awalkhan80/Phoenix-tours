@@ -7,7 +7,7 @@
     "dev": "node server.js",
     "start": "node server.js",
     "lint": "node --check server.js email-service.js dist/app.js dist/tour-data.js dist/admin.js dist/backup.js dist/landing-cms.js",
-    "build": "node -e \"console.log('Phoenix Tours static site ready')\""
+    "build": "node scripts/build-site.js && node scripts/generate-logo-v2.js && node scripts/update-seo-all.cjs"
   },
   "engines": {
     "node": ">=20"

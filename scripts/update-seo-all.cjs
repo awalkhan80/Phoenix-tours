@@ -8,6 +8,33 @@ const PHONE = '+971561505270';
 const WHATSAPP = '+971561505270';
 
 const pagesConfig = {
+  'index.html': {
+    title: 'Phoenix Travel & Tours | Dubai Desert Safaris & Quad Biking',
+    desc: 'Book top-rated Dubai desert safaris, quad bike ATV rentals, Can-Am dune buggies, and private city tours with Phoenix Travel & Tours. Pay on arrival & instant WhatsApp booking.',
+    canonical: `${DOMAIN}/`,
+    aeo: [
+      {
+        q: 'What is included in a Dubai Desert Safari and how much does it cost?',
+        a: 'A standard Evening Desert Safari with Phoenix Travel & Tours costs AED 120 per person. Inclusions feature door-to-door 4x4 pickup in a Toyota Land Cruiser, 35–45 minutes of red dune bashing in Lahbab Desert, sandboarding, camel riding, live entertainment (Tanoura, Belly Dance & Fire Show), and a 5-star international BBQ dinner buffet with vegetarian & non-vegetarian options. Bookings require zero advance deposit; pay on arrival in cash or card.'
+      },
+      {
+        q: 'How much do self-drive Quad Bike ATV and Can-Am Dune Buggy rentals cost?',
+        a: 'Self-drive Quad Bike ATV rentals start from AED 150 for 30 minutes (220cc to 700cc Raptor ATVs). High-powered 2-seater Can-Am Maverick X3 Turbo dune buggies start from AED 1,000 per hour. All off-road rentals include full safety helmets, goggles, professional instructor briefings, and lead desert guides. No driver\'s license is required.'
+      },
+      {
+        q: 'Where is Phoenix Travel & Tours located and how do I book a tour?',
+        a: 'Phoenix Travel & Tours is headquartered at Office 701, XL Tower, Business Bay, Dubai, UAE. Reservations can be placed directly without prepayment via WhatsApp at +971 56 150 5270 or by completing our online booking form. Customers receive instant booking confirmation and pay on arrival.'
+      }
+    ],
+    geo: {
+      'Tour Operator': 'Phoenix Travel & Tours',
+      'Head Office': 'Office 701, XL Tower, Business Bay, Dubai, UAE',
+      'Main Services': 'Dubai Desert Safari, Quad Bike ATV, Can-Am Buggy, City Sightseeing',
+      'Location': 'Business Bay, Dubai, United Arab Emirates',
+      'Payment Terms': 'Pay on Arrival (Cash or Card accepted)',
+      'WhatsApp Line': '+971 56 150 5270'
+    }
+  },
   'desert-safari-dubai.html': {
     title: 'Dubai Desert Safari Tours | Evening, Morning & Private 4x4 | Phoenix Travel & Tours',
     desc: 'Book top-rated Dubai desert safari tours with Phoenix Travel & Tours. Lahbab red dune bashing, BBQ dinner, camel rides & live shows. Clear AED rates & pay on arrival.',
