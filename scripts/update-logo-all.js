@@ -19,7 +19,7 @@ for (const file of files) {
   } else {
     // Replace all logo image sources in header and footer
     html = html.replace(
-      /src="\/(phoenix-logo|phoenix-logo-white|logo|Logo)\.(svg|png)"/gi,
+      /src="\/(phoenix-logo|phoenix-logo-white|logo)\.(svg|png)"/gi,
       `src="/Logo.svg"`
     );
 

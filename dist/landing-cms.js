@@ -1,4 +1,2 @@
-// Landing Page CMS Management Script
-(() => {
-  console.log('Landing Page CMS initialized');
-})();
+// Landing Page CMS Script
+(() => { console.log('Landing CMS active'); })();

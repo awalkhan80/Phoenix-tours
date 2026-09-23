@@ -1,55 +1,50 @@
-// Phoenix Travel & Tours - Admin Dashboard JavaScript
+// Phoenix Travel & Tours Admin Script
 document.addEventListener('DOMContentLoaded', () => {
-  const navButtons = document.querySelectorAll('.sidebar nav button');
+  const navBtns = document.querySelectorAll('.sidebar nav button');
   const views = document.querySelectorAll('.view');
+  const viewTitle = document.getElementById('viewTitle');
 
-  navButtons.forEach(btn => {
+  navBtns.forEach(btn => {
     btn.addEventListener('click', () => {
-      navButtons.forEach(b => b.classList.remove('active'));
+      navBtns.forEach(b => b.classList.remove('active'));
       views.forEach(v => v.classList.remove('active'));
-      
       btn.classList.add('active');
-      const targetView = document.getElementById(btn.dataset.view);
-      if (targetView) targetView.classList.add('active');
+      const target = btn.dataset.view;
+      document.getElementById(target)?.classList.add('active');
+      if (viewTitle) viewTitle.textContent = btn.textContent;
     });
   });
 
-  // Test Email Button Handler
-  const testEmailBtn = document.getElementById('btnSendTestEmail');
-  if (testEmailBtn) {
-    testEmailBtn.onclick = () => {
-      const email = (document.getElementById('testEmailInput')?.value || '').trim();
-      const st = document.getElementById('testEmailStatus');
-      if (!email) {
-        if (st) st.textContent = 'Please provide an email address.';
+  const sendTestBtn = document.getElementById('btnSendTestEmail');
+  if (sendTestBtn) {
+    sendTestBtn.addEventListener('click', async () => {
+      const emailInput = document.getElementById('testEmailInput');
+      const statusDiv = document.getElementById('testEmailStatus');
+      if (!emailInput || !emailInput.value) {
+        statusDiv.style.color = '#ef4444';
+        statusDiv.textContent = 'Please enter a recipient email address.';
         return;
       }
-      testEmailBtn.disabled = true;
-      testEmailBtn.textContent = 'Sending...';
-      if (st) st.textContent = 'Dispatching test booking summary email...';
-
-      fetch('/api/test-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
-      })
-      .then(r => r.json())
-      .then(res => {
-        testEmailBtn.disabled = false;
-        testEmailBtn.textContent = '✉ Send Test';
-        if (st) {
-          st.textContent = `✓ Test summary email dispatched to ${email}! Check inbox or spam.`;
-          st.style.color = '#0d9488';
+      statusDiv.style.color = '#0d9488';
+      statusDiv.textContent = 'Sending test email...';
+      try {
+        const res = await fetch('/api/test-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ toEmail: emailInput.value })
+        });
+        const data = await res.json();
+        if (data.success) {
+          statusDiv.style.color = '#10b981';
+          statusDiv.textContent = 'Test email dispatched successfully!';
+        } else {
+          statusDiv.style.color = '#ef4444';
+          statusDiv.textContent = 'Failed: ' + (data.error || 'Server error');
         }
-      })
-      .catch(err => {
-        testEmailBtn.disabled = false;
-        testEmailBtn.textContent = '✉ Send Test';
-        if (st) {
-          st.textContent = `Error: ${err.message || 'Failed'}`;
-          st.style.color = '#dc2626';
-        }
-      });
-    };
+      } catch (err) {
+        statusDiv.style.color = '#ef4444';
+        statusDiv.textContent = 'Network or server error.';
+      }
+    });
   }
 });
